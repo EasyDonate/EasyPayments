@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ru.soknight.easypayments</groupId>
+    <artifactId>parent</artifactId>
+    <version>1.1.1</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>core</module>
+        <module>alcor</module>
+        <module>sirius</module>
+        <module>v1_8_R1</module>
+        <module>v1_8_R2</module>
+        <module>v1_8_R3</module>
+        <module>v1_9_R1</module>
+        <module>v1_9_R2</module>
+        <module>v1_10_R1</module>
+        <module>v1_11_R1</module>
+        <module>v1_12_R1</module>
+        <module>v1_13_R1</module>
+        <module>v1_13_R2</module>
+        <module>v1_14_R1</module>
+        <module>v1_15_R1</module>
+        <module>v1_16_R1</module>
+        <module>v1_16_R2</module>
+        <module>v1_16_R3</module>
+        <module>v1_17_R1</module>
+    </modules>
+
+    <name>EasyPayments</name>
+    <description>The official payment processing implementation as alternative for the RCON protocol</description>
+    <url>https://vk.me/soknight</url>
+
+    <properties>
+        <!-- Building -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Additional libs versions -->
+        <spigot.api.version>1.17-R0.1-SNAPSHOT</spigot.api.version>
+        <gson.version>2.8.7</gson.version>
+        <lombok.version>1.18.20</lombok.version>
+
+        <!-- Maven plugins -->
+        <compiler.maven.plugin.version>3.8.1</compiler.maven.plugin.version>
+        <shade.maven.plugin.version>3.3.0-SNAPSHOT</shade.maven.plugin.version>
+        <jar.maven.plugin.version>3.2.0</jar.maven.plugin.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>soknight-repo</id>
+            <url>http://compobox.sytes.net:8081/repository/maven-public</url>
+        </repository>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>apache-snapshots</id>
+            <url>https://repository.apache.org/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Core module -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Spigot API -->
+            <dependency>
+                <groupId>org.spigotmc</groupId>
+                <artifactId>spigot-api</artifactId>
+                <version>${spigot.api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Google Gson -->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+
+            <!-- Lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- All NMS implementations from 1.8.R1 to 1.17.R1 -->
+
+            <!-- NMS 1.8.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_8_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.8.R2 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_8_R2</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.8.R3 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_8_R3</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.9.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_9_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.9.R2 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_9_R2</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.10.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_10_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.11.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_11_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.12.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_12_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.13.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_13_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.13.R2 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_13_R2</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.14.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_14_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.15.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_15_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.16.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_16_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.16.R2 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_16_R2</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.16.R3 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_16_R3</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.17.R1 -->
+            <dependency>
+                <groupId>ru.soknight.easypayments</groupId>
+                <artifactId>v1_17_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <!-- Maven compiler plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${compiler.maven.plugin.version}</version>
+                    <configuration>
+                        <compilerArgs>
+                            <arg>-Xlint:deprecation</arg>
+                            <arg>-Xlint:unchecked</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>
+
+                <!-- Maven jar plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${jar.maven.plugin.version}</version>
+                    <configuration>
+                        <archive>
+                            <addMavenDescriptor>false</addMavenDescriptor>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <!-- Maven shade plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${shade.maven.plugin.version}</version>
+                    <configuration>
+                        <createDependencyReducedPom>false</createDependencyReducedPom>
+                        <shadedArtifactAttached>true</shadedArtifactAttached>
+                        <filters>
+                            <filter>
+                                <artifact>*:*</artifact>
+                                <excludes>
+                                    <exclude>module-info.class</exclude>
+                                    <exclude>META-INF/LICENSE</exclude>
+                                    <exclude>META-INF/LICENSE.txt</exclude>
+                                    <exclude>META-INF/NOTICE</exclude>
+                                    <exclude>META-INF/NOTICE.txt</exclude>
+                                    <exclude>META-INF/*.MF</exclude>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+                        <relocations>
+                            <relocation>
+                                <pattern>com.google.gson</pattern>
+                                <shadedPattern>ru.soknight.easypayments.sdk.lib.gson</shadedPattern>
+                            </relocation>
+                        </relocations>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

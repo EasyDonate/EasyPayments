@@ -1,0 +1,6 @@
+name: EasyPayments
+main: ru.soknight.easypayments.EasyPaymentsPlugin
+version: ${project.version}
+authors: [SoKnight, DontFollow]
+description: ${project.description}
+api-version: 1.13
