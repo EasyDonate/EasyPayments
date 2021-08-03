@@ -3,7 +3,6 @@ package ru.soknight.easypayments.task;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 import ru.soknight.easypayments.EasyPaymentsPlugin;
 import ru.soknight.easypayments.cache.ReportCache;
 import ru.soknight.easypayments.execution.ExecutionBundle;
@@ -18,43 +17,31 @@ import ru.soknight.easypayments.sdk.exception.UnsuccessfulResponseException;
 import ru.soknight.easypayments.sdk.response.AbstractResponse;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PaymentsQueryTask implements Runnable {
+public final class PaymentsQueryTask extends AbstractPluginTask {
 
-    private final Plugin plugin;
     private final EasyPaymentsSDK sdk;
     private final InterceptorFactory interceptorFactory;
     private final ReportCache reportCache;
-    private BukkitTask task;
 
-    public PaymentsQueryTask(
-            Plugin plugin,
-            EasyPaymentsSDK sdk,
-            InterceptorFactory interceptorFactory,
-            ReportCache reportCache
-    ) {
-        this.plugin = plugin;
+    public PaymentsQueryTask(Plugin plugin, EasyPaymentsSDK sdk, InterceptorFactory interceptorFactory, ReportCache reportCache) {
+        super(plugin, 100L);
+
         this.sdk = sdk;
         this.interceptorFactory = interceptorFactory;
         this.reportCache = reportCache;
     }
 
-    public void start() {
+    @Override
+    protected long getPeriod() {
         int period = plugin.getConfig().getInt("request-frequency", 1);
-        if(period < 1)
-            period = 1;
-
-        this.task = plugin.getServer()
-                .getScheduler()
-                .runTaskTimerAsynchronously(plugin, this, 100L, period * 1200L);
-    }
-
-    public void shutdown() {
-        if(task != null)
-            task.cancel();
+        return period >= 1 ? period * 1200L : 1200L; // >= 1 min.
     }
 
     @Override

@@ -15,4 +15,12 @@ public abstract class AbstractResponse<R> {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "AbstractResponse{" +
+                "success=" + success +
+                ", responseObject=" + responseObject +
+                '}';
+    }
+
 }

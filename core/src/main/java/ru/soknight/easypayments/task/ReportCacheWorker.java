@@ -1,7 +1,6 @@
 package ru.soknight.easypayments.task;
 
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 import ru.soknight.easypayments.EasyPaymentsPlugin;
 import ru.soknight.easypayments.cache.ReportCache;
 import ru.soknight.easypayments.sdk.EasyPaymentsSDK;
@@ -18,32 +17,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ReportCacheWorker implements Runnable {
+public final class ReportCacheWorker extends AbstractPluginTask {
 
-    private final Plugin plugin;
+    private static final long TASK_PERIOD = 6000L;
+
     private final EasyPaymentsSDK sdk;
     private final ReportCache reportCache;
-    private BukkitTask task;
 
-    public ReportCacheWorker(
-            Plugin plugin,
-            EasyPaymentsSDK sdk,
-            ReportCache reportCache
-    ) {
-        this.plugin = plugin;
+    public ReportCacheWorker(Plugin plugin, EasyPaymentsSDK sdk, ReportCache reportCache) {
+        super(plugin, 20L);
+
         this.sdk = sdk;
         this.reportCache = reportCache;
     }
 
-    public void start() {
-        this.task = plugin.getServer()
-                .getScheduler()
-                .runTaskTimerAsynchronously(plugin, this, 20L, 6000L);
-    }
-
-    public void shutdown() {
-        if(task != null)
-            task.cancel();
+    @Override
+    protected long getPeriod() {
+        return TASK_PERIOD;
     }
 
     @Override

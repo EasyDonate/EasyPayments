@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProcessPaymentReport implements Comparable<ProcessPaymentReport> {
+public final class ProcessPaymentReport implements Comparable<ProcessPaymentReport> {
 
     @SerializedName("id")
     private int paymentId;
@@ -68,6 +68,16 @@ public class ProcessPaymentReport implements Comparable<ProcessPaymentReport> {
         return Objects.hash(paymentId, payload, executedCommands);
     }
 
+    @Override
+    public String toString() {
+        return "ProcessPaymentReport{" +
+                "paymentId=" + paymentId +
+                ", payload='" + payload + '\'' +
+                ", executedCommands=" + executedCommands +
+                ", failedAttempts=" + failedAttempts +
+                '}';
+    }
+
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -95,6 +105,14 @@ public class ProcessPaymentReport implements Comparable<ProcessPaymentReport> {
         @Override
         public int hashCode() {
             return Objects.hash(command, response);
+        }
+
+        @Override
+        public String toString() {
+            return "ExecutedCommand{" +
+                    "command='" + command + '\'' +
+                    ", response='" + response + '\'' +
+                    '}';
         }
 
     }

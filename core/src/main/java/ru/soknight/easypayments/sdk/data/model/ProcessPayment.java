@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class ProcessPayment {
+public final class ProcessPayment {
 
     @SerializedName("id")
     private int paymentId;
@@ -30,6 +30,15 @@ public class ProcessPayment {
     @Override
     public int hashCode() {
         return Objects.hash(paymentId, payload, commands);
+    }
+
+    @Override
+    public String toString() {
+        return "ProcessPayment{" +
+                "paymentId=" + paymentId +
+                ", payload='" + payload + '\'' +
+                ", commands=" + commands +
+                '}';
     }
 
 }

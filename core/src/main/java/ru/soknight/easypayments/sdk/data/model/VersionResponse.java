@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.Objects;
 
 @Getter
-public class VersionResponse {
+public final class VersionResponse {
 
     @SerializedName("version")
     private String version;
@@ -26,6 +26,14 @@ public class VersionResponse {
     @Override
     public int hashCode() {
         return Objects.hash(version, downloadUrl);
+    }
+
+    @Override
+    public String toString() {
+        return "VersionResponse{" +
+                "version=" + version +
+                ", downloadUrl='" + downloadUrl + '\'' +
+                '}';
     }
 
 }

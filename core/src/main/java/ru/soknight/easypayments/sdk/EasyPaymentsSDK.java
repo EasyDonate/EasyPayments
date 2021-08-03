@@ -15,7 +15,7 @@ import java.util.Map;
 public interface EasyPaymentsSDK {
 
     static EasyPaymentsSDK create(Plugin plugin, String accessKey, int serverId) {
-        return new EasyPaymentsSDKImpl(plugin, accessKey, serverId);
+        return new SimpleEasyPaymentsSDK(plugin, accessKey, serverId);
     }
 
     List<ProcessPayment> getProcessPayments() throws ErrorResponseException, IOException, ApiException;

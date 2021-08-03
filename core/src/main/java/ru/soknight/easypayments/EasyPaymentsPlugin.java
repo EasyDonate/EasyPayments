@@ -7,6 +7,7 @@ import ru.soknight.easypayments.nms.UnsupportedVersionException;
 import ru.soknight.easypayments.sdk.EasyPaymentsSDK;
 import ru.soknight.easypayments.sdk.data.model.VersionResponse;
 import ru.soknight.easypayments.task.PaymentsQueryTask;
+import ru.soknight.easypayments.task.PluginTask;
 import ru.soknight.easypayments.task.ReportCacheWorker;
 
 import java.io.BufferedReader;
@@ -17,12 +18,26 @@ import java.nio.charset.StandardCharsets;
 
 public class EasyPaymentsPlugin extends JavaPlugin {
 
+    private static final String COMMAND_EXECUTOR_NAME;
     private static final String TROUBLESHOOTING_POST_URL;
 
     private static EasyPaymentsPlugin instance;
 
-    private PaymentsQueryTask paymentsQueryTask;
-    private ReportCacheWorker reportCacheWorker;
+    private String shopKey;
+    private int serverId;
+    private int permissionLevel;
+    private NMSHelper nmsHelper;
+
+    private EasyPaymentsSDK sdk;
+    private ReportCache reportCache;
+
+    private PluginTask paymentsQueryTask;
+    private PluginTask reportCacheWorker;
+
+    static {
+        COMMAND_EXECUTOR_NAME = "@EasyPayments";
+        TROUBLESHOOTING_POST_URL = "https://vk.cc/c3JBSF";
+    }
 
     @Override
     public void onEnable() {
@@ -31,58 +46,28 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         // loading the plugin configuration
         loadConfiguration();
 
-        // changing the permission level
-        int permissionLevel = getConfig().getInt("permission-level", 4);
-        if(permissionLevel < 0)
-            permissionLevel = 0;
-
-        // validating the shop key
-        String shopKey = getConfig().getString("key");
-        if(shopKey == null || shopKey.isEmpty()) {
-            getLogger().severe("Please, specify your unique shop key in the config.yml");
-            getLogger().severe("The solution for this problem can be found here: " + TROUBLESHOOTING_POST_URL);
-            getServer().getPluginManager().disablePlugin(this);
+        // validating the plugin configuration
+        if(!validateConfiguration())
             return;
-        }
-
-        // validating the server ID
-        int serverId = getConfig().getInt("server-id", -1);
-        if(serverId < 1) {
-            getLogger().severe("Please, specify your server ID in the config.yml");
-            getLogger().severe("The solution for this problem can be found here: " + TROUBLESHOOTING_POST_URL);
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
 
         // resolving the NMS implementation
-        NMSHelper nmsHelper;
-        try {
-            nmsHelper = NMSHelper.resolve(this, "@EasyPayments", permissionLevel);
-        } catch (UnsupportedVersionException ex) {
-            getLogger().severe("Couldn't find a NMS implementation for your server version!");
-            getLogger().severe("Current supported versions is all from 1.8 to 1.17.");
-            getServer().getPluginManager().disablePlugin(this);
+        if(!resolveNMSImplementation())
             return;
-        }
 
         // loading some important things
-        EasyPaymentsSDK sdk = EasyPaymentsSDK.create(this, shopKey, serverId);
-        ReportCache reportCache = new ReportCache(this);
-        reportCache.loadReports();
+        this.sdk = EasyPaymentsSDK.create(this, shopKey, serverId);
+        this.reportCache = new ReportCache(this);
+        this.reportCache.loadReports();
 
         // starting tasks
-        this.reportCacheWorker = new ReportCacheWorker(this, sdk, reportCache);
-        this.reportCacheWorker.start();
-
-        this.paymentsQueryTask = new PaymentsQueryTask(this, sdk, nmsHelper, reportCache);
-        this.paymentsQueryTask.start();
+        launchTasks();
 
         info(" ");
         info(" §eEasyPayments §ris an official payment processing implementation.");
         info(" §6© EasyDonate 2020-2021 §r- All rights reserved.");
         info(" ");
 
-        getServer().getScheduler().runTaskAsynchronously(this, () -> checkForUpdates(sdk));
+        getServer().getScheduler().runTaskAsynchronously(this, this::checkForUpdates);
     }
 
     @Override
@@ -98,12 +83,53 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         reloadConfig();
     }
 
-    private void checkForUpdates(EasyPaymentsSDK sdk) {
+    private boolean validateConfiguration() {
+        // validating the shop key
+        this.shopKey = getConfig().getString("key");
+        if(shopKey == null || shopKey.isEmpty()) {
+            onFailedToValidateConfiguration("Please, specify your unique shop key in the config.yml");
+            return false;
+        }
+
+        // validating the server ID
+        this.serverId = getConfig().getInt("server-id", -1);
+        if(serverId < 1) {
+            onFailedToValidateConfiguration("Please, specify your server ID in the config.yml");
+            return false;
+        }
+
+        // changing the permission level
+        this.permissionLevel = getConfig().getInt("permission-level", 4);
+        if(permissionLevel < 0)
+            permissionLevel = 0;
+
+        return true;
+    }
+
+    private boolean resolveNMSImplementation() {
+        try {
+            this.nmsHelper = NMSHelper.resolve(this, COMMAND_EXECUTOR_NAME, permissionLevel);
+            return true;
+        } catch (UnsupportedVersionException ex) {
+            getLogger().severe("Couldn't find a NMS implementation for your server version!");
+            getLogger().severe("Current supported versions is all from 1.8 to 1.17.");
+            getServer().getPluginManager().disablePlugin(this);
+            return false;
+        }
+    }
+
+    private void launchTasks() {
+        this.reportCacheWorker = new ReportCacheWorker(this, sdk, reportCache);
+        this.reportCacheWorker.start();
+
+        this.paymentsQueryTask = new PaymentsQueryTask(this, sdk, nmsHelper, reportCache);
+        this.paymentsQueryTask.start();
+    }
+
+    private void checkForUpdates() {
         InputStream resource = getClass().getResourceAsStream("/module");
         if(resource == null) {
-            getLogger().severe("Failed to load plugin! Error code: 10");
-            getLogger().severe("The solution for this problem can be found here: " + TROUBLESHOOTING_POST_URL);
-            getServer().getPluginManager().disablePlugin(this);
+            onFailedToCheckForUpdates(10);
             return;
         }
 
@@ -116,16 +142,12 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         } catch (IOException ignored) {}
 
         if(moduleId == null || moduleId.isEmpty()) {
-            getLogger().severe("Failed to load plugin! Error code: 11");
-            getLogger().severe("The solution for this problem can be found here: " + TROUBLESHOOTING_POST_URL);
-            getServer().getPluginManager().disablePlugin(this);
+            onFailedToCheckForUpdates(11);
             return;
         }
 
         if(!moduleId.equals("alcor") && !moduleId.equals("sirius")) {
-            getLogger().severe("Failed to load plugin! Error code: 12");
-            getLogger().severe("The solution for this problem can be found here: " + TROUBLESHOOTING_POST_URL);
-            getServer().getPluginManager().disablePlugin(this);
+            onFailedToCheckForUpdates(12);
             return;
         }
 
@@ -144,6 +166,18 @@ public class EasyPaymentsPlugin extends JavaPlugin {
                 }
             }
         } catch (Exception ignored) {}
+    }
+
+    private void onFailedToValidateConfiguration(String message) {
+        getLogger().severe(message);
+        getLogger().severe("The solution for this problem can be found here: " + TROUBLESHOOTING_POST_URL);
+        getServer().getPluginManager().disablePlugin(this);
+    }
+
+    private void onFailedToCheckForUpdates(int errorCode) {
+        getLogger().severe("Failed to load plugin! Error code: " + errorCode);
+        getLogger().severe("The solution for this problem can be found here: " + TROUBLESHOOTING_POST_URL);
+        getServer().getPluginManager().disablePlugin(this);
     }
 
     private void info(String msg, Object... args) {
@@ -168,10 +202,6 @@ public class EasyPaymentsPlugin extends JavaPlugin {
 
     public static boolean logCacheWorkerErrors() {
         return instance.getConfig().getBoolean("logging.cache-worker-errors", false);
-    }
-
-    static {
-        TROUBLESHOOTING_POST_URL = "https://vk.cc/c3JBSF";
     }
 
 }

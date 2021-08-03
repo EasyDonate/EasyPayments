@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ErrorResponse {
+public final class ErrorResponse {
     
     @SerializedName("success")
     private boolean success;
@@ -18,6 +18,14 @@ public class ErrorResponse {
 
     public static ErrorResponse internal(String message) {
         return new ErrorResponse(false, message);
+    }
+
+    @Override
+    public String toString() {
+        return "ErrorResponse{" +
+                "success=" + success +
+                ", message='" + message + '\'' +
+                '}';
     }
 
 }

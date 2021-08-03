@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProcessPaymentReports {
+public final class ProcessPaymentReports {
 
     @SerializedName("payments")
     private List<ProcessPaymentReport> reports;
@@ -26,9 +26,8 @@ public class ProcessPaymentReports {
         return new ProcessPaymentReports(reports);
     }
 
-    public ProcessPaymentReports addReport(ProcessPaymentReport report) {
+    public void addReport(ProcessPaymentReport report) {
         reports.add(report);
-        return this;
     }
 
     public boolean isEmpty() {
@@ -47,6 +46,13 @@ public class ProcessPaymentReports {
     @Override
     public int hashCode() {
         return Objects.hash(reports);
+    }
+
+    @Override
+    public String toString() {
+        return "ProcessPaymentReports{" +
+                "reports=" + reports +
+                '}';
     }
 
 }

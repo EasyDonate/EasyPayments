@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
-public class ReportCache {
+public final class ReportCache {
 
     private final Plugin plugin;
     private final Path cachePath;
@@ -140,8 +140,6 @@ public class ReportCache {
         } catch (IOException ignored) {}
     }
 
-    public static final class Reports extends ArrayList<ProcessPaymentReport> {
-
-    }
+    private static final class Reports extends ArrayList<ProcessPaymentReport> {}
 
 }

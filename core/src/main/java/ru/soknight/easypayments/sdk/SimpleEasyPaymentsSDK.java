@@ -22,17 +22,29 @@ import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
-final class EasyPaymentsSDKImpl implements EasyPaymentsSDK {
+final class SimpleEasyPaymentsSDK implements EasyPaymentsSDK {
 
-    private static final Gson GSON = new GsonBuilder().create();
+    private static final Gson GSON;
+
+    private static final String GET_PROCESS_PAYMENTS_URL;
+    private static final String REPORT_PROCESS_PAYMENTS_URL;
+    private static final String CHECK_FOR_UPDATES_URL;
 
     private final Plugin plugin;
     private final String accessKey;
     private final int serverId;
 
+    static {
+        GSON = new GsonBuilder().create();
+
+        GET_PROCESS_PAYMENTS_URL = "https://easydonate.ru/api/shop/{key}/getProcessPayments?server_id={server_id}";
+        REPORT_PROCESS_PAYMENTS_URL = "https://easydonate.ru/api/shop/{key}/reportProcessPayments?server_id={server_id}";
+        CHECK_FOR_UPDATES_URL = "https://easydonate.ru/api/getPluginUpdates?version=%s&edition=je&type=%s";
+    }
+
     @Override
     public List<ProcessPayment> getProcessPayments() throws ErrorResponseException, IOException, ApiException {
-        return executeGet("https://easydonate.ru/api/shop/{key}/getProcessPayments?server_id={server_id}", ProcessPaymentsResponse.class);
+        return executeGet(GET_PROCESS_PAYMENTS_URL, ProcessPaymentsResponse.class);
     }
 
     @Override
@@ -40,14 +52,13 @@ final class EasyPaymentsSDKImpl implements EasyPaymentsSDK {
         if(reports == null || reports.isEmpty())
             Collections.emptyMap();
 
-        return executePost("https://easydonate.ru/api/shop/{key}/reportProcessPayments?server_id={server_id}", reports, ReportProcessPaymentsResponse.class);
+        return executePost(REPORT_PROCESS_PAYMENTS_URL, reports, ReportProcessPaymentsResponse.class);
     }
 
     @Override
     public VersionResponse checkForUpdates(String moduleId) throws ErrorResponseException, IOException, ApiException {
-        String url = "https://easydonate.ru/api/getPluginUpdates?version=%s&edition=je&type=%s";
         String version = plugin.getDescription().getVersion();
-        return executeGet(String.format(url, version, moduleId), VersionCheckResponse.class);
+        return executeGet(String.format(CHECK_FOR_UPDATES_URL, version, moduleId), VersionCheckResponse.class);
     }
 
     private <T> T executeGet(String url, Class<? extends AbstractResponse<T>> responseType) throws ApiException, ErrorResponseException, IOException {
