@@ -61,11 +61,15 @@ public final class ReportCacheWorker extends AbstractPluginTask {
                 Map<Integer, Boolean> processedReports = response.getResponseObject();
                 handleResponse(processedReports, cachedReports);
             } catch (ErrorResponseException ex) {
-                if(EasyPaymentsPlugin.logCacheWorkerErrors())
+                if(EasyPaymentsPlugin.logCacheWorkerErrors()) {
                     error("[CacheWorker] HTTP request failed!");
+                    error("[CacheWorker] Details: " + ex.getMessage());
+                }
             } catch (IOException ex) {
-                if(EasyPaymentsPlugin.logCacheWorkerErrors())
+                if(EasyPaymentsPlugin.logCacheWorkerErrors()) {
                     error("[CacheWorker] Cannot connect to the API server!");
+                    error("[CacheWorker] Details: " + ex.getMessage());
+                }
             }
 
             cachedReports = reportCache.getCachedReports();

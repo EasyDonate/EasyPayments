@@ -6,29 +6,29 @@
 
     <groupId>ru.soknight.easypayments</groupId>
     <artifactId>parent</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>core</module>
         <module>alcor</module>
         <module>sirius</module>
-        <module>v1_8_R1</module>
-        <module>v1_8_R2</module>
-        <module>v1_8_R3</module>
-        <module>v1_9_R1</module>
-        <module>v1_9_R2</module>
-        <module>v1_10_R1</module>
-        <module>v1_11_R1</module>
-        <module>v1_12_R1</module>
-        <module>v1_13_R1</module>
-        <module>v1_13_R2</module>
-        <module>v1_14_R1</module>
-        <module>v1_15_R1</module>
-        <module>v1_16_R1</module>
-        <module>v1_16_R2</module>
-        <module>v1_16_R3</module>
-        <module>v1_17_R1</module>
+        <module>nms/v1_8_R1</module>
+        <module>nms/v1_8_R2</module>
+        <module>nms/v1_8_R3</module>
+        <module>nms/v1_9_R1</module>
+        <module>nms/v1_9_R2</module>
+        <module>nms/v1_10_R1</module>
+        <module>nms/v1_11_R1</module>
+        <module>nms/v1_12_R1</module>
+        <module>nms/v1_13_R1</module>
+        <module>nms/v1_13_R2</module>
+        <module>nms/v1_14_R1</module>
+        <module>nms/v1_15_R1</module>
+        <module>nms/v1_16_R1</module>
+        <module>nms/v1_16_R2</module>
+        <module>nms/v1_16_R3</module>
+        <module>nms/v1_17_R1</module>
     </modules>
 
     <name>EasyPayments</name>
@@ -53,7 +53,7 @@
     <repositories>
         <repository>
             <id>soknight-repo</id>
-            <url>http://compobox.sytes.net:8081/repository/maven-public</url>
+            <url>http://soknight.me:8081/repository/public</url>
         </repository>
         <repository>
             <id>spigot-repo</id>

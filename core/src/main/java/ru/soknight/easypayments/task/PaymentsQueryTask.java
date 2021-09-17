@@ -81,11 +81,17 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 AbstractResponse<Map<Integer, Boolean>> response = ex.getResponse();
                 processedReports = response.getResponseObject();
             } catch (ErrorResponseException ex) {
-                if(EasyPaymentsPlugin.logQueryTaskErrors())
+                if(EasyPaymentsPlugin.logQueryTaskErrors()) {
                     error("HTTP request failed!");
+                    error("Details: " + ex.getMessage());
+                }
             } catch (IOException ex) {
-                if(EasyPaymentsPlugin.logQueryTaskErrors())
+                if(EasyPaymentsPlugin.logQueryTaskErrors()) {
                     error("Cannot connect to the API server!");
+                    error("Details: " + ex.getMessage());
+                    if(EasyPaymentsPlugin.isDebugEnabled())
+                        ex.printStackTrace();
+                }
             }
 
             if(processedReports != null && uncompetedReports != null) {
