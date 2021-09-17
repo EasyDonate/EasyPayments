@@ -11,6 +11,12 @@
   <a href="https://forum.easydonate.ru/d/117-mc-easypayments-alternativnyy-sposob-vydachi-tovarov/6">Решение проблем</a>
 </div>
 
+<p/>
+
+<div align="center">
+  <a href="https://www.codacy.com/gh/SoKnight/EasyPayments/dashboard"><img src="https://app.codacy.com/project/badge/Grade/229756856b674d3ba612310a395c7188"/></a>
+</div>
+
 ## Расшифровка названий модулей
 Ввиду того, что мы работаем с NMS (код игры), нам пришлось разделить плагин на два модуля:
 - Alcor - модуль, работающий на версиях игры от **1.17** и новее, требует **Java 16** или новее.
