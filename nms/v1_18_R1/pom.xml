@@ -10,11 +10,12 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>v1_16_R3</artifactId>
-    <name>EasyPayments - NMS 1.16.R3</name>
+    <artifactId>v1_18_R1</artifactId>
+    <name>EasyPayments - NMS 1.18.R1</name>
 
     <properties>
-        <java.version>8</java.version>
+        <java.version>16</java.version>
+        <spigot.api.version>1.18-R0.1-SNAPSHOT</spigot.api.version>
     </properties>
 
     <dependencies>
@@ -30,11 +31,17 @@
             </exclusions>
         </dependency>
 
-        <!-- Spigot 1.16.5 -->
+        <!-- Spigot API -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+        </dependency>
+
+        <!-- Spigot 1.18 -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.16.5-SNAPSHOT</version>
+            <version>1.18-SNAPSHOT</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -42,6 +49,18 @@
                     <artifactId>minecraft-server</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- Mojang Authlib -->
+        <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>authlib</artifactId>
+        </dependency>
+
+        <!-- Mojang Brigadier -->
+        <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>brigadier</artifactId>
         </dependency>
 
         <!-- Lombok -->
@@ -56,6 +75,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
