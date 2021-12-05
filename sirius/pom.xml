@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ru.soknight.easypayments</groupId>
+        <groupId>ru.easydonate.easypayments</groupId>
         <artifactId>parent</artifactId>
         <version>1.1.4</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sirius</artifactId>
     <name>EasyPayments - Sirius</name>
@@ -21,77 +21,77 @@
 
         <!-- NMS 1.8.R1 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_8_R1</artifactId>
         </dependency>
         <!-- NMS 1.8.R2 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_8_R2</artifactId>
         </dependency>
         <!-- NMS 1.8.R3 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_8_R3</artifactId>
         </dependency>
         <!-- NMS 1.9.R1 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_9_R1</artifactId>
         </dependency>
         <!-- NMS 1.9.R2 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_9_R2</artifactId>
         </dependency>
         <!-- NMS 1.10.R1 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_10_R1</artifactId>
         </dependency>
         <!-- NMS 1.11.R1 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_11_R1</artifactId>
         </dependency>
         <!-- NMS 1.12.R1 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_12_R1</artifactId>
         </dependency>
         <!-- NMS 1.13.R1 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_13_R1</artifactId>
         </dependency>
         <!-- NMS 1.13.R2 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_13_R2</artifactId>
         </dependency>
         <!-- NMS 1.14.R1 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_14_R1</artifactId>
         </dependency>
         <!-- NMS 1.15.R1 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_15_R1</artifactId>
         </dependency>
         <!-- NMS 1.16.R1 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_16_R1</artifactId>
         </dependency>
         <!-- NMS 1.16.R2 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_16_R2</artifactId>
         </dependency>
         <!-- NMS 1.16.R3 -->
         <dependency>
-            <groupId>ru.soknight.easypayments</groupId>
+            <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_16_R3</artifactId>
         </dependency>
     </dependencies>

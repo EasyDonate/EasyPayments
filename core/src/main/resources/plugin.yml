@@ -1,5 +1,5 @@
 name: EasyPayments
-main: ru.soknight.easypayments.EasyPaymentsPlugin
+main: ru.easydonate.easypayments.EasyPaymentsPlugin
 version: ${project.version}
 authors: [SoKnight, DontFollow]
 description: ${project.description}

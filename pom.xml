@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.soknight.easypayments</groupId>
+    <groupId>ru.easydonate.easypayments</groupId>
     <artifactId>parent</artifactId>
     <version>1.1.4</version>
     <packaging>pom</packaging>
@@ -81,7 +81,7 @@
         <dependencies>
             <!-- Core module -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>core</artifactId>
                 <version>${project.version}</version>
                 <scope>compile</scope>
@@ -131,7 +131,7 @@
 
             <!-- NMS 1.8.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_8_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -143,7 +143,7 @@
             </dependency>
             <!-- NMS 1.8.R2 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_8_R2</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -155,7 +155,7 @@
             </dependency>
             <!-- NMS 1.8.R3 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_8_R3</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -167,7 +167,7 @@
             </dependency>
             <!-- NMS 1.9.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_9_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -179,7 +179,7 @@
             </dependency>
             <!-- NMS 1.9.R2 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_9_R2</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -191,7 +191,7 @@
             </dependency>
             <!-- NMS 1.10.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_10_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -203,7 +203,7 @@
             </dependency>
             <!-- NMS 1.11.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_11_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -215,7 +215,7 @@
             </dependency>
             <!-- NMS 1.12.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_12_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -227,7 +227,7 @@
             </dependency>
             <!-- NMS 1.13.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_13_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -239,7 +239,7 @@
             </dependency>
             <!-- NMS 1.13.R2 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_13_R2</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -251,7 +251,7 @@
             </dependency>
             <!-- NMS 1.14.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_14_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -263,7 +263,7 @@
             </dependency>
             <!-- NMS 1.15.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_15_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -275,7 +275,7 @@
             </dependency>
             <!-- NMS 1.16.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_16_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -287,7 +287,7 @@
             </dependency>
             <!-- NMS 1.16.R2 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_16_R2</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -299,7 +299,7 @@
             </dependency>
             <!-- NMS 1.16.R3 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_16_R3</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -311,7 +311,7 @@
             </dependency>
             <!-- NMS 1.17.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_17_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -323,7 +323,7 @@
             </dependency>
             <!-- NMS 1.18.R1 -->
             <dependency>
-                <groupId>ru.soknight.easypayments</groupId>
+                <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_18_R1</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -400,7 +400,7 @@
                         <relocations>
                             <relocation>
                                 <pattern>com.google.gson</pattern>
-                                <shadedPattern>ru.soknight.easypayments.sdk.lib.gson</shadedPattern>
+                                <shadedPattern>ru.easydonate.easypayments.sdk.lib.gson</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>

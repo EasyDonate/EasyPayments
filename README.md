@@ -11,7 +11,7 @@
   <a href="https://forum.easydonate.ru/d/117-mc-easypayments-alternativnyy-sposob-vydachi-tovarov/6">Решение проблем</a>
 </div>
 
-<p/>
+<br/>
 
 <div align="center">
   <a href="https://www.codacy.com/gh/SoKnight/EasyPayments/dashboard"><img src="https://app.codacy.com/project/badge/Grade/229756856b674d3ba612310a395c7188"/></a>
@@ -19,8 +19,8 @@
 
 ## Расшифровка названий модулей
 Ввиду того, что мы работаем с NMS (код игры), нам пришлось разделить плагин на два модуля:
-- Alcor - модуль, работающий на версиях игры от **1.17** и новее, требует **Java 16** или новее.
-- Sirius - модуль, работающий на версиях игры от **1.8** до **1.16.5**, требует **Java 8** или новее.
+- Alcor - модуль, работающий на версиях игры от **1.17.X** до **1.18.X**, требует **Java 16** или новее.
+- Sirius - модуль, работающий на версиях игры от **1.8.X** до **1.16.X**, требует **Java 8** или новее.
 
 ## Сборка из исходников
 1) Клонируйте репозиторий: `git clone https://github.com/SoKnight/EasyPayments.git easypayments`
