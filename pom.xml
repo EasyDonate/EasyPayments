@@ -11,10 +11,8 @@
 
     <modules>
         <module>core</module>
-        <module>alcor</module>
-        <module>sirius</module>
-        <module>plugin</module>
         <module>nms</module>
+        <module>plugin</module>
     </modules>
 
     <name>EasyPayments</name>
