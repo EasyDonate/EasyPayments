@@ -1,0 +1,13 @@
+#
+#  Файл локализации для EasyPayments v.{project.version}
+#  Текущий язык: Русский (ru-RU)
+#
+#  © EasyDonate 2020-2022 - Все права защищены
+#
+
+update-notification: |-
+  &r 
+  &r &cЭй! &rДоступна новая версия &eEasyPayments&r!
+  &r &rТекущая версия: &b%current_version%&r, доступна: &a%available_version%
+  &r &rЗагрузить: &6%download_url%
+  &r 

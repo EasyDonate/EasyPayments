@@ -1,3 +1,8 @@
+### Current Project ###
+
+# directory with old files
+.outdated/
+
 ### Intellij IDEA ###
 
 # .idea directory

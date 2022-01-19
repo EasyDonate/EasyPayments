@@ -18,11 +18,36 @@
     </properties>
 
     <dependencies>
+        <!-- API module -->
+        <dependency>
+            <groupId>ru.easydonate.easypayments</groupId>
+            <artifactId>api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Core module -->
         <dependency>
             <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>core</artifactId>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Spigot API -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+        </dependency>
+
+        <!-- ORMLite -->
+        <dependency>
+            <groupId>com.j256.ormlite</groupId>
+            <artifactId>ormlite-jdbc</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
 
         <!-- All NMS implementations from 1.8.R1 to 1.16.R3 -->
@@ -116,6 +141,10 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

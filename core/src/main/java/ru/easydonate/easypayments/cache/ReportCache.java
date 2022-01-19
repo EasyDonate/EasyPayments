@@ -1,145 +1,88 @@
 package ru.easydonate.easypayments.cache;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.bukkit.plugin.Plugin;
-import ru.easydonate.easypayments.sdk.data.model.ProcessPayment;
-import ru.easydonate.easypayments.sdk.data.model.ProcessPaymentReport;
+import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReports;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.io.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public final class ReportCache {
 
     private final Plugin plugin;
-    private final Path cachePath;
-
-    private final Gson gson;
-    private final Map<Integer, ProcessPaymentReport> reports;
+    private final File cacheFile;
+    private final Set<EventUpdateReports> storage;
 
     public ReportCache(Plugin plugin) {
         this.plugin = plugin;
-        this.cachePath = new File(plugin.getDataFolder(), "cache.json").toPath();
-
-        this.gson = new GsonBuilder().create();
-        this.reports = new HashMap<>();
+        this.cacheFile = new File(plugin.getDataFolder(), ".cached.reports");
+        this.storage = new LinkedHashSet<>();
     }
 
+    @SuppressWarnings("unchecked")
     public void loadReports() {
-        reports.clear();
+        storage.clear();
 
-        if(!Files.exists(cachePath))
+        if(!cacheFile.isFile())
             return;
 
         try {
-            List<String> lines = Files.readAllLines(cachePath, StandardCharsets.UTF_8);
-            String content = String.join("\n", lines);
+            InputStream inputStream = new FileInputStream(cacheFile);
+            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+            Object deserializedObject = objectInputStream.readObject();
+            objectInputStream.close();
 
-            Reports parsed = gson.fromJson(content, Reports.class);
-            if(parsed != null && !parsed.isEmpty())
-                parsed.forEach(report -> reports.put(report.getPaymentId(), report));
+            Set<EventUpdateReports> reportsSet = (Set<EventUpdateReports>) deserializedObject;
+            if(reportsSet != null && !reportsSet.isEmpty())
+                storage.addAll(reportsSet);
 
-            if(!reports.isEmpty())
-                plugin.getLogger().info(reports.size() + " report(s) has been loaded to the cache.");
-        } catch (IOException ignored) {}
+            if(!storage.isEmpty()) {
+                long amount = storage.stream().mapToLong(EventUpdateReports::size).sum();
+                plugin.getLogger().info(amount + " report(s) has been loaded from the local cache file.");
+            }
+        } catch (IOException | ClassNotFoundException | ClassCastException ignored) {}
     }
 
-    public void addToCache(ProcessPaymentReport report) {
+    public void addToCache(EventUpdateReports reports) {
         synchronized (this) {
-            reports.put(report.getPaymentId(), report);
-            saveReports();
-        }
-    }
-
-    public void addToCache(Iterable<ProcessPaymentReport> reports) {
-        synchronized (this) {
-            reports.forEach(report -> this.reports.put(report.getPaymentId(), report));
+            storage.add(reports);
             saveReports();
         }
     }
 
     public void clear() {
         synchronized (this) {
-            reports.clear();
+            storage.clear();
             deleteFile();
         }
     }
 
-    public ProcessPaymentReport getById(int paymentId) {
+    public void unloadReports(EventUpdateReports reports) {
         synchronized (this) {
-            return reports.get(paymentId);
-        }
-    }
-
-    public List<ProcessPaymentReport> getCachedReports() {
-        synchronized (this) {
-            return new ArrayList<>(reports.values());
-        }
-    }
-
-    public boolean isCached(ProcessPaymentReport report) {
-        return isCached(report.getPaymentId());
-    }
-
-    public boolean isCached(ProcessPayment payment) {
-        return isCached(payment.getPaymentId());
-    }
-
-    public boolean isCached(int paymentId) {
-        return reports.containsKey(paymentId);
-    }
-
-    public ProcessPaymentReport unloadReport(int paymentId) {
-        synchronized (this) {
-            ProcessPaymentReport removed = reports.remove(paymentId);
-            saveReports();
-            return removed;
-        }
-    }
-
-    public void unloadReport(ProcessPaymentReport report) {
-        synchronized (this) {
-            reports.remove(report.getPaymentId());
-            saveReports();
-        }
-    }
-
-    public void unloadReports(Iterable<ProcessPaymentReport> reports) {
-        synchronized (this) {
-            reports.forEach(report -> this.reports.remove(report.getPaymentId()));
+            storage.remove(reports);
             saveReports();
         }
     }
 
     private void saveReports() {
-        if(reports.isEmpty()) {
-            deleteFile();
+        deleteFile();
+
+        if(storage.isEmpty())
             return;
-        }
 
         try {
-            String asJson = gson.toJson(reports.values());
-            Files.write(
-                    cachePath,
-                    Collections.singletonList(asJson),
-                    StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE_NEW,
-                    StandardOpenOption.TRUNCATE_EXISTING
-            );
+            cacheFile.createNewFile();
+
+            OutputStream outputStream = new FileOutputStream(cacheFile);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+            objectOutputStream.writeObject(storage);
+            objectOutputStream.flush();
+            objectOutputStream.close();
         } catch (IOException ignored) {}
     }
 
     private void deleteFile() {
-        try {
-            Files.deleteIfExists(cachePath);
-        } catch (IOException ignored) {}
+        cacheFile.delete();
     }
-
-    private static final class Reports extends ArrayList<ProcessPaymentReport> {}
 
 }

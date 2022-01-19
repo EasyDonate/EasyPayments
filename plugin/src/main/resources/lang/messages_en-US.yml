@@ -1,0 +1,13 @@
+#
+#  Localization file for the EasyPayments v.{project.version}
+#  Current language: English (en-US)
+#
+#  © EasyDonate 2020-2022 - All rights reserved
+#
+
+update-notification: |-
+  &r 
+  &r &cHey! &rA new version of &eEasyPayments &ris available!
+  &r &rCurrent version: &b%current_version%&r, available version: &a%available_version%
+  &r &rDownload: &6%download_url%
+  &r 

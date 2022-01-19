@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
-import ru.easydonate.easypayments.sdk.data.model.ProcessPaymentReport;
+import ru.easydonate.easypayments.easydonate4j.extension.data.model.CommandResponsingReport;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -44,8 +44,8 @@ public class ExecutionBundle implements Comparable<ExecutionBundle> {
         return this;
     }
 
-    public void saveTo(ProcessPaymentReport report) {
-        report.addExecutedCommand(command, response);
+    public void saveTo(CommandResponsingReport report) {
+        report.addCommandResponse(response);
     }
 
     @Override

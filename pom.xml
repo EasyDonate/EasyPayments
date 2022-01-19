@@ -13,6 +13,7 @@
         <module>core</module>
         <module>nms</module>
         <module>plugin</module>
+        <module>api</module>
     </modules>
 
     <name>EasyPayments</name>
@@ -24,9 +25,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
 
+        <!-- Plugin properties -->
+        <plugin.name>EasyPayments</plugin.name>
+        <plugin.version>${project.version}</plugin.version>
+        <plugin.description>The official payment processing implementation as alternative for the RCON protocol</plugin.description>
+
         <!-- Dependencies versions -->
         <spigot.api.version>1.17-R0.1-SNAPSHOT</spigot.api.version>
-        <easydonate4j.version>2.0.3</easydonate4j.version>
+        <easydonate4j.version>2.0.6</easydonate4j.version>
+        <ormlite.version>6.1</ormlite.version>
         <mojang.authlib.version>3.2.38</mojang.authlib.version>
         <mojang.brigadier.version>1.0.18</mojang.brigadier.version>
         <lombok.version>1.18.22</lombok.version>
@@ -62,6 +69,14 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- API module -->
+            <dependency>
+                <groupId>ru.easydonate.easypayments</groupId>
+                <artifactId>api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
             <!-- Core module -->
             <dependency>
                 <groupId>ru.easydonate.easypayments</groupId>
@@ -114,6 +129,14 @@
                         <artifactId>core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <!-- ORMLite -->
+            <dependency>
+                <groupId>com.j256.ormlite</groupId>
+                <artifactId>ormlite-jdbc</artifactId>
+                <version>${ormlite.version}</version>
+                <scope>compile</scope>
             </dependency>
 
             <!-- Lombok -->

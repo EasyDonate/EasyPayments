@@ -1,0 +1,6 @@
+name: ${plugin.name}
+main: ru.easydonate.easypayments.EasyPaymentsPlugin
+version: ${plugin.version}
+authors: [SoKnight, DontFollow]
+description: ${plugin.description}
+api-version: 1.13
