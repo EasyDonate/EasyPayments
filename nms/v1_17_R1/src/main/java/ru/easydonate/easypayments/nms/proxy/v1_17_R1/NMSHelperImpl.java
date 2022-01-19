@@ -15,11 +15,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_17_R1.command.ProxiedNativeCommandSender;
 import org.bukkit.craftbukkit.v1_17_R1.command.ServerCommandSender;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.execution.FeedbackInterceptor;
-import ru.easydonate.easypayments.gui.item.wrapper.NotchianItemWrapper;
 import ru.easydonate.easypayments.nms.NMSHelper;
 
 import java.util.ArrayList;
@@ -48,11 +46,6 @@ public final class NMSHelperImpl implements NMSHelper {
         );
 
         return new InterceptedProxiedSender(listenerWrapper, commandListener);
-    }
-
-    @Override
-    public @NotNull NotchianItemWrapper createNotchianItemWrapper(@NotNull ItemStack bukkitItem) {
-        return new NMSItemWrapper(bukkitItem);
     }
 
     @Getter

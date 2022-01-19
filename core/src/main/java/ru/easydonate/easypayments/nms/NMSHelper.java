@@ -4,11 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.execution.InterceptorFactory;
-import ru.easydonate.easypayments.gui.item.wrapper.ItemWrapperFactory;
 
 import java.lang.reflect.Constructor;
 
-public interface NMSHelper extends InterceptorFactory, ItemWrapperFactory {
+public interface NMSHelper extends InterceptorFactory {
 
     @NotNull MinecraftVersion MINECRAFT_VERSION =  MinecraftVersion.getCurrentVersion();
 
