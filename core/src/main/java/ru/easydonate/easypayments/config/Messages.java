@@ -59,6 +59,10 @@ public final class Messages extends AbstractConfiguration<Messages> {
         return format(getColoredString(key, () -> String.format(UNDEFINED_MESSAGE_STUB, key)), args);
     }
 
+    public @NotNull String getOrDefault(@NotNull String key, @Nullable String def, @Nullable Object... args) {
+        return format(getColoredString(key, def), args);
+    }
+
     public @NotNull Messages send(@NotNull CommandSender sender, @NotNull String key, @Nullable Object... args) {
         String message = format(getColoredString(key), args);
         if(message != null && !message.isEmpty())

@@ -4,3 +4,52 @@ version: ${plugin.version}
 authors: [SoKnight, DontFollow]
 description: ${plugin.description}
 api-version: 1.13
+
+commands:
+  easypayments:
+    aliases: [ep]
+    description: The main plugin command
+    usage: /easypayments help
+  shopcart:
+    aliases: [cart]
+    description: The shop cart management command
+    usage: /easypayments help
+
+permissions:
+  # +----------------+
+  # |    Commands    |
+  # +----------------+
+
+  # /easypayments help
+  easypayments.command.help:
+    description: Gives access to see the commands manual
+    default: true
+
+  # /shopcart get
+  easypayments.command.cart.get:
+    description: Gives access to receive all purchases from the shop cart
+    default: true
+
+  # /shopcart browse
+  easypayments.command.cart.browse:
+    description: Gives access to see browse own shop cart
+    default: true
+
+  # /shopcart browse <player>
+  easypayments.command.cart.browse.other:
+    description: Gives access to see browse other player's shop cart
+    default: op
+
+  # /easypayments status
+  easypayments.command.status:
+    description: Gives access to see the plugin status info
+    default: op
+
+  # /easypayments reload
+  easypayments.command.reload:
+    description: Gives access to reload plugin configurations
+    default: op
+
+  # +---------------------+
+  # |    Miscellaneous    |
+  # +---------------------+

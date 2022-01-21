@@ -20,7 +20,8 @@ public final class Purchase {
 
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_CUSTOMER_ID = "customer_id";
-    public static final String COLUMN_IS_RECEIVED = "is_received";
+    public static final String COLUMN_COLLECTED_AT = "collected_at";
+    public static final String COLUMN_REPORTED_AT = "reported_at";
     public static final String COLUMN_PAYMENT_ID = "payment_id";
     public static final String COLUMN_COMMANDS = "commands";
     public static final String COLUMN_RESPONSES = "responses";
@@ -33,8 +34,11 @@ public final class Purchase {
     @DatabaseField(columnName = COLUMN_CUSTOMER_ID, foreign = true, canBeNull = false)
     private Customer customer;
 
-    @DatabaseField(columnName = COLUMN_IS_RECEIVED, canBeNull = false)
-    private boolean received;
+    @DatabaseField(columnName = COLUMN_COLLECTED_AT)
+    private LocalDateTime collectedAt;
+
+    @DatabaseField(columnName = COLUMN_REPORTED_AT)
+    private LocalDateTime reportedAt;
 
     @DatabaseField(columnName = COLUMN_PAYMENT_ID, canBeNull = false)
     private int paymentId;
@@ -46,17 +50,47 @@ public final class Purchase {
     private List<String> responses;
 
     @DatabaseField(columnName = COLUMN_CREATED_AT, canBeNull = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @DatabaseField(columnName = COLUMN_UPDATED_AT, canBeNull = false)
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     public Purchase(@NotNull Customer customer, int paymentId, @Nullable List<String> commands) {
         this.customer = customer;
         this.paymentId = paymentId;
         this.commands = commands;
-        this.created_at = LocalDateTime.now();
-        this.updated_at = created_at;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = createdAt;
+    }
+
+    public boolean isCollected() {
+        return collectedAt != null;
+    }
+
+    public boolean isUncollected() {
+        return !isCollected();
+    }
+
+    public boolean isReported() {
+        return reportedAt != null;
+    }
+
+    public boolean markAsCollected() {
+        if(isCollected())
+            return false;
+
+        this.collectedAt = LocalDateTime.now();
+        this.updatedAt = collectedAt;
+        return true;
+    }
+
+    public boolean markAsReported() {
+        if(isReported())
+            return false;
+
+        this.reportedAt = LocalDateTime.now();
+        this.updatedAt = reportedAt;
+        return true;
     }
 
     @Override
@@ -66,30 +100,35 @@ public final class Purchase {
 
         Purchase purchase = (Purchase) o;
         return id == purchase.id &&
-                received == purchase.received &&
                 paymentId == purchase.paymentId &&
+                Objects.equals(collectedAt, purchase.collectedAt) &&
+                Objects.equals(reportedAt, purchase.reportedAt) &&
                 Objects.equals(commands, purchase.commands) &&
                 Objects.equals(responses, purchase.responses) &&
-                Objects.equals(created_at, purchase.created_at) &&
-                Objects.equals(updated_at, purchase.updated_at);
+                Objects.equals(createdAt, purchase.createdAt) &&
+                Objects.equals(updatedAt, purchase.updatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, received, paymentId, commands, responses, created_at, updated_at);
+        return Objects.hash(
+                id, collectedAt, reportedAt, paymentId,
+                commands, responses, createdAt, updatedAt
+        );
     }
 
     @Override
     public @NotNull String toString() {
         return "Purchase{" +
                 "id=" + id +
-                ", customer=" + customer.getPlayerName() +
-                ", received=" + received +
+                ", customer=" + customer +
+                ", collectedAt=" + collectedAt +
+                ", reportedAt=" + reportedAt +
                 ", paymentId=" + paymentId +
                 ", commands=" + commands +
                 ", responses=" + responses +
-                ", created_at=" + created_at +
-                ", updated_at=" + updated_at +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
                 '}';
     }
 

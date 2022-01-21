@@ -80,7 +80,7 @@ public class EasyPaymentsPlugin extends JavaPlugin {
                     .registerPersister(LocalDateTimePersister.getSingleton())
                     .complete();
 
-            this.databaseManager = new DatabaseManager(this, database);
+            this.databaseManager = new DatabaseManager(this, config, database);
         } catch (CredentialsParseException ex) {
             reportException(ex, "Couldn't parse a database connection credentials:");
             return;

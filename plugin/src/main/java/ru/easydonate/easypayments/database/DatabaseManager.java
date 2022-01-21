@@ -7,6 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.easydonate.easypayments.config.Configuration;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Purchase;
 
@@ -20,14 +21,16 @@ import java.util.logging.Logger;
 public final class DatabaseManager {
 
     private final Logger logger;
+    private final Configuration config;
     private final ConnectionSource connectionSource;
     private final ExecutorService asyncExecutorService;
 
     private final Dao<Customer, String> customersDao;
     private final Dao<Purchase, Integer> purchasesDao;
 
-    public DatabaseManager(@NotNull Plugin plugin, @NotNull Database database) throws SQLException {
+    public DatabaseManager(@NotNull Plugin plugin, @NotNull Configuration config, @NotNull Database database) throws SQLException {
         this.logger = plugin.getLogger();
+        this.config = config;
         this.connectionSource = database.establishConnection();
         this.asyncExecutorService = Executors.newCachedThreadPool();
 
@@ -44,7 +47,7 @@ public final class DatabaseManager {
     }
 
     // --- customers
-    public @NotNull CompletableFuture<Customer> getCustomer(@NotNull String playerName) {
+    public @NotNull CompletableFuture<Customer> getCustomerByName(@NotNull String playerName) {
         return supplyAsync(() -> customersDao.queryForId(playerName));
     }
 
@@ -55,8 +58,15 @@ public final class DatabaseManager {
                 .queryForFirst());
     }
 
+    public @NotNull CompletableFuture<Customer> getCustomer(@NotNull OfflinePlayer bukkitPlayer) {
+        if(isUuidIdentificationEnabled())
+            return getCustomerByName(bukkitPlayer.getName());
+        else
+            return getCustomerByUUID(bukkitPlayer.getUniqueId());
+    }
+
     public @NotNull CompletableFuture<Customer> getOrCreateCustomer(@NotNull OfflinePlayer bukkitPlayer) {
-        return getCustomer(bukkitPlayer.getName()).thenApply(customer -> {
+        return getCustomer(bukkitPlayer).thenApply(customer -> {
             if(customer == null) {
                 customer = new Customer(bukkitPlayer);
                 saveCustomer(customer).join();
@@ -64,6 +74,10 @@ public final class DatabaseManager {
 
             return customer;
         });
+    }
+
+    public @NotNull CompletableFuture<Void> transferCustomerOwnership(@NotNull Customer customer, @NotNull String playerName) {
+        return runAsync(() -> customersDao.updateId(customer, playerName));
     }
 
     public @NotNull CompletableFuture<Void> saveCustomer(@NotNull Customer customer) {
@@ -104,6 +118,10 @@ public final class DatabaseManager {
     private void handleThrowable(@NotNull Throwable throwable) {
         logger.severe("An error has occurred when this plugin tried to handle an SQL statement!");
         logger.severe(throwable.toString());
+    }
+
+    public boolean isUuidIdentificationEnabled() {
+        return config.getBoolean("identify-by-uuid", false);
     }
 
     @FunctionalInterface
