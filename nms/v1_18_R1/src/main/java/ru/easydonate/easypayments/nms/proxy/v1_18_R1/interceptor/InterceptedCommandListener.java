@@ -1,9 +1,9 @@
 package ru.easydonate.easypayments.nms.proxy.v1_18_R1.interceptor;
 
 import lombok.Getter;
-import net.minecraft.commands.CommandListenerWrapper;
-import net.minecraft.commands.ICommandListener;
-import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_18_R1.command.ServerCommandSender;
 import org.bukkit.permissions.Permission;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-final class InterceptedCommandListener extends ServerCommandSender implements ICommandListener {
+final class InterceptedCommandListener extends ServerCommandSender implements CommandSource {
 
     private final String username;
     private final List<String> feedbackMessages;
@@ -25,27 +25,27 @@ final class InterceptedCommandListener extends ServerCommandSender implements IC
     }
 
     @Override
-    public void a(IChatBaseComponent iChatBaseComponent, UUID uuid) {
-        feedbackMessages.add(iChatBaseComponent.getString());
+    public void sendMessage(Component component, UUID uuid) {
+        feedbackMessages.add(component.getString());
     }
 
     @Override
-    public boolean i_() {
+    public boolean acceptsSuccess() {
         return true;
     }
 
     @Override
-    public boolean j_() {
+    public boolean acceptsFailure() {
         return true;
     }
 
     @Override
-    public boolean F_() {
+    public boolean shouldInformAdmins() {
         return true;
     }
 
     @Override
-    public CommandSender getBukkitSender(CommandListenerWrapper commandListenerWrapper) {
+    public CommandSender getBukkitSender(CommandSourceStack commandSourceStack) {
         return this;
     }
 

@@ -1,31 +1,31 @@
 package ru.easydonate.easypayments.nms.proxy.v1_18_R1.interceptor;
 
 import lombok.Getter;
-import net.minecraft.commands.CommandListenerWrapper;
-import net.minecraft.network.chat.ChatComponentText;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.phys.Vec2F;
-import net.minecraft.world.phys.Vec3D;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import ru.easydonate.easypayments.execution.interceptor.FeedbackInterceptor;
 
 import java.util.List;
 
 @Getter
-final class InterceptedCommandListenerWrapper extends CommandListenerWrapper implements FeedbackInterceptor {
+final class InterceptedCommandListenerWrapper extends CommandSourceStack implements FeedbackInterceptor {
 
-    private static final Vec3D POSITION = new Vec3D(0D, 0D, 0D);
-    private static final Vec2F DIRECTION = new Vec2F(0F, 0F);
+    private static final Vec3 POSITION = new Vec3(0D, 0D, 0D);
+    private static final Vec2 DIRECTION = new Vec2(0F, 0F);
 
-    private final InterceptedCommandListener icommandlistener;
+    private final InterceptedCommandListener commandListener;
 
-    public InterceptedCommandListenerWrapper(InterceptedCommandListener icommandlistener, WorldServer worldserver, String username, int permissionLevel) {
-        super(icommandlistener, POSITION, DIRECTION, worldserver, permissionLevel, username, new ChatComponentText(username), worldserver.n(), null);
-        this.icommandlistener = icommandlistener;
+    public InterceptedCommandListenerWrapper(InterceptedCommandListener commandListener, ServerLevel serverLevel, String username, int permissionLevel) {
+        super(commandListener, POSITION, DIRECTION, serverLevel, permissionLevel, username, new TextComponent(username), serverLevel.getServer(), null);
+        this.commandListener = commandListener;
     }
 
     @Override
     public List<String> getFeedbackMessages() {
-        return icommandlistener.getFeedbackMessages();
+        return commandListener.getFeedbackMessages();
     }
 
 }

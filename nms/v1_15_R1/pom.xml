@@ -15,6 +15,7 @@
 
     <properties>
         <java.version>8</java.version>
+        <spigot.version>1.15.2-SNAPSHOT</spigot.version>
     </properties>
 
     <dependencies>
@@ -22,26 +23,12 @@
         <dependency>
             <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.spigotmc</groupId>
-                    <artifactId>spigot-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Spigot 1.15.2 -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.15.2-SNAPSHOT</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.spigotmc</groupId>
-                    <artifactId>minecraft-server</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Lombok -->

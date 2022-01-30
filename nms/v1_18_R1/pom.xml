@@ -14,8 +14,9 @@
     <name>EasyPayments - NMS 1.18.R1</name>
 
     <properties>
-        <java.version>16</java.version>
-        <spigot.api.version>1.18-R0.1-SNAPSHOT</spigot.api.version>
+        <java.version>17</java.version>
+        <spigot.api.version>1.18.1-R0.1-SNAPSHOT</spigot.api.version>
+        <spigot.version>1.18.1-SNAPSHOT</spigot.version>
     </properties>
 
     <dependencies>
@@ -23,12 +24,6 @@
         <dependency>
             <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.spigotmc</groupId>
-                    <artifactId>spigot-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Spigot API -->
@@ -37,18 +32,11 @@
             <artifactId>spigot-api</artifactId>
         </dependency>
 
-        <!-- Spigot 1.18 -->
+        <!-- Spigot 1.18.1 -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.18-SNAPSHOT</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.spigotmc</groupId>
-                    <artifactId>minecraft-server</artifactId>
-                </exclusion>
-            </exclusions>
+            <classifier>remapped-mojang</classifier>
         </dependency>
 
         <!-- Mojang Authlib -->
@@ -79,6 +67,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-toolchains-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>net.md-5</groupId>
+                <artifactId>specialsource-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

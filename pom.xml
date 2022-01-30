@@ -34,8 +34,6 @@
         <spigot.api.version>1.17-R0.1-SNAPSHOT</spigot.api.version>
         <easydonate4j.version>2.0.6</easydonate4j.version>
         <ormlite.version>6.1</ormlite.version>
-        <mojang.authlib.version>3.2.38</mojang.authlib.version>
-        <mojang.brigadier.version>1.0.18</mojang.brigadier.version>
         <lombok.version>1.18.22</lombok.version>
 
         <!-- Maven plugins -->
@@ -91,12 +89,6 @@
                 <artifactId>spigot-api</artifactId>
                 <version>${spigot.api.version}</version>
                 <scope>provided</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.google.code.gson</groupId>
-                        <artifactId>gson</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- EasyDonate4J - API v3 -->
@@ -113,8 +105,8 @@
                 <scope>compile</scope>
                 <exclusions>
                     <exclusion>
-                        <groupId>ru.easydonate.easydonate4j</groupId>
-                        <artifactId>core</artifactId>
+                        <groupId>com.google.code.gson</groupId>
+                        <artifactId>gson</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -123,12 +115,6 @@
                 <artifactId>jdk-legacy-http-client</artifactId>
                 <version>${easydonate4j.version}</version>
                 <scope>compile</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>ru.easydonate.easydonate4j</groupId>
-                        <artifactId>core</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- ORMLite -->
@@ -457,6 +443,9 @@
                             </jdk>
                             <jdk>
                                 <version>16</version>
+                            </jdk>
+                            <jdk>
+                                <version>17</version>
                             </jdk>
                         </toolchains>
                     </configuration>
