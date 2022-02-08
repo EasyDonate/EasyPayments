@@ -10,13 +10,13 @@ public final class SQLiteDatabaseCredentials extends AbstractLocalDatabaseCreden
     public static final String DRIVER_CLASS = "org.sqlite.JDBC";
     public static final String URL_PATTERN = "jdbc:sqlite:%s%s";
 
-    public SQLiteDatabaseCredentials() {
-        super(DatabaseType.SQLITE);
+    public SQLiteDatabaseCredentials(@NotNull Plugin plugin) {
+        super(plugin, DatabaseType.SQLITE);
     }
 
     @Override
     public @NotNull String getConnectionUrl() {
-        return String.format(URL_PATTERN, filePath, formatParameters());
+        return String.format(URL_PATTERN, getFilePath(), formatParameters());
     }
 
     @Override

@@ -16,10 +16,11 @@ import java.sql.SQLException;
 public interface DatabaseCredentials {
 
     static @NotNull DatabaseCredentials parse(
+            @NotNull Plugin plugin,
             @NotNull ConfigurationSection config,
             @NotNull DatabaseType databaseType
     ) throws CredentialsParseException {
-        return DatabaseCredentialsParser.parse(config, databaseType);
+        return DatabaseCredentialsParser.parse(plugin, config, databaseType);
     }
 
     @NotNull DatabaseType getDatabaseType();

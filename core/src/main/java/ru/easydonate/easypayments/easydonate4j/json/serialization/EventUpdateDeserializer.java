@@ -1,4 +1,4 @@
-package ru.easydonate.easypayments.easydonate4j.longpoll.json.deserializer;
+package ru.easydonate.easypayments.easydonate4j.json.serialization;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventObject;
-import ru.easydonate.easypayments.event.EventType;
+import ru.easydonate.easypayments.easydonate4j.EventType;
 import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventUpdate;
 
 import java.lang.reflect.Type;
@@ -42,7 +42,7 @@ public final class EventUpdateDeserializer implements JsonDeserializer {
             eventObjects = context.deserialize(rawEventObjects, TypeToken.getParameterized(List.class, eventObjectClass).getType());
         }
 
-        return new EventUpdate<>(rawType, eventObjects);
+        return new EventUpdate<>(type, eventObjects);
     }
 
 }

@@ -9,7 +9,6 @@ import ru.easydonate.easypayments.database.DatabaseManager;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,31 +16,35 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ShopCartStorage {
 
     private final DatabaseManager databaseManager;
-    private final Map<UUID, ShopCart> cachedShopCarts;
+    private final Map<String, ShopCart> cachedShopCarts;
 
     public ShopCartStorage(@NotNull DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
         this.cachedShopCarts = new ConcurrentHashMap<>();
     }
 
-    public @NotNull @UnmodifiableView Map<UUID, ShopCart> getCachedShopCarts() {
+    public @NotNull @UnmodifiableView Map<String, ShopCart> getCachedShopCarts() {
         return Collections.unmodifiableMap(cachedShopCarts);
     }
 
-    public @NotNull Optional<ShopCart> getCached(@NotNull UUID playerUUID) {
-        return Optional.ofNullable(cachedShopCarts.get(playerUUID));
+    public @NotNull ShopCart getShopCart(@NotNull OfflinePlayer bukkitPlayer) {
+        return getCached(bukkitPlayer.getName()).orElseGet(() -> loadAndCache(bukkitPlayer).join());
+    }
+
+    public @NotNull Optional<ShopCart> getCached(@NotNull String playerName) {
+        return Optional.ofNullable(cachedShopCarts.get(playerName));
     }
 
     public @NotNull CompletableFuture<ShopCart> loadAndCache(@NotNull OfflinePlayer bukkitPlayer) {
         return databaseManager.getOrCreateCustomer(bukkitPlayer).thenApply(customer -> {
             ShopCart shopCart = new ShopCart(customer);
-            cachedShopCarts.put(bukkitPlayer.getUniqueId(), shopCart);
+            cachedShopCarts.put(bukkitPlayer.getName(), shopCart);
             return shopCart;
         });
     }
 
-    public boolean unloadCached(@NotNull UUID playerUUID) {
-        return cachedShopCarts.remove(playerUUID) != null;
+    public boolean unloadCached(@NotNull String playerName) {
+        return cachedShopCarts.remove(playerName) != null;
     }
 
 }

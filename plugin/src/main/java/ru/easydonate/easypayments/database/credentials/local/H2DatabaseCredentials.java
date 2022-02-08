@@ -15,13 +15,13 @@ public final class H2DatabaseCredentials extends AbstractLocalDatabaseCredential
     public static final String DRIVER_CLASS = "org.h2.Driver";
     public static final String URL_PATTERN = "jdbc:h2:%s%s";
 
-    public H2DatabaseCredentials() {
-        super(DatabaseType.H2);
+    public H2DatabaseCredentials(@NotNull Plugin plugin) {
+        super(plugin, DatabaseType.H2);
     }
 
     @Override
     public @NotNull String getConnectionUrl() {
-        return String.format(URL_PATTERN, filePath, formatParameters());
+        return String.format(URL_PATTERN, getFilePath(), formatParameters());
     }
 
     @Override

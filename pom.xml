@@ -400,10 +400,45 @@
                                     <exclude>META-INF/LICENSE.txt</exclude>
                                     <exclude>META-INF/NOTICE</exclude>
                                     <exclude>META-INF/NOTICE.txt</exclude>
-                                    <exclude>META-INF/*.MF</exclude>
                                     <exclude>META-INF/*.SF</exclude>
                                     <exclude>META-INF/*.DSA</exclude>
                                     <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                            <filter>
+                                <artifact>com.*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/MANIFEST.MF</exclude>
+                                </excludes>
+                            </filter>
+                            <filter>
+                                <artifact>ru.easydonate.easypayments:api</artifact>
+                                <excludes>
+                                    <exclude>META-INF/MANIFEST.MF</exclude>
+                                </excludes>
+                            </filter>
+                            <filter>
+                                <artifact>ru.easydonate.easypayments:core</artifact>
+                                <excludes>
+                                    <exclude>META-INF/MANIFEST.MF</exclude>
+                                </excludes>
+                            </filter>
+                            <filter>
+                                <artifact>ru.easydonate.easypayments:v1_*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/MANIFEST.MF</exclude>
+                                </excludes>
+                            </filter>
+                            <filter>
+                                <artifact>ru.easydonate.easydonate4j:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/MANIFEST.MF</exclude>
+                                </excludes>
+                            </filter>
+                            <filter>
+                                <artifact>org.*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/MANIFEST.MF</exclude>
                                 </excludes>
                             </filter>
                         </filters>
@@ -411,6 +446,18 @@
                             <relocation>
                                 <pattern>ru.easydonate.easydonate4j</pattern>
                                 <shadedPattern>ru.easydonate.easypayments.easydonate4j</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.j256.ormlite</pattern>
+                                <shadedPattern>ru.easydonate.easypayments.libs.ormlite</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>org.jetbrains.annotations</pattern>
+                                <shadedPattern>ru.easydonate.easypayments.libs.intellij.annotations</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>org.intellij.lang.annotations</pattern>
+                                <shadedPattern>ru.easydonate.easypayments.libs.intellij.annotations</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>

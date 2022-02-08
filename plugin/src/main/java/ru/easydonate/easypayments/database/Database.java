@@ -41,7 +41,7 @@ public final class Database {
             throw new IllegalArgumentException(String.format("Unknown database type '%s'!", rawType));
 
         ConfigurationSection credentialsConfig = config.getSection("database." + databaseType.getKey());
-        this.databaseCredentials = DatabaseCredentialsParser.parse(credentialsConfig, databaseType);
+        this.databaseCredentials = DatabaseCredentialsParser.parse(plugin, credentialsConfig, databaseType);
         this.databaseCredentials.loadDriver(plugin);
 
         this.bootstrapConnection = establishConnection();

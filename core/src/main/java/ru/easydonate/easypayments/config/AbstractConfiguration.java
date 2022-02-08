@@ -50,12 +50,14 @@ public abstract class AbstractConfiguration<C extends AbstractConfiguration<C>> 
         Path outputFile = dataFolder.resolve(fileName.replace('/', File.separatorChar));
 
         try {
-            if(!Files.isRegularFile(outputFile))
+            if(!Files.isRegularFile(outputFile)) {
+                Files.createDirectories(outputFile.getParent());
                 Files.copy(resource, outputFile, StandardCopyOption.REPLACE_EXISTING);
+            }
 
             this.bukkitConfig = YamlConfiguration.loadConfiguration(outputFile.toFile());
         } catch (IOException ex) {
-            plugin.getLogger().severe("Failed to load the configuration file '" + fileName + "': " + ex.getMessage());
+            plugin.getLogger().severe("Failed to load configuration file '" + fileName + "': " + ex.getMessage());
         }
 
         return getThis();

@@ -52,7 +52,7 @@ public final class LongPollClient {
         GsonSerializationService.registerIfNotRegisteredYet();
         JDKLegacyHttpClientService.registerIfNotRegisteredYet();
 
-        ModuleRegistrator.jsonSerializationService().registerImplementationAliasesGroup(JsonModelsGroup.API_V3_SHOP_RESPONSES);
+        ModuleRegistrator.jsonSerializationService().registerImplementationAliasesGroup(JsonModelsGroup.API_V3_MODELS);
         return new LongPollClient(accessKey, serverId, userAgent);
     }
 

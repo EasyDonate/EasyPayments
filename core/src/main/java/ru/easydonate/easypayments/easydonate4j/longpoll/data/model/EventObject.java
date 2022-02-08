@@ -1,6 +1,67 @@
 package ru.easydonate.easypayments.easydonate4j.longpoll.data.model;
 
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easydonate4j.data.model.PrettyPrintable;
+import ru.easydonate.easypayments.easydonate4j.json.serialization.LocalDateTimeAdapter;
+import ru.easydonate.easypayments.exception.StructureValidationException;
 
-public interface EventObject extends PrettyPrintable {
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+@Getter
+public abstract class EventObject implements PrettyPrintable {
+
+    @SerializedName("customer")
+    protected String customer;
+
+    @JsonAdapter(LocalDateTimeAdapter.class)
+    @SerializedName("created_at")
+    protected LocalDateTime createdAt;
+
+    @SuppressWarnings("deprecation")
+    public @NotNull OfflinePlayer getOfflinePlayer() {
+        return Bukkit.getOfflinePlayer(customer);
+    }
+
+    public void validate() throws StructureValidationException {
+        if(customer == null)
+            validationFail("'customer' = null");
+
+        if(customer.isEmpty())
+            validationFail("'customer' is empty");
+    }
+
+    protected void validationFail(@NotNull String message, @Nullable Object... args) throws StructureValidationException {
+        throw new StructureValidationException(this, message, args);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EventObject that = (EventObject) o;
+        return Objects.equals(customer, that.customer) &&
+                Objects.equals(createdAt, that.createdAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(customer, createdAt);
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "EventObject{" +
+                "customer='" + customer + '\'' +
+                ", createdAt=" + createdAt +
+                '}';
+    }
+
 }

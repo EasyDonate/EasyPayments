@@ -1,39 +1,33 @@
 package ru.easydonate.easypayments.easydonate4j.extension.data.model;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import ru.easydonate.easypayments.event.EventType;
+import ru.easydonate.easypayments.easydonate4j.EventType;
+import ru.easydonate.easypayments.easydonate4j.json.serialization.EventTypeAdapter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public final class EventUpdateReport<R extends EventReportObject> implements Serializable {
+public final class EventUpdateReport<R extends EventReportObject> {
 
+    @JsonAdapter(EventTypeAdapter.class)
     @SerializedName("type")
-    private String rawType;
+    private final EventType eventType;
 
     @SerializedName("objects")
-    private List<R> reportObjects;
+    private final List<R> reportObjects;
 
     public EventUpdateReport(@NotNull EventType eventType) {
-        this(eventType.getKey(), new ArrayList<>());
+        this(eventType, new ArrayList<>());
     }
 
-    public EventUpdateReport(@NotNull EventType eventType, @NotNull List<R> reportObjects) {
-        this(eventType.getKey(), reportObjects);
-    }
-
-    public void addReportObject(@NotNull R reportObject) {
+    public void addObject(@NotNull R reportObject) {
         reportObjects.add(reportObject);
-    }
-
-    public @NotNull EventType getType() {
-        return EventType.getByKey(rawType);
     }
 
 }

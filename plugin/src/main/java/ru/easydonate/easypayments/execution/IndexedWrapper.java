@@ -1,0 +1,52 @@
+package ru.easydonate.easypayments.execution;
+
+import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+
+@Getter
+public final class IndexedWrapper<T> {
+
+    private final int index;
+    private T object;
+
+    public IndexedWrapper(int index) {
+        this(index, null);
+    }
+
+    public IndexedWrapper(int index, @Nullable T object) {
+        this.index = index;
+        this.object = object;
+    }
+
+    public @NotNull IndexedWrapper<T> setObject(@Nullable T object) {
+        this.object = object;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IndexedWrapper<?> that = (IndexedWrapper<?>) o;
+        return index == that.index &&
+                Objects.equals(object, that.object);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(index, object);
+    }
+
+    @Override
+    public @NotNull String toString() {
+        return "IndexedWrapper{" +
+                "index=" + index +
+                ", object=" + object +
+                '}';
+    }
+
+}

@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.database.model.Customer;
-import ru.easydonate.easypayments.database.model.Purchase;
+import ru.easydonate.easypayments.database.model.Payment;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -25,16 +25,16 @@ public final class ShopCart {
         return customer.asBukkitPlayer();
     }
 
-    public @NotNull Collection<Purchase> getPurchases() {
-        ForeignCollection<Purchase> purchases = customer.getPurchases();
-        return purchases != null && !purchases.isEmpty()
-                ? Collections.unmodifiableCollection(purchases)
+    public @NotNull Collection<Payment> getPayments() {
+        ForeignCollection<Payment> payments = customer.getPayments();
+        return payments != null && !payments.isEmpty()
+                ? Collections.unmodifiableCollection(payments)
                 : Collections.emptyList();
     }
 
-    public @NotNull Collection<Purchase> getUncollectedPurchases() {
-        return getPurchases().stream()
-                .filter(Purchase::isUncollected)
+    public @NotNull Collection<Payment> getUncollectedPayments() {
+        return getPayments().stream()
+                .filter(Payment::isUncollected)
                 .collect(Collectors.toList());
     }
 

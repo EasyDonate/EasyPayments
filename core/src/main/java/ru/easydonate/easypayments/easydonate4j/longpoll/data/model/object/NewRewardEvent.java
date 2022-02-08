@@ -2,42 +2,55 @@ package ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventObject;
+import ru.easydonate.easypayments.exception.StructureValidationException;
 
 import java.util.List;
 import java.util.Objects;
 
 @Getter
-@NoArgsConstructor
-public final class NewRewardEvent implements EventObject {
+public final class NewRewardEvent extends EventObject {
 
-    @SerializedName("payment_id")
-    private int paymentId;
+    @SerializedName("reward_id")
+    private int rewardId;
 
     @SerializedName("commands")
     private List<String> commands;
 
     @Override
+    public void validate() throws StructureValidationException {
+        super.validate();
+
+        if(rewardId <= 0)
+            validationFail("'rewardId' must be > 0, but it's %d", rewardId);
+
+        if(commands == null || commands.isEmpty())
+            validationFail("no commands present");
+    }
+
+    @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
-        if(o == null || getClass() != o.getClass()) return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         NewRewardEvent that = (NewRewardEvent) o;
-        return paymentId == that.paymentId &&
+        return rewardId == that.rewardId &&
                 Objects.equals(commands, that.commands);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(paymentId, commands);
+        return Objects.hash(super.hashCode(), rewardId, commands);
     }
 
     @Override
     public @NotNull String toString() {
         return "NewRewardEvent{" +
-                "paymentId=" + paymentId +
+                "customer='" + customer + '\'' +
+                ", createdAt=" + createdAt +
+                ", rewardId=" + rewardId +
                 ", commands=" + commands +
                 '}';
     }

@@ -31,7 +31,7 @@ public abstract class AbstractDatabaseCredentials implements DatabaseCredentials
 
     protected final @NotNull DatabaseType databaseType;
 
-    @CredentialField("params")
+    @CredentialField(value = "params", optional = true)
     protected List<String> parameters;
 
     protected String formatParameters() {

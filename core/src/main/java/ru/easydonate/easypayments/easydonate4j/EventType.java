@@ -1,4 +1,4 @@
-package ru.easydonate.easypayments.event;
+package ru.easydonate.easypayments.easydonate4j;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,13 +24,15 @@ public enum EventType {
     private final String key;
     private final Class<? extends EventObject> eventObjectClass;
 
-    public static @NotNull EventType getByKey(@Nullable String key) {
-        if(key == null || key.isEmpty())
-            return UNKNOWN;
+    public boolean isUnknown() {
+        return this == UNKNOWN;
+    }
 
-        for(EventType eventType : values())
-            if(eventType.getKey().equalsIgnoreCase(key))
-                return eventType;
+    public static @NotNull EventType getByKey(@Nullable String key) {
+        if(key != null && !key.isEmpty())
+            for(EventType eventType : values())
+                if(eventType.getKey().equalsIgnoreCase(key))
+                    return eventType;
 
         return UNKNOWN;
     }

@@ -1,6 +1,7 @@
 package ru.easydonate.easypayments.database.credentials;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.database.DatabaseType;
 import ru.easydonate.easypayments.exception.CredentialsParseException;
@@ -8,12 +9,15 @@ import ru.easydonate.easypayments.exception.CredentialsParseException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public final class DatabaseCredentialsParser {
 
     @SuppressWarnings("unchecked")
     public static <T extends DatabaseCredentials> T parse(
+            @NotNull Plugin plugin,
             @NotNull ConfigurationSection config,
             @NotNull DatabaseType databaseType
     ) throws CredentialsParseException {
@@ -22,19 +26,37 @@ public final class DatabaseCredentialsParser {
 
         // create new instance
         try {
-            Constructor<T> constructor = providingClass.getConstructor();
-            credentials = constructor.newInstance();
-        } catch (NoSuchMethodException ex) {
-            throw new CredentialsParseException("A non-args constructor was not found in " + providingClass.getName() + "!", databaseType);
+            Constructor<T> constructor = providingClass.getConstructor(Plugin.class);
+            credentials = constructor.newInstance(plugin);
+        } catch (NoSuchMethodException ignored) {
+            try {
+                Constructor<T> constructor = providingClass.getConstructor();
+                credentials = constructor.newInstance();
+            } catch (NoSuchMethodException ex) {
+                throw new CredentialsParseException("A valid constructor was not found in " + providingClass.getName() + "!", databaseType);
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException ex) {
+                throw new CredentialsParseException("Cannot invoke constructor in " + providingClass.getName() + "!", ex, databaseType);
+            }
         } catch (InvocationTargetException | IllegalAccessException | InstantiationException ex) {
-            throw new CredentialsParseException("Cannot invoke a non-args constructor in " + providingClass.getName() + "!", ex, databaseType);
+            throw new CredentialsParseException("Cannot invoke constructor in " + providingClass.getName() + "!", ex, databaseType);
         }
 
         // get configuration keys
         Map<String, Object> keys = config.getValues(false);
 
         // working with fields
-        Field[] fields = providingClass.getDeclaredFields();
+        List<Field> fields = new ArrayList<>();
+        Class<?> clazz = providingClass;
+
+        while(clazz != null) {
+            for(Field field : clazz.getDeclaredFields()) {
+                if(field.isAnnotationPresent(CredentialField.class)) {
+                    fields.add(field);
+                }
+            }
+
+            clazz = clazz.getSuperclass();
+        }
 
         for(Field field : fields) {
             CredentialField annotation = field.getAnnotation(CredentialField.class);

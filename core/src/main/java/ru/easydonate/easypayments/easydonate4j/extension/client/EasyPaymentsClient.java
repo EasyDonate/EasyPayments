@@ -7,6 +7,7 @@ import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easydonate4j.http.client.jdk.legacy.JDKLegacyHttpClientService;
 import ru.easydonate.easydonate4j.json.serialization.GsonSerializationService;
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReports;
+import ru.easydonate.easypayments.easydonate4j.extension.data.model.VersionResponse;
 import ru.easydonate.easypayments.easydonate4j.longpoll.client.LongPollClient;
 
 public interface EasyPaymentsClient extends EasyDonateClient {
@@ -20,6 +21,8 @@ public interface EasyPaymentsClient extends EasyDonateClient {
     }
 
     @NotNull LongPollClient getLongPollClient();
+
+    @NotNull VersionResponse checkForUpdates(@NotNull String version) throws HttpRequestException, HttpResponseException;
 
     boolean uploadReports(@NotNull EventUpdateReports updateReports) throws HttpRequestException, HttpResponseException;
 

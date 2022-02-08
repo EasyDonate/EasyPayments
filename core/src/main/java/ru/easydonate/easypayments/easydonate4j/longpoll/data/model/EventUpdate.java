@@ -7,8 +7,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easydonate4j.data.model.PrettyPrintable;
-import ru.easydonate.easypayments.easydonate4j.longpoll.json.deserializer.EventUpdateDeserializer;
-import ru.easydonate.easypayments.event.EventType;
+import ru.easydonate.easypayments.easydonate4j.EventType;
+import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventReportObject;
+import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReport;
+import ru.easydonate.easypayments.easydonate4j.json.serialization.EventTypeAdapter;
+import ru.easydonate.easypayments.easydonate4j.json.serialization.EventUpdateDeserializer;
+import ru.easydonate.easypayments.exception.StructureValidationException;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,18 +23,27 @@ import java.util.Objects;
 @JsonAdapter(EventUpdateDeserializer.class)
 public final class EventUpdate<E extends EventObject> implements PrettyPrintable {
 
+    @JsonAdapter(EventTypeAdapter.class)
     @SerializedName("type")
-    private String rawType;
+    private EventType eventType;
 
     @SerializedName("objects")
     private List<E> eventObjects;
 
-    public @NotNull EventType getType() {
-        return EventType.getByKey(rawType);
+    public <R extends EventReportObject> @NotNull EventUpdateReport<R> createReport() {
+        return new EventUpdateReport<>(eventType);
+    }
+
+    public void validate() throws StructureValidationException {
+        if(hasUnknownType())
+            throw new StructureValidationException(this, "no known event type present");
+
+        if(!hasEventObjects())
+            throw new StructureValidationException(this, "no event objects present");
     }
 
     public boolean hasUnknownType() {
-        return getType() == EventType.UNKNOWN;
+        return eventType == null || eventType == EventType.UNKNOWN;
     }
 
     public boolean hasEventObjects() {
@@ -39,23 +52,23 @@ public final class EventUpdate<E extends EventObject> implements PrettyPrintable
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
-        if(o == null || getClass() != o.getClass()) return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         EventUpdate<?> that = (EventUpdate<?>) o;
-        return Objects.equals(rawType, that.rawType) &&
+        return eventType == that.eventType &&
                 Objects.equals(eventObjects, that.eventObjects);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rawType, eventObjects);
+        return Objects.hash(eventType, eventObjects);
     }
 
     @Override
     public @NotNull String toString() {
         return "EventUpdate{" +
-                "type=" + getType() +
+                "eventType=" + eventType +
                 ", eventObjects=" + eventObjects +
                 '}';
     }

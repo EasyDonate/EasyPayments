@@ -9,9 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.config.Configuration;
 import ru.easydonate.easypayments.database.model.Customer;
+import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -26,6 +28,7 @@ public final class DatabaseManager {
     private final ExecutorService asyncExecutorService;
 
     private final Dao<Customer, String> customersDao;
+    private final Dao<Payment, Integer> paymentsDao;
     private final Dao<Purchase, Integer> purchasesDao;
 
     public DatabaseManager(@NotNull Plugin plugin, @NotNull Configuration config, @NotNull Database database) throws SQLException {
@@ -35,6 +38,7 @@ public final class DatabaseManager {
         this.asyncExecutorService = Executors.newCachedThreadPool();
 
         this.customersDao = DaoManager.createDao(connectionSource, Customer.class);
+        this.paymentsDao = DaoManager.createDao(connectionSource, Payment.class);
         this.purchasesDao = DaoManager.createDao(connectionSource, Purchase.class);
     }
 
@@ -80,12 +84,33 @@ public final class DatabaseManager {
         return runAsync(() -> customersDao.updateId(customer, playerName));
     }
 
+    public @NotNull CompletableFuture<Void> refreshCustomer(@NotNull Customer customer) {
+        return runAsync(() -> customersDao.refresh(customer));
+    }
+
     public @NotNull CompletableFuture<Void> saveCustomer(@NotNull Customer customer) {
         return runAsync(() -> customersDao.createOrUpdate(customer));
     }
 
+    // --- payment
+    public @NotNull CompletableFuture<List<Payment>> getAllUnreportedPayments(int serverId) {
+        return supplyAsync(() -> paymentsDao.queryBuilder().where()
+                .eq(Payment.COLUMN_SERVER_ID, serverId).and()
+                .isNull(Payment.COLUMN_REPORTED_AT)
+                .query()
+        );
+    }
+
+    public @NotNull CompletableFuture<Payment> getPayment(int paymentId) {
+        return supplyAsync(() -> paymentsDao.queryForId(paymentId));
+    }
+
+    public @NotNull CompletableFuture<Void> savePayment(@NotNull Payment payment) {
+        return runAsync(() -> paymentsDao.createOrUpdate(payment));
+    }
+
     // --- purchases
-    public @NotNull CompletableFuture<Purchase> getPurchase(@NotNull int purchaseId) {
+    public @NotNull CompletableFuture<Purchase> getPurchase(int purchaseId) {
         return supplyAsync(() -> purchasesDao.queryForId(purchaseId));
     }
 

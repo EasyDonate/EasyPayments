@@ -43,7 +43,7 @@ public final class PlayerJoinQuitListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerQuit(@NotNull PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        shopCartStorage.unloadCached(player.getUniqueId());
+        shopCartStorage.unloadCached(player.getName());
     }
 
     private void updateCustomerOwnership(@NotNull Player player) {

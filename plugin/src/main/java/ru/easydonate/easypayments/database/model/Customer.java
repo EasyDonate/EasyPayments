@@ -38,7 +38,7 @@ public final class Customer {
     private LocalDateTime updatedAt;
 
     @ForeignCollectionField
-    private ForeignCollection<Purchase> purchases;
+    private ForeignCollection<Payment> payments;
 
     public Customer(@NotNull OfflinePlayer bukkitPlayer) {
         this(bukkitPlayer.getName(), bukkitPlayer.getUniqueId());
@@ -47,8 +47,11 @@ public final class Customer {
     public Customer(@NotNull String playerName, @NotNull UUID playerUUID) {
         this.playerName = playerName;
         this.playerUUID = playerUUID;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = createdAt;
+        this.createdAt = updatedAt = LocalDateTime.now();
+    }
+
+    public @NotNull Payment createPayment(int paymentId, int serverId) {
+        return new Payment(this, paymentId, serverId);
     }
 
     public @NotNull OfflinePlayer asBukkitPlayer() {
@@ -57,6 +60,10 @@ public final class Customer {
 
     public @NotNull Player asOnlinePlayer() {
         return Bukkit.getPlayer(playerUUID);
+    }
+
+    public int getPaymentsAmount() {
+        return payments != null ? payments.size() : 0;
     }
 
     public void updateUUID(@NotNull UUID uuid) {
@@ -90,9 +97,9 @@ public final class Customer {
         return "Customer{" +
                 "playerName='" + playerName + '\'' +
                 ", playerUUID=" + playerUUID +
+                ", payments=" + getPaymentsAmount() +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", purchases=" + purchases +
                 '}';
     }
 
