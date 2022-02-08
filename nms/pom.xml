@@ -147,6 +147,7 @@
                                 <inputFile>${project.build.directory}/${project.artifactId}-${project.version}-remapped-obf.jar</inputFile>
                                 <srgIn>org.spigotmc:minecraft-server:${spigot.version}:csrg:maps-spigot</srgIn>
                                 <remappedDependencies>org.spigotmc:spigot:${spigot.version}:jar:remapped-obf</remappedDependencies>
+                                <remappedClassifierName>remapped-spigot</remappedClassifierName>
                             </configuration>
                         </execution>
                     </executions>

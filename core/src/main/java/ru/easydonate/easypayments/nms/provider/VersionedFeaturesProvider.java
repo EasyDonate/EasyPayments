@@ -15,7 +15,7 @@ public interface VersionedFeaturesProvider {
     @NotNull MinecraftVersion MINECRAFT_VERSION =  MinecraftVersion.getCurrentVersion();
 
     @NotNull String NMS_VERSION = resolveNMSVersion();
-    @NotNull String NMS_IMPL_PATTERN = "%s.proxy.v%s.VersionedFeaturesProvider";
+    @NotNull String NMS_IMPL_PATTERN = "%s.v%s.VersionedFeaturesProvider";
 
     static @NotNull String resolveNMSVersion() {
         String packageName = Bukkit.getServer().getClass().getPackage().getName();
