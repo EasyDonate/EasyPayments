@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.minecraft.server.v1_9_R1.*;
 import org.bukkit.craftbukkit.v1_9_R1.command.ServerCommandSender;
 import org.bukkit.permissions.Permission;
+import ru.easydonate.easypayments.Constants;
 import ru.easydonate.easypayments.execution.interceptor.FeedbackInterceptor;
 
 import javax.annotation.Nullable;
@@ -27,7 +28,7 @@ public final class InterceptedCommandListener extends ServerCommandSender implem
 
     @Override
     public boolean getSendCommandFeedback() {
-        return true;
+        return Constants.COMMAND_SENDER_ACCEPTS_SUCCESS;
     }
 
     @Override

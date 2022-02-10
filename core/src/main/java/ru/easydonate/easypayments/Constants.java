@@ -10,4 +10,8 @@ public final class Constants {
 
     public static final String MINECRAFT_LAST_RELEASE_DATE = "2021-11-30";
 
+    public static final boolean COMMAND_SENDER_ACCEPTS_SUCCESS = true;
+    public static final boolean COMMAND_SENDER_ACCEPTS_FAILURE = true;
+    public static final boolean COMMAND_SENDER_INFORM_ADMINS = false;
+
 }

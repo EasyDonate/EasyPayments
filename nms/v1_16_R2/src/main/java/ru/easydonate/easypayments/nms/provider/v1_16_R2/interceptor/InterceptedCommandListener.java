@@ -7,6 +7,7 @@ import net.minecraft.server.v1_16_R2.ICommandListener;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_16_R2.command.ServerCommandSender;
 import org.bukkit.permissions.Permission;
+import ru.easydonate.easypayments.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,17 +32,17 @@ public final class InterceptedCommandListener extends ServerCommandSender implem
 
     @Override
     public boolean shouldSendSuccess() {
-        return true;
+        return Constants.COMMAND_SENDER_ACCEPTS_SUCCESS;
     }
 
     @Override
     public boolean shouldSendFailure() {
-        return true;
+        return Constants.COMMAND_SENDER_ACCEPTS_FAILURE;
     }
 
     @Override
     public boolean shouldBroadcastCommands() {
-        return true;
+        return Constants.COMMAND_SENDER_INFORM_ADMINS;
     }
 
     @Override
