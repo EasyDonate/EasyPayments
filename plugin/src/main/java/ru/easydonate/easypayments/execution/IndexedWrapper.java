@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 @Getter
 public final class IndexedWrapper<T> {
@@ -19,6 +20,11 @@ public final class IndexedWrapper<T> {
     public IndexedWrapper(int index, @Nullable T object) {
         this.index = index;
         this.object = object;
+    }
+    
+    public <O> @NotNull IndexedWrapper<O> map(@NotNull Function<T, O> mapper) {
+        O mappedObject = object != null ? mapper.apply(object) : null;
+        return new IndexedWrapper<>(index, mappedObject);
     }
 
     public @NotNull IndexedWrapper<T> setObject(@Nullable T object) {

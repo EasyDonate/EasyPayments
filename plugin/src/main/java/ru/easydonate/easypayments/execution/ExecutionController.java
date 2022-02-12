@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
 import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easydonate4j.exception.JsonSerializationException;
+import ru.easydonate.easypayments.Constants;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.config.Configuration;
 import ru.easydonate.easypayments.database.DatabaseManager;
@@ -37,13 +38,11 @@ import ru.easydonate.easypayments.execution.processor.update.EventUpdateProcesso
 import ru.easydonate.easypayments.execution.processor.update.SimplePaymentEventProcessor;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Getter
@@ -94,11 +93,20 @@ public final class ExecutionController {
     }
 
     public int getFeedbackAwaitTime() {
-        return Math.max(config.getInt("feedback-await-time", 0), 1000);
+        return config.getLimitedInt("feedback-await-time", Constants.MIN_FEEDBACK_AWAIT_TIME, Constants.MAX_FEEDBACK_AWAIT_TIME);
     }
 
+    public boolean isShopCartEnabled() {
+        return config.getBoolean("use-shop-cart", Constants.DEFAULT_SHOP_CART_STATUS);
+    }
+
+    public boolean isOfflineRewardsEnabled() {
+        return config.getBoolean("offline-rewards", Constants.DEFAULT_OFFLINE_REWARDS_STATUS);
+    }
+
+    @Deprecated
     public boolean shouldAddToCart(@NotNull OfflinePlayer customer) {
-        return !customer.isOnline() && config.getBoolean("use-shop-cart", true);
+        return !customer.isOnline() && isShopCartEnabled();
     }
 
     public void refreshCustomer(@NotNull Customer customer) {
@@ -118,12 +126,15 @@ public final class ExecutionController {
         }
 
         // TODO remove that later
-        System.out.println("Uploaded reports: " + reports.toPrettyString());
+        System.out.println("Uploaded reports:");
+        System.out.println(reports.toPrettyString());
 
         Map<Integer, Payment> payments = databaseManager.getAllUnreportedPayments(getServerId())
                 .join()
                 .stream()
                 .collect(Collectors.toMap(Payment::getId, p -> p));
+
+        System.out.println("Unreported payments: " + payments);
 
         reports.stream()
                 .map(EventUpdateReport::getReportObjects)
@@ -180,12 +191,14 @@ public final class ExecutionController {
                     eventType
             ));
 
-        return CompletableFuture.supplyAsync(() -> processor.processObject(eventObject), asyncExecutorService);
+        return CompletableFuture.supplyAsync(() -> processor.processObject(eventObject), asyncExecutorService)
+                .thenApply(report -> processor.processPluginEvents(eventObject, report));
     }
 
     public @NotNull CompletableFuture<CommandReport> processObjectCommand(@NotNull String command) {
         return interceptorFactory.createFeedbackInterceptorAsync()
-                .thenApply(interceptor -> executeCommandAndWait(interceptor, command))
+                .thenCompose(interceptor -> executeCommand(interceptor, command))
+                .thenApply(this::awaitForFeedback)
                 .thenApply(FeedbackInterceptor::getFeedbackMessages)
                 .thenApply(feedback -> CommandReport.create(command, feedback))
                 .exceptionally(this::handleExceptionalReport);
@@ -194,6 +207,32 @@ public final class ExecutionController {
     public @NotNull CompletableFuture<IndexedWrapper<CommandReport>> processObjectCommandIndexed(@NotNull String command, int index) {
         IndexedWrapper<CommandReport> wrapper = new IndexedWrapper<>(index);
         return processObjectCommand(command).thenApply(wrapper::setObject);
+    }
+
+    @SuppressWarnings("unchecked")
+    public @NotNull List<CommandReport> processCommandsKeepSequence(@NotNull List<String> commands) {
+        if(commands == null)
+            return null;
+
+        if(commands.isEmpty())
+            return Collections.emptyList();
+
+        AtomicInteger indexer = new AtomicInteger();
+        CompletableFuture<?>[] futures = commands.stream()
+                .map(command -> processObjectCommandIndexed(command, indexer.getAndIncrement()))
+                .toArray(CompletableFuture[]::new);
+
+        CompletableFuture.allOf(futures).join();
+
+        return Arrays.stream(futures)
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .sequential()
+                .map(object -> (IndexedWrapper<CommandReport>) object)
+                .sorted(Comparator.comparingInt(IndexedWrapper::getIndex))
+                .map(IndexedWrapper::getObject)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     private @NotNull CommandReport handleExceptionalReport(@NotNull Throwable cause) {
@@ -212,16 +251,19 @@ public final class ExecutionController {
         throw new IllegalStateException("An unexpected exception has been thrown!", cause);
     }
 
-    private @NotNull FeedbackInterceptor executeCommandAndWait(
+    private @NotNull CompletableFuture<FeedbackInterceptor> executeCommand(
             @NotNull FeedbackInterceptor interceptor,
             @NotNull String command
     ) throws CommandExecutionException {
         try {
             Bukkit.dispatchCommand((CommandSender) interceptor, command);
+            return CompletableFuture.supplyAsync(() -> interceptor, asyncExecutorService);
         } catch (Throwable throwable) {
             throw new CommandExecutionException(command, throwable);
         }
+    }
 
+    private @NotNull FeedbackInterceptor awaitForFeedback(@NotNull FeedbackInterceptor interceptor) {
         try {
             Thread.sleep(getFeedbackAwaitTime());
         } catch (InterruptedException ignored) {

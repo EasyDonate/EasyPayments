@@ -2,6 +2,8 @@ package ru.easydonate.easypayments.database.persister;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.j256.ormlite.field.FieldType;
 import com.j256.ormlite.field.SqlType;
@@ -35,9 +37,12 @@ public final class JsonArrayPersister extends LongStringType {
 
     @Override
     public @Nullable String javaToSqlArg(@NotNull FieldType fieldType, @Nullable Object javaObject) {
-        if(javaObject instanceof List) {
-            List<?> asList = (List<?>) javaObject;
-            return gson.toJson(asList);
+        try {
+            if(javaObject instanceof List) {
+                List<?> asList = (List<?>) javaObject;
+                return gson.toJson(asList);
+            }
+        } catch (JsonSyntaxException ignored) {
         }
 
         return null;
@@ -45,9 +50,12 @@ public final class JsonArrayPersister extends LongStringType {
 
     @Override
     public @Nullable List<String> sqlArgToJava(@NotNull FieldType fieldType, @Nullable Object sqlArg, int columnPos) {
-        if(sqlArg instanceof String) {
-            String asString = (String) sqlArg;
-            return gson.fromJson(asString, genericType);
+        try {
+            if(sqlArg instanceof String) {
+                String asString = (String) sqlArg;
+                return gson.fromJson(asString, genericType);
+            }
+        } catch (JsonParseException ignored) {
         }
 
         return null;

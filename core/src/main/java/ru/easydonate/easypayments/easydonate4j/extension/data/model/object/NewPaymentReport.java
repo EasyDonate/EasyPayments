@@ -21,16 +21,18 @@ public final class NewPaymentReport extends EventReportObject implements Command
     private final boolean addedToCart;
 
     @SerializedName("commands")
-    private final List<CommandReport> commandReports;
+    private List<CommandReport> commandReports;
 
     public NewPaymentReport(int paymentId, boolean addedToCart) {
         this.paymentId = paymentId;
         this.addedToCart = addedToCart;
-        this.commandReports = addedToCart ? null : new ArrayList<>();
     }
 
     @Override
-    public void addCommandReport(@NotNull CommandReport commandReport) {
+    public synchronized void addCommandReport(@NotNull CommandReport commandReport) {
+        if(commandReports == null)
+            commandReports = new ArrayList<>();
+
         commandReports.add(commandReport);
     }
 
@@ -38,22 +40,24 @@ public final class NewPaymentReport extends EventReportObject implements Command
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
-        NewPaymentReport that = (NewPaymentReport) o;
-        return paymentId == that.paymentId &&
-                addedToCart == that.addedToCart &&
-                Objects.equals(commandReports, that.commandReports);
+        NewPaymentReport report = (NewPaymentReport) o;
+        return paymentId == report.paymentId &&
+                addedToCart == report.addedToCart &&
+                Objects.equals(commandReports, report.commandReports);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(paymentId, addedToCart, commandReports);
+        return Objects.hash(super.hashCode(), paymentId, addedToCart, commandReports);
     }
 
     @Override
     public @NotNull String toString() {
         return "NewPaymentReport{" +
-                "paymentId=" + paymentId +
+                "pluginEventReports=" + pluginEventReports +
+                ", paymentId=" + paymentId +
                 ", addedToCart=" + addedToCart +
                 ", commandReports=" + commandReports +
                 '}';

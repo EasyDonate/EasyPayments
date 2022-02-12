@@ -62,17 +62,24 @@ public abstract class AbstractPluginTask implements PluginTask, Runnable {
         return CompletableFuture.runAsync(this::shutdown);
     }
 
-    protected void updateActivityState() {
-        if(!isWorking())
-            this.active = false;
+    protected synchronized void updateActivityState() {
+        this.active = isWorking();
+    }
+
+    protected void warning(String message) {
+        plugin.getLogger().warning(message);
     }
 
     protected void warning(String format, Object... args) {
-        plugin.getLogger().warning(String.format(format, args));
+        warning(String.format(format, args));
+    }
+
+    protected void error(String message) {
+        plugin.getLogger().severe(message);
     }
 
     protected void error(String format, Object... args) {
-        plugin.getLogger().severe(String.format(format, args));
+        error(String.format(format, args));
     }
 
 }

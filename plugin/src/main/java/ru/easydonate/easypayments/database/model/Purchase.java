@@ -1,6 +1,5 @@
 package ru.easydonate.easypayments.database.model;
 
-import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import lombok.Getter;
@@ -54,10 +53,10 @@ public final class Purchase {
     @DatabaseField(columnName = COLUMN_COST, canBeNull = false)
     private double cost;
 
-    @DatabaseField(columnName = COLUMN_COMMANDS, dataType = DataType.LONG_STRING, persisterClass = JsonArrayPersister.class)
+    @DatabaseField(columnName = COLUMN_COMMANDS, persisterClass = JsonArrayPersister.class)
     private List<String> commands;
 
-    @DatabaseField(columnName = COLUMN_RESPONSES, dataType = DataType.LONG_STRING, persisterClass = JsonArrayPersister.class)
+    @DatabaseField(columnName = COLUMN_RESPONSES, persisterClass = JsonArrayPersister.class)
     private List<String> responses;
 
     @DatabaseField(columnName = COLUMN_CREATED_AT, canBeNull = false)
@@ -73,7 +72,8 @@ public final class Purchase {
         this.amount = amount;
         this.cost = cost;
         this.commands = commands;
-        this.createdAt = updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = createdAt;
     }
 
     public static @NotNull Purchase create(@NotNull Payment payment, @NotNull PurchasedProduct product) {
@@ -103,6 +103,7 @@ public final class Purchase {
             String response = getResponse(i, "");
             commandReports.add(CommandReport.create(command, response));
         }
+
         return commandReports;
     }
 

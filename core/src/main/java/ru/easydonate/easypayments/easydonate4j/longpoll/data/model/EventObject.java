@@ -5,13 +5,16 @@ import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easydonate4j.data.model.PrettyPrintable;
 import ru.easydonate.easypayments.easydonate4j.json.serialization.LocalDateTimeAdapter;
+import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.plugin.PluginEvent;
 import ru.easydonate.easypayments.exception.StructureValidationException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -24,9 +27,21 @@ public abstract class EventObject implements PrettyPrintable {
     @SerializedName("created_at")
     protected LocalDateTime createdAt;
 
+    @SerializedName("plugins")
+    protected List<PluginEvent> pluginEvents;
+
     @SuppressWarnings("deprecation")
     public @NotNull OfflinePlayer getOfflinePlayer() {
         return Bukkit.getOfflinePlayer(customer);
+    }
+
+    public boolean isCustomerOnline() {
+        Player player = Bukkit.getPlayer(customer);
+        return player != null && player.isOnline();
+    }
+
+    public boolean hasPluginEvents() {
+        return pluginEvents != null && !pluginEvents.isEmpty();
     }
 
     public void validate() throws StructureValidationException {
@@ -48,12 +63,13 @@ public abstract class EventObject implements PrettyPrintable {
 
         EventObject that = (EventObject) o;
         return Objects.equals(customer, that.customer) &&
-                Objects.equals(createdAt, that.createdAt);
+                Objects.equals(createdAt, that.createdAt) &&
+                Objects.equals(pluginEvents, that.pluginEvents);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(customer, createdAt);
+        return Objects.hash(customer, createdAt, pluginEvents);
     }
 
     @Override
@@ -61,6 +77,7 @@ public abstract class EventObject implements PrettyPrintable {
         return "EventObject{" +
                 "customer='" + customer + '\'' +
                 ", createdAt=" + createdAt +
+                ", pluginEvents=" + pluginEvents +
                 '}';
     }
 

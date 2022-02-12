@@ -36,17 +36,17 @@ public final class Payment {
     @DatabaseField(columnName = COLUMN_SERVER_ID, canBeNull = false)
     private int serverId;
 
-    @DatabaseField(columnName = COLUMN_CREATED_AT, canBeNull = false)
-    private LocalDateTime createdAt;
-
-    @DatabaseField(columnName = COLUMN_UPDATED_AT, canBeNull = false)
-    private LocalDateTime updatedAt;
-
     @DatabaseField(columnName = COLUMN_COLLECTED_AT)
     private LocalDateTime collectedAt;
 
     @DatabaseField(columnName = COLUMN_REPORTED_AT)
     private LocalDateTime reportedAt;
+
+    @DatabaseField(columnName = COLUMN_CREATED_AT, canBeNull = false)
+    private LocalDateTime createdAt;
+
+    @DatabaseField(columnName = COLUMN_UPDATED_AT, canBeNull = false)
+    private LocalDateTime updatedAt;
 
     @ForeignCollectionField
     private ForeignCollection<Purchase> purchases;
@@ -55,7 +55,8 @@ public final class Payment {
         this.id = paymentId;
         this.customer = customer;
         this.serverId = serverId;
-        this.createdAt = updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = createdAt;
     }
 
     public @NotNull Purchase createPurchase(int productId, @NotNull String name, int amount, double cost, @NotNull List<String> commands) {

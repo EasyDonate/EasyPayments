@@ -2,26 +2,20 @@ package ru.easydonate.easypayments.database.persister;
 
 import com.j256.ormlite.field.FieldType;
 import com.j256.ormlite.field.SqlType;
-import com.j256.ormlite.field.types.DateTimeType;
+import com.j256.ormlite.field.types.StringType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 
-public final class LocalDateTimePersister extends DateTimeType {
+public final class LocalDateTimePersister extends StringType {
 
     private static final LocalDateTimePersister SINGLETON = new LocalDateTimePersister();
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
-            .parseCaseInsensitive()
-            .append(DateTimeFormatter.ISO_LOCAL_DATE)
-            .appendLiteral(' ')
-            .append(DateTimeFormatter.ISO_LOCAL_TIME)
-            .toFormatter();
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
     private LocalDateTimePersister() {
-        super(SqlType.DATE, new Class<?>[] { LocalDateTime.class });
+        super(SqlType.STRING, new Class<?>[] { LocalDateTime.class });
     }
 
     public static @NotNull LocalDateTimePersister getSingleton() {

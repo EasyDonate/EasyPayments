@@ -43,8 +43,8 @@ public final class ShopCartStorage {
         });
     }
 
-    public boolean unloadCached(@NotNull String playerName) {
-        return cachedShopCarts.remove(playerName) != null;
+    public void unloadCached(@NotNull String playerName) {
+        cachedShopCarts.remove(playerName);
     }
 
 }

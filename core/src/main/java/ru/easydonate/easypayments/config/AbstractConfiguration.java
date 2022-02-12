@@ -13,11 +13,15 @@ import ru.easydonate.easypayments.exception.ConfigurationValidationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Getter
@@ -38,26 +42,45 @@ public abstract class AbstractConfiguration<C extends AbstractConfiguration<C>> 
 
     public abstract @NotNull String getResourcePath();
 
-    public @NotNull C reload() throws ConfigurationValidationException {
+    protected @NotNull Path resolveOutputFilePath() {
         String fileName = getFileName();
+        Path dataFolder = plugin.getDataFolder().toPath();
+        return dataFolder.resolve(fileName.replace('/', File.separatorChar));
+    }
+
+    public @NotNull C reload() throws ConfigurationValidationException {
         String resourcePath = getResourcePath();
 
         this.resource = plugin.getClass().getResourceAsStream(resourcePath);
         if(resource == null)
             throw new IllegalArgumentException("Cannot find a resource by path: " + resourcePath);
 
-        Path dataFolder = plugin.getDataFolder().toPath();
-        Path outputFile = dataFolder.resolve(fileName.replace('/', File.separatorChar));
-
+        Path outputFilePath = resolveOutputFilePath();
         try {
-            if(!Files.isRegularFile(outputFile)) {
-                Files.createDirectories(outputFile.getParent());
-                Files.copy(resource, outputFile, StandardCopyOption.REPLACE_EXISTING);
+            if(!Files.isRegularFile(outputFilePath)) {
+                Files.createDirectories(outputFilePath.getParent());
+                Files.copy(resource, outputFilePath, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            this.bukkitConfig = YamlConfiguration.loadConfiguration(outputFile.toFile());
+            this.bukkitConfig = YamlConfiguration.loadConfiguration(outputFilePath.toFile());
         } catch (IOException ex) {
-            plugin.getLogger().severe("Failed to load configuration file '" + fileName + "': " + ex.getMessage());
+            plugin.getLogger().severe("Failed to load configuration file '" + outputFilePath.toFile().getName() + "': " + ex.getMessage());
+        }
+
+        return getThis();
+    }
+
+    public synchronized @NotNull C updateExistingFile(@NotNull Pattern regex, @NotNull Object value) {
+        Path outputFilePath = resolveOutputFilePath();
+        Path dataFolderPath = plugin.getDataFolder().toPath();
+        String fileName = dataFolderPath.relativize(outputFilePath).toString();
+
+        try {
+            List<String> lines = Files.readAllLines(outputFilePath, StandardCharsets.UTF_8);
+            lines.replaceAll(line -> replace(line, regex, value));
+            Files.write(outputFilePath, lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException ex) {
+            plugin.getLogger().severe("Failed to update configuration file '" + fileName + "': " + ex.getMessage());
         }
 
         return getThis();
@@ -143,12 +166,40 @@ public abstract class AbstractConfiguration<C extends AbstractConfiguration<C>> 
         return bukkitConfig.getInt(path, def);
     }
 
+    public int getLimitedInt(@NotNull String path, int min, int max) {
+        return Math.min(Math.max(getInt(path), min), max);
+    }
+
+    public int getLimitedInt(@NotNull String path, int min, int max, int def) {
+        return Math.min(Math.max(getInt(path, def), min), max);
+    }
+
     public double getDouble(@NotNull String path) {
         return bukkitConfig.getDouble(path);
     }
 
     public double getDouble(@NotNull String path, double def) {
         return bukkitConfig.getDouble(path, def);
+    }
+
+    private static @NotNull String replace(@NotNull String original, @NotNull Pattern regex, @NotNull Object value) {
+        if(original.isEmpty())
+            return original;
+
+        String trimmed = original.trim();
+        if(trimmed.isEmpty() || trimmed.startsWith("#"))
+            return original;
+
+        Matcher matcher = regex.matcher(original);
+        if(matcher.groupCount() != 1 || !matcher.find())
+            return original;
+
+        int startIndex = matcher.start(1);
+        int endIndex = matcher.end(1);
+
+        StringBuilder container = new StringBuilder(original);
+        container.replace(startIndex, endIndex, String.valueOf(value));
+        return container.toString();
     }
 
 }

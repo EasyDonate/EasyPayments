@@ -1,4 +1,4 @@
-package ru.easydonate.easypayments.event;
+package ru.easydonate.easypayments.api.event;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

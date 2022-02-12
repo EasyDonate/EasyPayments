@@ -1,9 +1,7 @@
 package ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object;
 
 import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventObject;
 import ru.easydonate.easypayments.exception.StructureValidationException;
@@ -12,8 +10,6 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public final class NewPaymentEvent extends EventObject {
 
     @SerializedName("payment_id")
@@ -54,6 +50,7 @@ public final class NewPaymentEvent extends EventObject {
         return "NewPaymentEvent{" +
                 "customer='" + customer + '\'' +
                 ", createdAt=" + createdAt +
+                ", pluginEvents=" + pluginEvents +
                 ", paymentId=" + paymentId +
                 ", products=" + products +
                 '}';

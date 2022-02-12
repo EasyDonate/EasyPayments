@@ -26,7 +26,6 @@ public final class ReportCacheWorker extends AbstractPluginTask {
 
     private static final long TASK_PERIOD = 6000L;
 
-    private final Plugin plugin;
     private final ExecutionController executionController;
     private final EasyPaymentsClient easyPaymentsClient;
 
@@ -37,7 +36,6 @@ public final class ReportCacheWorker extends AbstractPluginTask {
     ) {
         super(plugin, 20L);
 
-        this.plugin = plugin;
         this.executionController = executionController;
         this.easyPaymentsClient = easyPaymentsClient;
     }
@@ -49,23 +47,31 @@ public final class ReportCacheWorker extends AbstractPluginTask {
 
     @Override
     public void run() {
+        if(!isWorking())
+            return;
+
         int serverId = executionController.getServerId();
         DatabaseManager databaseManager = executionController.getDatabaseManager();
 
         // do that synchronously to prevent any conflicts with other tasks
         List<Payment> payments;
         synchronized (executionController.getDatabaseManager()) {
+            if(!isWorking())
+                return;
+
             payments = databaseManager.getAllUnreportedPayments(serverId).join();
         }
 
-        if(payments == null) {
-            plugin.getLogger().info("There are no unreported payments.");
+        if(payments == null || payments.isEmpty()) {
             updateActivityState();
             return;
         }
 
         // lock to database manager to make stable any working with commands
         synchronized (executionController) {
+            if(!isWorking())
+                return;
+
             EventUpdateReports reports = new EventUpdateReports();
             EventUpdateReport<NewPaymentReport> report = new EventUpdateReport<>(EventType.NEW_PAYMENT);
             reports.add(report);
@@ -84,12 +90,12 @@ public final class ReportCacheWorker extends AbstractPluginTask {
                         .forEach(CompletableFuture::join);
             } catch (ApiResponseFailureException ex) {
                 // redirect API errors to warning channel
-                if(EasyPaymentsPlugin.logQueryTaskErrors() && EasyPaymentsPlugin.isDebugEnabled()) {
+                if(EasyPaymentsPlugin.logCacheWorkerWarnings() && EasyPaymentsPlugin.isDebugEnabled()) {
                     warning(ex.getMessage());
                 }
             } catch (HttpRequestException | HttpResponseException ex) {
                 // redirect any other errors to error channel
-                if(EasyPaymentsPlugin.logQueryTaskErrors()) {
+                if(EasyPaymentsPlugin.logCacheWorkerErrors()) {
                     error(ex.getMessage());
                     if(EasyPaymentsPlugin.isDebugEnabled()) {
                         ex.printStackTrace();

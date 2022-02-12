@@ -49,6 +49,7 @@ public final class RepeatPaymentEvent extends EventObject {
         return "RepeatPaymentEvent{" +
                 "customer='" + customer + '\'' +
                 ", createdAt=" + createdAt +
+                ", pluginEvents=" + pluginEvents +
                 ", paymentId=" + paymentId +
                 ", products=" + products +
                 '}';

@@ -16,15 +16,17 @@ public final class NewWithdrawReport extends EventReportObject implements Comman
     private final int paymentId;
 
     @SerializedName("commands")
-    private final List<CommandReport> commandReports;
+    private List<CommandReport> commandReports;
 
     public NewWithdrawReport(int paymentId) {
         this.paymentId = paymentId;
-        this.commandReports = new ArrayList<>();
     }
 
     @Override
-    public void addCommandReport(@NotNull CommandReport commandReport) {
+    public synchronized void addCommandReport(@NotNull CommandReport commandReport) {
+        if(commandReports == null)
+            commandReports = new ArrayList<>();
+
         commandReports.add(commandReport);
     }
 
@@ -32,6 +34,7 @@ public final class NewWithdrawReport extends EventReportObject implements Comman
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         NewWithdrawReport that = (NewWithdrawReport) o;
         return paymentId == that.paymentId &&
@@ -40,13 +43,14 @@ public final class NewWithdrawReport extends EventReportObject implements Comman
 
     @Override
     public int hashCode() {
-        return Objects.hash(paymentId, commandReports);
+        return Objects.hash(super.hashCode(), paymentId, commandReports);
     }
 
     @Override
     public @NotNull String toString() {
         return "NewWithdrawReport{" +
-                "paymentId=" + paymentId +
+                "pluginEventReports=" + pluginEventReports +
+                ", paymentId=" + paymentId +
                 ", commandReports=" + commandReports +
                 '}';
     }

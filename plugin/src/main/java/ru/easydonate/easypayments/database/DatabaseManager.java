@@ -58,7 +58,7 @@ public final class DatabaseManager {
     public @NotNull CompletableFuture<Customer> getCustomerByUUID(@NotNull UUID playerUUID) {
         return supplyAsync(() -> customersDao.queryBuilder()
                 .where()
-                .eq(Customer.COLUMN_PLAYER_UUID, playerUUID.toString())
+                .eq(Customer.COLUMN_PLAYER_UUID, playerUUID)
                 .queryForFirst());
     }
 
@@ -142,7 +142,11 @@ public final class DatabaseManager {
 
     private void handleThrowable(@NotNull Throwable throwable) {
         logger.severe("An error has occurred when this plugin tried to handle an SQL statement!");
-        logger.severe(throwable.toString());
+        Throwable cause = throwable;
+        while(cause != null) {
+            logger.severe(cause.toString());
+            cause = cause.getCause();
+        }
     }
 
     public boolean isUuidIdentificationEnabled() {

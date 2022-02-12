@@ -47,7 +47,8 @@ public final class Customer {
     public Customer(@NotNull String playerName, @NotNull UUID playerUUID) {
         this.playerName = playerName;
         this.playerUUID = playerUUID;
-        this.createdAt = updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = createdAt;
     }
 
     public @NotNull Payment createPayment(int paymentId, int serverId) {

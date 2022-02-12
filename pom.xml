@@ -25,6 +25,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>8</java.version>
 
+        <!-- Manifest -->
+        <manifest.developer.contact>https://vk.me/soknight</manifest.developer.contact>
+        <manifest.developer.name>SoKnight</manifest.developer.name>
+        <manifest.organization.name>EasyDonate</manifest.organization.name>
+        <manifest.organization.website>https://easydonate.ru/</manifest.organization.website>
+        <manifest.github>https://github.com/EasyDonate/EasyPayments/</manifest.github>
+
         <!-- Plugin properties -->
         <plugin.name>EasyPayments</plugin.name>
         <plugin.version>${project.version}</plugin.version>
@@ -375,6 +382,16 @@
                     <configuration>
                         <archive>
                             <addMavenDescriptor>false</addMavenDescriptor>
+                            <manifest>
+                                <addDefaultEntries>false</addDefaultEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Developer-Contact>${manifest.developer.contact}</Developer-Contact>
+                                <Developer-Name>${manifest.developer.name}</Developer-Name>
+                                <Organization-Name>${manifest.organization.name}</Organization-Name>
+                                <Organization-Website>${manifest.organization.website}</Organization-Website>
+                                <GitHub>${manifest.github}</GitHub>
+                            </manifestEntries>
                         </archive>
                     </configuration>
                 </plugin>

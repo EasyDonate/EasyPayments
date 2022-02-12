@@ -6,15 +6,11 @@ import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.Purcha
 import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.RepeatPaymentEvent;
 import ru.easydonate.easypayments.exception.StructureValidationException;
 import ru.easydonate.easypayments.execution.ExecutionController;
-import ru.easydonate.easypayments.execution.IndexedWrapper;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
-public final class RepeatPaymentObjectProcessor implements EventObjectProcessor<RepeatPaymentEvent, RepeatPaymentReport> {
+public final class RepeatPaymentObjectProcessor extends EventObjectProcessor<RepeatPaymentEvent, RepeatPaymentReport> {
 
     private final ExecutionController controller;
 
@@ -31,21 +27,13 @@ public final class RepeatPaymentObjectProcessor implements EventObjectProcessor<
         List<PurchasedProduct> products = eventObject.getProducts();
         products.forEach(PurchasedProduct::validate);
 
-        // execute commands just now
-        AtomicInteger indexer = new AtomicInteger();
-        products.stream()
+        List<String> commands = products.stream()
                 .map(PurchasedProduct::getCommands)
                 .flatMap(List::stream)
-                .map(command -> controller.processObjectCommandIndexed(command, indexer.getAndIncrement()))
-                .parallel()
-                .map(CompletableFuture::join)
-                .filter(Objects::nonNull)
-                .sequential()
-                .sorted(Comparator.comparingInt(IndexedWrapper::getIndex))
-                .map(IndexedWrapper::getObject)
-                .filter(Objects::nonNull)
-                .forEach(report::addCommandReport);
+                .collect(Collectors.toList());
 
+        // execute commands just now
+        controller.processCommandsKeepSequence(commands).forEach(report::addCommandReport);
         return report;
     }
 

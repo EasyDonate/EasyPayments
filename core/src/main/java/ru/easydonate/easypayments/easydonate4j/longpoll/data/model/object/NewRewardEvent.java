@@ -50,6 +50,7 @@ public final class NewRewardEvent extends EventObject {
         return "NewRewardEvent{" +
                 "customer='" + customer + '\'' +
                 ", createdAt=" + createdAt +
+                ", pluginEvents=" + pluginEvents +
                 ", rewardId=" + rewardId +
                 ", commands=" + commands +
                 '}';

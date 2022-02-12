@@ -49,6 +49,7 @@ public final class NewWithdrawEvent extends EventObject {
     public @NotNull String toString() {
         return "NewWithdrawEvent{" +
                 "customer='" + customer + '\'' +
+                ", pluginEvents=" + pluginEvents +
                 ", paymentId=" + paymentId +
                 ", commands=" + commands +
                 '}';

@@ -32,8 +32,9 @@ public final class ShopCart {
                 : Collections.emptyList();
     }
 
-    public @NotNull Collection<Payment> getUncollectedPayments() {
+    public @NotNull Collection<Payment> getShopCartPayments() {
         return getPayments().stream()
+                .filter(Payment::isReported)
                 .filter(Payment::isUncollected)
                 .collect(Collectors.toList());
     }

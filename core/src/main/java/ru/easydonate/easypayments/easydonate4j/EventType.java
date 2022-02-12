@@ -37,4 +37,10 @@ public enum EventType {
         return UNKNOWN;
     }
 
+    @Override
+    public @NotNull String toString() {
+        return key;
+    }
+
 }
+

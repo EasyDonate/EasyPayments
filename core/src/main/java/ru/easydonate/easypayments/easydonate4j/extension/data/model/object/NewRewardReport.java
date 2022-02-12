@@ -16,15 +16,17 @@ public final class NewRewardReport extends EventReportObject implements CommandR
     private final int rewardId;
 
     @SerializedName("commands")
-    private final List<CommandReport> commandReports;
+    private List<CommandReport> commandReports;
 
     public NewRewardReport(int rewardId) {
         this.rewardId = rewardId;
-        this.commandReports = new ArrayList<>();
     }
 
     @Override
-    public void addCommandReport(@NotNull CommandReport commandReport) {
+    public synchronized void addCommandReport(@NotNull CommandReport commandReport) {
+        if(commandReports == null)
+            commandReports = new ArrayList<>();
+
         commandReports.add(commandReport);
     }
 
@@ -32,6 +34,7 @@ public final class NewRewardReport extends EventReportObject implements CommandR
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         NewRewardReport that = (NewRewardReport) o;
         return rewardId == that.rewardId &&
@@ -40,13 +43,14 @@ public final class NewRewardReport extends EventReportObject implements CommandR
 
     @Override
     public int hashCode() {
-        return Objects.hash(rewardId, commandReports);
+        return Objects.hash(super.hashCode(), rewardId, commandReports);
     }
 
     @Override
     public @NotNull String toString() {
         return "NewRewardReport{" +
-                "rewardId=" + rewardId +
+                "pluginEventReports=" + pluginEventReports +
+                ", rewardId=" + rewardId +
                 ", commandReports=" + commandReports +
                 '}';
     }

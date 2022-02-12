@@ -30,12 +30,18 @@ import ru.easydonate.easypayments.task.PluginTask;
 import ru.easydonate.easypayments.task.ReportCacheWorker;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 public class EasyPaymentsPlugin extends JavaPlugin {
 
     public static final String COMMAND_EXECUTOR_NAME = "@EasyPayments";
     public static final String TROUBLESHOOTING_POST_URL = "https://vk.cc/c3JBSF";
     public static final String USER_AGENT_FORMAT = "EasyPayments %s";
+
+    public static final int ACCESS_KEY_LENGTH = 32;
+    public static final Pattern ACCESS_KEY_REGEX = Pattern.compile("[a-f0-9]{32}");
+    public static final Pattern CONFIG_ACCESS_KEY_REGEX = Pattern.compile("^'?\"?key\"?'?:\\s*'?\"?([\\w\\d]*)\"?'?");
+    public static final Pattern CONFIG_SERVER_ID_REGEX = Pattern.compile("^'?\"?server-id\"?'?:\\s*(\\d*)");
 
     private static EasyPaymentsPlugin instance;
 
@@ -125,6 +131,17 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         info(" ");
 
         getServer().getScheduler().runTaskAsynchronously(this, this::checkForUpdates);
+
+        getLogger().info("Access key: '" + accessKey + "'");
+        getLogger().info("Server ID: '" + serverId + "'");
+
+        config.updateExistingFile(CONFIG_ACCESS_KEY_REGEX, "custom-access-key");
+        config.updateExistingFile(CONFIG_SERVER_ID_REGEX, 1337228);
+        loadConfigurations();
+
+        getLogger().info("<---> config updated <--->");
+        getLogger().info("Access key: '" + accessKey + "'");
+        getLogger().info("Server ID: '" + serverId + "'");
     }
 
     @Override
@@ -159,11 +176,16 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         messages.reload();
     }
 
-    private void validateConfiguration(@NotNull Configuration config) {
+    private synchronized void validateConfiguration(@NotNull Configuration config) {
         // validating the shop key
         this.accessKey = config.getString("key");
         if(accessKey == null || accessKey.isEmpty())
             throw new ConfigurationValidationException("Please, specify your unique shop key in the config.yml!");
+
+        // validating the shop key format
+        this.accessKey = accessKey.toLowerCase();
+        if(accessKey.length() != ACCESS_KEY_LENGTH || !ACCESS_KEY_REGEX.matcher(accessKey).matches())
+            throw new ConfigurationValidationException("Please, specify a VALID shop key (32 hex chars) in the config.yml!");
 
         // validating the server ID
         this.serverId = config.getInt("server-id", 0);
@@ -208,7 +230,11 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         if(message != null)
             error(message, args);
 
-        error(ex.toString());
+        if(ex instanceof ConfigurationValidationException)
+            error(ex.getMessage());
+        else
+            error(ex.toString());
+
         error("Need a help? Please, check our guide here: %s", TROUBLESHOOTING_POST_URL);
         error("Disabling plugin...");
         getServer().getPluginManager().disablePlugin(this);
