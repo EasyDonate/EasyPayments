@@ -1,7 +1,9 @@
 package ru.easydonate.easypayments.command.shopcart;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.command.CommandExecutor;
 import ru.easydonate.easypayments.command.annotation.*;
@@ -14,10 +16,7 @@ import ru.easydonate.easypayments.shopcart.ShopCart;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -57,6 +56,25 @@ public final class CommandBrowse extends CommandExecutor {
             throwWrongSyntax();
 
         showCartContent(sender, sender.getName(), false);
+    }
+
+    @Override
+    public @Nullable List<String> provideTabCompletions(@NotNull CommandSender sender, @NotNull List<String> args) {
+        if(args.size() != 1)
+            return null;
+
+        String arg = args.get(0).toLowerCase();
+        if(sender.hasPermission(BROWSE_OTHERS_PERMISSION)) {
+            return Arrays.stream(plugin.getServer().getOfflinePlayers())
+                    .map(OfflinePlayer::getName)
+                    .distinct()
+                    .filter(n -> n.toLowerCase().startsWith(arg))
+                    .collect(Collectors.toList());
+        } else if(isPlayer(sender) && sender.getName().toLowerCase().startsWith(arg)) {
+            return Collections.singletonList(sender.getName());
+        }
+
+        return null;
     }
 
     private void showCartContent(@NotNull CommandSender sender, @NotNull String playerName, boolean browsingOthers) throws ExecutionException {

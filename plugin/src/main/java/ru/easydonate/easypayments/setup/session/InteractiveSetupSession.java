@@ -33,7 +33,7 @@ public interface InteractiveSetupSession {
         }
     }
 
-    void init();
+    void initialize();
 
     @NotNull CommandSender asBukkitSender();
 

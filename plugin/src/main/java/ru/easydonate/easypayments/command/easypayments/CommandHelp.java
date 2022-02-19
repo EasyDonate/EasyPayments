@@ -41,6 +41,7 @@ public final class CommandHelp extends CommandExecutor {
 
                 .newLine()
                 .withCommand("cart get")
+                .withArgumentFrom("player")
                 .withDescriptionFrom("cart-get")
                 .withPermission("cart.get")
                 .add()

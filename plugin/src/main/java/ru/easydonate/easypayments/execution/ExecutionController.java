@@ -134,7 +134,10 @@ public final class ExecutionController {
                 .stream()
                 .collect(Collectors.toMap(Payment::getId, p -> p));
 
-        System.out.println("Unreported payments: " + payments);
+
+        if(EasyPaymentsPlugin.isDebugEnabled()) {
+            plugin.getLogger().info("[Debug] Unreported payments: " + payments);
+        }
 
         reports.stream()
                 .map(EventUpdateReport::getReportObjects)

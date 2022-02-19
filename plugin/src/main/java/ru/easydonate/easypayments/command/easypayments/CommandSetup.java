@@ -15,8 +15,6 @@ import ru.easydonate.easypayments.config.Messages;
 import ru.easydonate.easypayments.exception.UnsupportedCallerException;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 
-import java.util.Collections;
-
 @Command("setup")
 @CommandAliases({"config", "configure"})
 @Permission("easypayments.command.setup")
@@ -38,7 +36,7 @@ public final class CommandSetup extends CommandDispatcher {
 
     @Override
     protected void onUsageWithoutArgs(@NotNull CommandSender sender) throws ExecutionException {
-        validateExecution(sender, Collections.emptyList());
+        validateExecution(sender);
 
         if(setupProvider.hasSession(sender)) {
             setupProvider.closeSession(sender);

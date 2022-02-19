@@ -5,9 +5,176 @@
 #  © EasyDonate 2020-2022 - All rights reserved
 #
 
+error:
+  unavailable-feature: |
+    &cThis plugin feature isn't available just now!
+    &7Probably, this plugin hasn't configured correctly.
+  unknown-command: |
+    &cYou tried to use an unknown command!
+    &7Please, use '/ep help' for help.
+  wrong-syntax: |
+    &cYou used this command incorrectly!
+    &7A syntax is: %correct_syntax%
+  no-permissions: "&cYou don't have enough permissions!"
+  only-for-players: '&cThis command is available only for players!'
+  unsupported-caller: '&cThis command cannot be executed by this entity!'
+
+cart-get:
+  failed:
+    cart-unavailable: '&cPlease, try it again later!'
+    no-purchases: '&cYour shop cart is empty!'
+
+  header: '&6-=- &7Given Purchases &6-=-'
+  body: '&7• &b%name% &fx &b%amount% &7(%time_ago%)'
+  footer: ' '
+
+  no-value-stub: '&c<n/a>'
+
+cart-browse:
+  yourself:
+    failed:
+      cart-unavailable: '&cPlease, try it again later!'
+      no-purchases: '&cYour shop cart is empty!'
+
+    header: '&6-=- &7Your Shop Cart &6-=-'
+    body: '&7• &b%name% &fx &b%amount% &7(%time_ago% ago)'
+    footer: ' '
+
+    no-value-stub: '&c<n/a>'
+
+  other:
+    failed:
+      no-purchases: "&c%player%'s shop cart is empty!"
+
+    header: "&6-=- &7%player%'s Shop Cart &6-=-"
+    body: '&7• &b%name% &fx &b%amount% &7(%time_ago% ago)'
+    footer: ' '
+
+    no-value-stub: '&c<n/a>'
+
+setup:
+  failed:
+    wrong-key-length: '&cA shop key must consist of 32 hexadecimal characters!'
+    wrong-key-regex: "&cA shop key must consist of numbers (0-9) and hex letters (a-f)!"
+    wrong-server-id: '&cA server ID must be a number greater that 0!'
+    wrong-short-answer: '&7Please, use &aYES &7or &cNO &7as an answer to the question.'
+  interactive:
+    start: |
+      &fYou have entered to the fast setup mode!
+      &7Send your answers to further questions directly 
+      &7to the game chat like a simple chat message.
+      &cYou can exit by sending 'exit' phrase anytime.
+      &r 
+    access-key:
+      already-specified: |
+        &fYour current access key is: &b%access_key%
+        &7Do you actually want to change that?
+        &7Send &aYES &7or &cNO &7to continue...
+      used-current-value: '&aOkay, using the current access key.'
+      enter-new-value: '&7Send a new access key to the game chat...'
+      enter-value-again: '&7Please, try to enter a valid access key again...'
+    server-id:
+      already-specified: |
+        &fYour current server ID is: &b#%server_id%
+        &7Do you actually want to change that?
+        &7Send &aYES &7or &cNO &7to continue...
+      used-current-value: '&aOkay, using the current server ID.'
+      enter-new-value: '&7Send a new server ID to the game chat...'
+      enter-value-again: '&7Please, try to enter a valid server ID again...'
+    finish: |
+      &r 
+      &aThe plugin setup has been completed!
+      &7Payments processing will start soon.
+  exit: '&aThe fast setup mode has been disabled!'
+  success:
+    access-key: '&aThe shop key was installed: &2%access_key%'
+    server-id: '&aThe server ID was installed: &2#%server_id%'
+  tips:
+    access-key: |
+      &7You don't specify a shop key yet!
+      &7Use: &o/ep setup access-key <key>
+    server-id: |
+      &7You don't specify a connected server ID yet!
+      &7Use: &o/ep setup server-id <#ID>
+
+status:
+  message: |
+    &6-=- &7The EasyPayments Status &6-=-
+    &7• &fStatus: &r%plugin_status%
+    &7• &fStorage: &r%storage_status%
+    &7• &fPlatform shop key: &b%access_key%
+    &7• &fConnected to server: &b%server_id%
+    &7Made with &4♥ &7by EasyDonate
+
+  status:
+    working: '&aWorking'
+    unconfigured: '&cUnconfigured'
+
+  storage:
+    available: '&aAvailable'
+    unavailable: '&cUnavailable'
+
+  no-value-stub: '&c<n/a>'
+
+reload:
+  failed:
+    some-error-occurred: |
+      &cAn error occurred during the plugin reloading!
+      &c%error_message%
+      &7Need a help? Please, check our guide here:
+      &7%troubleshooting_post_url%
+  success: '&aEasyPayments has been reloaded.'
+
+cart-notification: |-
+  &r 
+  &r &eWassup! &7You have some uncollected items in your cart!
+  &r &7You can use the &a/cart get &7command to collect that.
+  &r &7You also can browse the shop cart content by using
+  &r &7the &b/cart browse &7command in the game chat.
+  &r 
+
 update-notification: |-
   &r 
   &r &cHey! &rA new version of &eEasyPayments &ris available!
   &r &rCurrent version: &b%current_version%&r, available version: &a%available_version%
   &r &rDownload: &6%download_url%
   &r 
+
+help:
+  header: '&6-=- &7Help for EasyPayments &6-=-'
+  body: ' &f• &b/%command% &a&l- &7%description% '
+  footer: ' '
+
+  # Color codes are supported here (use '&' character)
+  descriptions:
+    help: 'Show this page'
+    cart-get: 'Collect purchases from cart'
+    cart-browse: 'Show the shop cart content'
+    status: 'Show the plugin status'
+    setup: 'Enter to the fast setup mode'
+    setup-access-key: 'Set a new shop key'
+    setup-server-id: 'Ser a new server ID'
+    reload: 'Reload this plugin'
+
+  # Example: /shopcart browse [player]
+  #          [player] is an argument
+  arguments:
+    player: '[player]'
+    access-key: '<key>'
+    server-id: '<#ID>'
+
+# The relative/estimated time formatting configuration
+# (?) Example: 7h. 37m. ago
+relative-time-format:
+  # The delimiter between two time units
+  # (?) Example: '7h, 37m'    ', ' is a delimiter
+  delimiter: ' '
+
+  # The time unit formats customization
+  # (?) The '%d' will be replaced with the real time unit value
+  # (?) You can just remove any parameter to hide related time unit
+  time-units:
+    seconds: '%d second(s)'
+    minutes: '%d minute(s)'
+    hours: '%d hour(s)'
+    days: '%d day(s)'

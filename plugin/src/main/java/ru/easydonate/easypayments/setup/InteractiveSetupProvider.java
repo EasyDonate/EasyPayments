@@ -179,6 +179,7 @@ public final class InteractiveSetupProvider {
 
         synchronized (sessions) {
             InteractiveSetupSession session = InteractiveSetupSession.create(this, sender);
+            session.initialize();
             sessions.put(sender, session);
             return session;
         }

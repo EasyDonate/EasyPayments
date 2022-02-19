@@ -3,6 +3,9 @@ main: ru.easydonate.easypayments.EasyPaymentsPlugin
 version: ${plugin.version}
 authors: [SoKnight, DontFollow]
 description: ${plugin.description}
+libraries:
+- org.postgresql:postgresql:42.3.3
+- com.h2database:h2:2.1.210
 api-version: 1.13
 
 commands:

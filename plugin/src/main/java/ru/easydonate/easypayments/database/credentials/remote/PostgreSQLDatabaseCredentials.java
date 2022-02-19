@@ -8,8 +8,8 @@ import ru.easydonate.easypayments.exception.DriverNotFoundException;
 
 public final class PostgreSQLDatabaseCredentials extends AbstractRemoteDatabaseCredentials {
 
-    public static final String DRIVER_DOWNLOAD_URL = "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar";
-    public static final String DRIVER_FILE_CHECKSUM = "30299cd5ee3f86eb748b6cc1157df484";
+    public static final String DRIVER_DOWNLOAD_URL = "https://repo1.maven.org/maven2/org/postgresql/postgresql/42.3.3/postgresql-42.3.3.jar";
+    public static final String DRIVER_FILE_CHECKSUM = "bef0b2e1c6edcd8647c24bed31e1a4ac";
     public static final String DRIVER_OUTPUT_FILE = "postgresql.jar";
 
     public static final String DRIVER_CLASS = "org.postgresql.Driver";

@@ -78,7 +78,7 @@ public abstract class AbstractDatabaseCredentials implements DatabaseCredentials
             File driverFile = downloadDriver(plugin);
             loaded = dependencyLoader.load(driverFile);
 
-            if (loaded) {
+            if(loaded) {
                 checkDriver(plugin, false);
                 plugin.getLogger().info(databaseType.getName() + " JDBC Driver has been loaded into the JVM Runtime.");
             }

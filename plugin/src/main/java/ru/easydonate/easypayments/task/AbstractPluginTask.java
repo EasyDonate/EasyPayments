@@ -28,7 +28,7 @@ public abstract class AbstractPluginTask implements PluginTask, Runnable {
 
     @Override
     public boolean isWorking() {
-        return bukkitTask != null;
+        return bukkitTask != null && !bukkitTask.isCancelled();
     }
 
     @Override

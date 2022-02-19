@@ -8,8 +8,8 @@ import ru.easydonate.easypayments.exception.DriverNotFoundException;
 
 public final class H2DatabaseCredentials extends AbstractLocalDatabaseCredentials {
 
-    public static final String DRIVER_DOWNLOAD_URL = "https://search.maven.org/remotecontent?filepath=com/h2database/h2/2.0.206/h2-2.0.206.jar";
-    public static final String DRIVER_FILE_CHECKSUM = "20862be3ea4d011d041ec80ca0ae92d3";
+    public static final String DRIVER_DOWNLOAD_URL = "https://repo1.maven.org/maven2/com/h2database/h2/2.1.210/h2-2.1.210.jar";
+    public static final String DRIVER_FILE_CHECKSUM = "af4adae008b4f91819f078c55dbef025";
     public static final String DRIVER_OUTPUT_FILE = "h2.jar";
 
     public static final String DRIVER_CLASS = "org.h2.Driver";

@@ -23,7 +23,7 @@ public abstract class AbstractSetupSession implements InteractiveSetupSession {
     }
 
     @Override
-    public void init() {
+    public void initialize() {
         setupProvider.currentStepIn(this);
     }
 
