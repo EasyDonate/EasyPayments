@@ -124,9 +124,10 @@ public final class ExecutionController {
             return;
         }
 
-        // TODO remove that later
-        System.out.println("Uploaded reports:");
-        System.out.println(reports.toPrettyString());
+        if(EasyPaymentsPlugin.isDebugEnabled()) {
+            plugin.getLogger().info("[Debug] Uploaded reports:");
+            plugin.getLogger().info(reports.toPrettyString());
+        }
 
         Map<Integer, Payment> payments = plugin.getStorage().getAllUnreportedPayments(getServerId())
                 .join()
@@ -169,9 +170,10 @@ public final class ExecutionController {
             return;
         }
 
-        // TODO remove that later
-        System.out.println("Uploaded cart reports:");
-        System.out.println(updateReports.toPrettyString());
+        if(EasyPaymentsPlugin.isDebugEnabled()) {
+            plugin.getLogger().info("[Debug] Uploaded cart reports:");
+            plugin.getLogger().info(updateReports.toPrettyString());
+        }
 
         payments.stream()
                 .filter(Payment::markAsCollected)
