@@ -79,6 +79,8 @@ public abstract class AbstractConfiguration<C extends AbstractConfiguration<C>> 
             List<String> lines = Files.readAllLines(outputFilePath, StandardCharsets.UTF_8);
             lines.replaceAll(line -> replace(line, regex, value));
             Files.write(outputFilePath, lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+            this.bukkitConfig = YamlConfiguration.loadConfiguration(outputFilePath.toFile());
         } catch (IOException ex) {
             plugin.getLogger().severe("Failed to update configuration file '" + fileName + "': " + ex.getMessage());
         }
@@ -148,6 +150,10 @@ public abstract class AbstractConfiguration<C extends AbstractConfiguration<C>> 
     public @Nullable String getString(@NotNull String path, @NotNull Supplier<String> def) {
         String value = bukkitConfig.getString(path);
         return value != null ? value : def.get();
+    }
+
+    public @NotNull List<String> getStringList(@NotNull String path) {
+        return bukkitConfig.getStringList(path);
     }
 
     public boolean getBoolean(@NotNull String path) {

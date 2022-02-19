@@ -10,7 +10,6 @@ import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.easydonate4j.EventType;
-import ru.easydonate.easypayments.easydonate4j.extension.client.EasyPaymentsClient;
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReport;
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReports;
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.CommandReport;
@@ -27,17 +26,10 @@ public final class ReportCacheWorker extends AbstractPluginTask {
     private static final long TASK_PERIOD = 6000L;
 
     private final ExecutionController executionController;
-    private final EasyPaymentsClient easyPaymentsClient;
 
-    public ReportCacheWorker(
-            @NotNull Plugin plugin,
-            @NotNull ExecutionController executionController,
-            @NotNull EasyPaymentsClient easyPaymentsClient
-    ) {
+    public ReportCacheWorker(@NotNull Plugin plugin, @NotNull ExecutionController executionController) {
         super(plugin, 20L);
-
         this.executionController = executionController;
-        this.easyPaymentsClient = easyPaymentsClient;
     }
 
     @Override
@@ -51,11 +43,11 @@ public final class ReportCacheWorker extends AbstractPluginTask {
             return;
 
         int serverId = executionController.getServerId();
-        DatabaseManager databaseManager = executionController.getDatabaseManager();
+        DatabaseManager databaseManager = executionController.getPlugin().getStorage();
 
         // do that synchronously to prevent any conflicts with other tasks
         List<Payment> payments;
-        synchronized (executionController.getDatabaseManager()) {
+        synchronized (executionController.getPlugin().getStorage()) {
             if(!isWorking())
                 return;
 
@@ -81,7 +73,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
                     .forEach(report::addObject);
 
             try {
-                executionController.uploadReports(easyPaymentsClient, reports);
+                executionController.uploadReports(reports);
 
                 payments.stream()
                         .filter(Payment::markAsReported)

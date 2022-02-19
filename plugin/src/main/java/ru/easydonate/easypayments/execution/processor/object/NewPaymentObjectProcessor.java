@@ -28,12 +28,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPaymentEvent, NewPaymentReport> {
 
     private final ExecutionController controller;
-    private final DatabaseManager databaseManager;
     private final ShopCartStorage shopCartStorage;
 
     public NewPaymentObjectProcessor(@NotNull ExecutionController controller) {
         this.controller = controller;
-        this.databaseManager = controller.getDatabaseManager();
         this.shopCartStorage = controller.getShopCartStorage();
 
         super.registerPluginEventProcessor(PluginEventType.PURCHASE_NOTIFICATIONS, this::processPurchaseNotifications);
@@ -54,12 +52,13 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
 
         int paymentId = eventObject.getPaymentId();
         OfflinePlayer customerPlayer = eventObject.getOfflinePlayer();
-//        boolean addToCart = controller.shouldAddToCart(customerPlayer);
         boolean useCart = controller.isShopCartEnabled();
 
         NewPaymentReport report = new NewPaymentReport(paymentId, useCart);
         List<PurchasedProduct> products = eventObject.getProducts();
         products.forEach(PurchasedProduct::validate);
+
+        DatabaseManager databaseManager = controller.getPlugin().getStorage();
 
         Customer customer = shopCartStorage.getShopCart(customerPlayer).getCustomer();
         Payment payment = customer.createPayment(paymentId, controller.getServerId());
@@ -98,6 +97,8 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
 
         List<String> commands = product.getObject().getCommands();
         List<CommandReport> reports = controller.processCommandsKeepSequence(commands);
+
+        DatabaseManager databaseManager = controller.getPlugin().getStorage();
 
         Purchase purchase = payment.createPurchase(product.getObject(), reports);
         databaseManager.savePurchase(purchase).join();

@@ -114,6 +114,10 @@ public final class Purchase {
             return responses.get(index);
     }
 
+    public boolean hasCommands() {
+        return commands != null && !commands.isEmpty();
+    }
+
     public boolean isCollected() {
         return responses != null;
     }

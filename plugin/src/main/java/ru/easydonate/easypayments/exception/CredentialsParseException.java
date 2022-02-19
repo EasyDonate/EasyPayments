@@ -4,7 +4,7 @@ import lombok.Getter;
 import ru.easydonate.easypayments.database.DatabaseType;
 
 @Getter
-public class CredentialsParseException extends Exception {
+public final class CredentialsParseException extends Exception {
 
     private final DatabaseType databaseType;
 

@@ -5,12 +5,11 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.database.DatabaseType;
 import ru.easydonate.easypayments.exception.CredentialsParseException;
+import ru.easydonate.easypayments.utility.Reflection;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public final class DatabaseCredentialsParser {
@@ -45,48 +44,36 @@ public final class DatabaseCredentialsParser {
         Map<String, Object> keys = config.getValues(false);
 
         // working with fields
-        List<Field> fields = new ArrayList<>();
-        Class<?> clazz = providingClass;
+        Map<Field, CredentialField> fields = Reflection.findAnnotatedDeclaredFields(providingClass, CredentialField.class);
+        if(!fields.isEmpty()) {
+            for (Field field : fields.keySet()) {
+                CredentialField annotation = fields.get(field);
 
-        while(clazz != null) {
-            for(Field field : clazz.getDeclaredFields()) {
-                if(field.isAnnotationPresent(CredentialField.class)) {
-                    fields.add(field);
-                }
-            }
-
-            clazz = clazz.getSuperclass();
-        }
-
-        for(Field field : fields) {
-            CredentialField annotation = field.getAnnotation(CredentialField.class);
-            if(annotation == null)
-                continue;
-
-            String fieldName = field.getName();
-            String configField = annotation.value();
-            if(configField == null)
-                continue;
-
-            Object configValue = keys.get(configField);
-            if(configValue == null) {
-                if(annotation.optional()) {
+                String fieldName = field.getName();
+                String configField = annotation.value();
+                if(configField == null)
                     continue;
-                } else {
-                    throw new CredentialsParseException("A required credentials field '" + fieldName + "' isn't specified in your config!", databaseType);
+
+                Object configValue = keys.get(configField);
+                if(configValue == null) {
+                    if(annotation.optional()) {
+                        continue;
+                    } else {
+                        throw new CredentialsParseException("A required credentials field '" + fieldName + "' isn't specified in your config!", databaseType);
+                    }
                 }
-            }
 
-            try {
-                field.setAccessible(true);
-            } catch (SecurityException ex) {
-                throw new CredentialsParseException("Couldn't make field '" + fieldName + "' accessible!", databaseType);
-            }
+                try {
+                    field.setAccessible(true);
+                } catch (SecurityException ex) {
+                    throw new CredentialsParseException("Couldn't make field '" + fieldName + "' accessible!", databaseType);
+                }
 
-            try {
-                field.set(credentials, configValue);
-            } catch (IllegalAccessException ex) {
-                throw new CredentialsParseException("Couldn't modify value of field '" + fieldName + "'!", databaseType);
+                try {
+                    field.set(credentials, configValue);
+                } catch (IllegalAccessException ex) {
+                    throw new CredentialsParseException("Couldn't modify value of field '" + fieldName + "'!", databaseType);
+                }
             }
         }
 

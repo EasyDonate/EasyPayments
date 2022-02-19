@@ -32,11 +32,15 @@ public final class ShopCart {
                 : Collections.emptyList();
     }
 
-    public @NotNull Collection<Payment> getShopCartPayments() {
+    public @NotNull Collection<Payment> getContent() {
         return getPayments().stream()
                 .filter(Payment::isReported)
                 .filter(Payment::isUncollected)
                 .collect(Collectors.toList());
+    }
+
+    public boolean hasContent() {
+        return !getContent().isEmpty();
     }
 
     @Override

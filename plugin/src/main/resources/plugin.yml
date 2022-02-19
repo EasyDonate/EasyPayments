@@ -10,6 +10,7 @@ commands:
     aliases: [ep]
     description: The main plugin command
     usage: /easypayments help
+
   shopcart:
     aliases: [cart]
     description: The shop cart management command
@@ -45,6 +46,11 @@ permissions:
     description: Gives access to see the plugin status info
     default: op
 
+  # /easypayments setup
+  easypayments.command.setup:
+    description: Gives access to configure the plugin
+    default: op
+
   # /easypayments reload
   easypayments.command.reload:
     description: Gives access to reload plugin configurations
@@ -53,3 +59,13 @@ permissions:
   # +---------------------+
   # |    Miscellaneous    |
   # +---------------------+
+
+  # uncollected cart items notification
+  easypayments.notify.cart:
+    description: Notifies this player about uncollected cart items
+    default: true
+
+  # a new version available notification
+  easypayments.notify.update:
+    description: Notifies this player about a new version available
+    default: op

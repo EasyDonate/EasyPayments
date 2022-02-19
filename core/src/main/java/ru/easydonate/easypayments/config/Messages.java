@@ -2,9 +2,12 @@ package ru.easydonate.easypayments.config;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 public final class Messages extends AbstractConfiguration<Messages> {
 
@@ -63,10 +66,28 @@ public final class Messages extends AbstractConfiguration<Messages> {
         return format(getColoredString(key, def), args);
     }
 
-    public @NotNull Messages send(@NotNull CommandSender sender, @NotNull String key, @Nullable Object... args) {
+    public @NotNull Messages getAndSend(@NotNull CommandSender sender, @NotNull String key, @Nullable Object... args) {
         String message = format(getColoredString(key), args);
-        if(message != null && !message.isEmpty())
-            sender.sendMessage(message);
+        return send(sender, message);
+    }
+
+    public @NotNull Messages getAndSend(@NotNull Consumer<String> sendFunction, @NotNull String key, @Nullable Object... args) {
+        String message = format(getColoredString(key), args);
+        sendFunction.accept(message);
+        return this;
+    }
+
+    public @NotNull Messages send(@NotNull CommandSender sender, @NotNull String message) {
+        if(message != null && !message.isEmpty()) {
+            if(sender instanceof Player) {
+                sender.sendMessage(message);
+            } else {
+                for(String line : message.split("\n")) {
+                    sender.sendMessage(line);
+                }
+            }
+        }
+
         return this;
     }
 

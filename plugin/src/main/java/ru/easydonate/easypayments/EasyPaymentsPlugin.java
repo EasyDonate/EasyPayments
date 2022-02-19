@@ -5,6 +5,9 @@ import com.j256.ormlite.logger.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.easydonate.easypayments.command.easypayments.CommandEasyPayments;
+import ru.easydonate.easypayments.command.exception.InitializationException;
+import ru.easydonate.easypayments.command.shopcart.CommandShopCart;
 import ru.easydonate.easypayments.config.AbstractConfiguration;
 import ru.easydonate.easypayments.config.Configuration;
 import ru.easydonate.easypayments.config.Messages;
@@ -16,19 +19,21 @@ import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.database.persister.LocalDateTimePersister;
 import ru.easydonate.easypayments.easydonate4j.extension.client.EasyPaymentsClient;
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.VersionResponse;
-import ru.easydonate.easypayments.exception.ConfigurationValidationException;
-import ru.easydonate.easypayments.exception.CredentialsParseException;
-import ru.easydonate.easypayments.exception.DriverLoadException;
-import ru.easydonate.easypayments.exception.DriverNotFoundException;
+import ru.easydonate.easypayments.exception.*;
 import ru.easydonate.easypayments.execution.ExecutionController;
 import ru.easydonate.easypayments.execution.interceptor.InterceptorFactory;
+import ru.easydonate.easypayments.formatting.RelativeTimeFormatter;
+import ru.easydonate.easypayments.listener.CommandPreProcessListener;
+import ru.easydonate.easypayments.listener.PlayerJoinQuitListener;
 import ru.easydonate.easypayments.nms.UnsupportedVersionException;
 import ru.easydonate.easypayments.nms.provider.VersionedFeaturesProvider;
+import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 import ru.easydonate.easypayments.task.PaymentsQueryTask;
 import ru.easydonate.easypayments.task.PluginTask;
 import ru.easydonate.easypayments.task.ReportCacheWorker;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
@@ -48,13 +53,17 @@ public class EasyPaymentsPlugin extends JavaPlugin {
     private final Configuration config;
     private final Messages messages;
     private final String userAgent;
+    private boolean pluginEnabled;
 
     private DatabaseManager databaseManager;
     private VersionedFeaturesProvider versionedFeaturesProvider;
 
     private EasyPaymentsClient easyPaymentsClient;
+    private InteractiveSetupProvider setupProvider;
     private ShopCartStorage shopCartStorage;
     private ExecutionController executionController;
+    private RelativeTimeFormatter relativeTimeFormatter;
+    private VersionResponse versionResponse;
 
     private PluginTask paymentsQueryTask;
     private PluginTask reportCacheWorker;
@@ -72,22 +81,137 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         this.config = new Configuration(this, "config.yml").withValidator(this::validateConfiguration);
         this.messages = new Messages(this, config);
         this.userAgent = String.format(USER_AGENT_FORMAT, getDescription().getVersion());
+        this.pluginEnabled = true;
     }
 
     @Override
     public void onEnable() {
         instance = this;
 
-        // loading the plugin configurations
-        try {
-            loadConfigurations();
-        } catch (ConfigurationValidationException ex) {
-            reportException(ex);
+        // resolving the NMS implementation
+        if(!resolveNMSImplementation())
             return;
+
+        try {
+            // loading the plugin configurations
+            loadConfigurations();
+
+            // loading storage
+            loadStorage();
+
+            this.pluginEnabled = true;
+
+            // API client initialization
+            initializeApiClient();
+        } catch (ConfigurationValidationException ex) {
+            changeEnabledState(false);
+            reportException(ex);
+        } catch (StorageLoadException ex) {
+            changeEnabledState(false);
         }
 
-        // database initialization
+        // interactive setup provider initialization
+        this.setupProvider = new InteractiveSetupProvider(this, config, messages);
+
+        // shop carts storage initialization
+        this.shopCartStorage = new ShopCartStorage(this);
+
+        // relative time formatter initialization
+        this.relativeTimeFormatter = new RelativeTimeFormatter(messages);
+
+        // execution controller initialization
+        loadExecutionController();
+
+        // commands executors initialization
+        registerCommands();
+
+        // event listeners initialization
+        registerListeners();
+
+        if(pluginEnabled()) {
+            // starting tasks
+            launchTasks();
+
+            info(" ");
+            info(" &eEasyPayments &ris an official payment processing implementation.");
+            info(" &6© EasyDonate 2020-2022 &r- All rights reserved.");
+            info(" ");
+        }
+
+        getServer().getScheduler().runTaskAsynchronously(this, this::checkForUpdates);
+    }
+
+    @Override
+    public void onDisable() {
+        // closing internal tasks
+        closeTasks();
+
+        // shutting down the API client
+        shutdownApiClient();
+
+        // closing storage
+        closeStorage();
+    }
+
+    public @NotNull DatabaseManager getStorage() {
+        if(!isPluginEnabled() || databaseManager == null)
+            throw new PluginUnavailableException();
+
+        return databaseManager;
+    }
+
+    public @NotNull ExecutionController getExecutionController() {
+        return executionController;
+    }
+
+    public @NotNull RelativeTimeFormatter getRelativeTimeFormatter() {
+        return relativeTimeFormatter;
+    }
+
+    public @NotNull Optional<VersionResponse> getVersionResponse() {
+        return Optional.ofNullable(versionResponse);
+    }
+
+    public void reload() throws ConfigurationValidationException, StorageLoadException {
+        synchronized (this) {
+            this.pluginEnabled = false;
+
+            // shutting down
+            closeTasks();
+            shutdownApiClient();
+            closeStorage();
+
+            // loading all again
+            loadConfigurations();
+            loadStorage();
+            initializeApiClient();
+            loadExecutionController();
+            launchTasks();
+
+            this.pluginEnabled = true;
+        }
+    }
+
+    private synchronized void loadConfigurations() throws ConfigurationValidationException {
+        ConfigurationValidationException exception = null;
+
         try {
+            config.reload();
+        } catch (ConfigurationValidationException ex) {
+            exception = ex;
+        }
+
+        messages.reload();
+
+        if(exception != null)
+            throw exception;
+    }
+
+    private synchronized void loadStorage() throws StorageLoadException {
+        this.databaseManager = null;
+
+        try {
+            // database initialization
             Database database = new Database(this, config)
                     .registerTable(Customer.class)
                     .registerTable(Payment.class)
@@ -98,85 +222,30 @@ public class EasyPaymentsPlugin extends JavaPlugin {
             this.databaseManager = new DatabaseManager(this, config, database);
         } catch (CredentialsParseException ex) {
             reportException(ex, "Couldn't parse a database connection credentials:");
-            return;
+            throw new StorageLoadException(ex);
         } catch (DriverNotFoundException | DriverLoadException ex) {
             reportException(ex, "Couldn't load a database connection driver:");
-            return;
+            throw new StorageLoadException(ex);
         } catch (Exception ex) {
             reportException(ex, "An error has occurred when this plugin tried to establish the database connection:");
+            disablePlugin();
             ex.printStackTrace();
-            return;
+            throw new StorageLoadException(ex);
         }
-
-        // resolving the NMS implementation
-        if(!resolveNMSImplementation())
-            return;
-
-        // API client initialization
-        this.easyPaymentsClient = EasyPaymentsClient.create(accessKey, userAgent, serverId);
-
-        // shop carts storage initialization
-        this.shopCartStorage = new ShopCartStorage(databaseManager);
-
-        // execution controller initialization
-        InterceptorFactory interceptorFactory = versionedFeaturesProvider.getInterceptorFactory();
-        this.executionController = new ExecutionController(this, config, databaseManager, shopCartStorage, interceptorFactory);
-
-        // starting tasks
-        launchTasks();
-
-        info(" ");
-        info(" &eEasyPayments &ris an official payment processing implementation.");
-        info(" &6© EasyDonate 2020-2022 &r- All rights reserved.");
-        info(" ");
-
-        getServer().getScheduler().runTaskAsynchronously(this, this::checkForUpdates);
-
-        getLogger().info("Access key: '" + accessKey + "'");
-        getLogger().info("Server ID: '" + serverId + "'");
-
-        config.updateExistingFile(CONFIG_ACCESS_KEY_REGEX, "custom-access-key");
-        config.updateExistingFile(CONFIG_SERVER_ID_REGEX, 1337228);
-        loadConfigurations();
-
-        getLogger().info("<---> config updated <--->");
-        getLogger().info("Access key: '" + accessKey + "'");
-        getLogger().info("Server ID: '" + serverId + "'");
     }
 
-    @Override
-    public void onDisable() {
-        CompletableFuture<Void> paymentsQueryTaskFuture = null;
-        CompletableFuture<Void> reportCacheWorkerFuture = null;
-
-        if(paymentsQueryTask != null)
-            paymentsQueryTaskFuture = paymentsQueryTask.shutdownAsync();
-
-        if(reportCacheWorker != null)
-            reportCacheWorkerFuture = reportCacheWorker.shutdownAsync();
-
-        if(paymentsQueryTaskFuture != null || reportCacheWorkerFuture != null) {
-            getLogger().info("Closing internal tasks...");
-
-            if(paymentsQueryTaskFuture != null) {
-                paymentsQueryTaskFuture.join();
-            }
-
-            if(reportCacheWorkerFuture != null) {
-                reportCacheWorkerFuture.join();
-            }
-        }
-
+    private synchronized void closeStorage() {
         if(databaseManager != null)
             databaseManager.shutdown();
     }
 
-    private void loadConfigurations() {
-        config.reload();
-        messages.reload();
+    private synchronized void loadExecutionController() {
+        // execution controller initialization
+        InterceptorFactory interceptorFactory = versionedFeaturesProvider.getInterceptorFactory();
+        this.executionController = new ExecutionController(this, config, easyPaymentsClient, shopCartStorage, interceptorFactory);
     }
 
-    private synchronized void validateConfiguration(@NotNull Configuration config) {
+    private synchronized void validateConfiguration(@NotNull Configuration config) throws ConfigurationValidationException {
         // validating the shop key
         this.accessKey = config.getString("key");
         if(accessKey == null || accessKey.isEmpty())
@@ -214,12 +283,56 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         }
     }
 
+    private void initializeApiClient() {
+        this.easyPaymentsClient = EasyPaymentsClient.create(accessKey, userAgent, serverId);
+    }
+
+    private void shutdownApiClient() {
+        if(easyPaymentsClient != null)
+            easyPaymentsClient.getLongPollClient().shutdown();
+    }
+
+    private void registerCommands() throws InitializationException {
+        new CommandEasyPayments(this, config, messages, setupProvider);
+        new CommandShopCart(this, messages, shopCartStorage);
+    }
+
+    private void registerListeners() {
+        new PlayerJoinQuitListener(this, messages, shopCartStorage);
+        new CommandPreProcessListener(this, setupProvider);
+    }
+
     private void launchTasks() {
-        this.reportCacheWorker = new ReportCacheWorker(this, executionController, easyPaymentsClient);
+        this.reportCacheWorker = new ReportCacheWorker(this, executionController);
         this.reportCacheWorker.start();
 
-        this.paymentsQueryTask = new PaymentsQueryTask(this, executionController, easyPaymentsClient);
+        this.paymentsQueryTask = new PaymentsQueryTask(this, executionController);
         this.paymentsQueryTask.start();
+    }
+
+    private void closeTasks() {
+        CompletableFuture<Void> paymentsQueryTaskFuture = null;
+        CompletableFuture<Void> reportCacheWorkerFuture = null;
+
+        if(paymentsQueryTask != null)
+            paymentsQueryTaskFuture = paymentsQueryTask.shutdownAsync();
+
+        if(reportCacheWorker != null)
+            reportCacheWorkerFuture = reportCacheWorker.shutdownAsync();
+
+        if(paymentsQueryTaskFuture != null || reportCacheWorkerFuture != null) {
+            getLogger().info("Closing internal tasks...");
+
+            if(paymentsQueryTaskFuture != null) {
+                paymentsQueryTaskFuture.join();
+                this.paymentsQueryTask = null;
+            }
+
+            if(reportCacheWorkerFuture != null) {
+                reportCacheWorkerFuture.join();
+                this.reportCacheWorker = null;
+            }
+        }
     }
 
     private void reportException(@NotNull Throwable ex) {
@@ -236,6 +349,9 @@ public class EasyPaymentsPlugin extends JavaPlugin {
             error(ex.toString());
 
         error("Need a help? Please, check our guide here: %s", TROUBLESHOOTING_POST_URL);
+    }
+
+    private void disablePlugin() {
         error("Disabling plugin...");
         getServer().getPluginManager().disablePlugin(this);
     }
@@ -248,6 +364,8 @@ public class EasyPaymentsPlugin extends JavaPlugin {
                 String downloadUrl = response.getDownloadUrl();
                 String version = response.getVersion();
                 if(downloadUrl != null && version != null) {
+                    this.versionResponse = response;
+
                     info(" ");
                     info(" &cHey! &rA new version of &eEasyPayments &ravailable!");
                     info(" &rYour version: &b%s&r, available version: &a%s", currentVersion, version);
@@ -266,24 +384,44 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         getLogger().severe(AbstractConfiguration.colorize(String.format(message, args)));
     }
 
+    private boolean pluginEnabled() {
+        synchronized (this) {
+            return pluginEnabled;
+        }
+    }
+
+    private void changeEnabledState(boolean value) {
+        synchronized (this) {
+            this.pluginEnabled = value;
+        }
+    }
+
     public static @NotNull String getVersion() {
         return instance.getDescription().getVersion();
     }
 
+    public static boolean isPluginEnabled() {
+        return instance.pluginEnabled();
+    }
+
+    public static boolean isStorageAvailable() {
+        return isPluginEnabled() && instance.databaseManager != null;
+    }
+
     public static boolean isDebugEnabled() {
-        return instance.getConfig().getBoolean("logging.debug", false);
+        return instance.config.getBoolean("logging.debug", false);
     }
 
     public static boolean logQueryTaskErrors() {
-        return instance.getConfig().getBoolean("logging.query-task-errors", false);
+        return instance.config.getBoolean("logging.query-task-errors", false);
     }
 
     public static boolean logCacheWorkerWarnings() {
-        return instance.getConfig().getBoolean("logging.cache-worker-warnings", false);
+        return instance.config.getBoolean("logging.cache-worker-warnings", false);
     }
 
     public static boolean logCacheWorkerErrors() {
-        return instance.getConfig().getBoolean("logging.cache-worker-errors", false);
+        return instance.config.getBoolean("logging.cache-worker-errors", false);
     }
 
 }

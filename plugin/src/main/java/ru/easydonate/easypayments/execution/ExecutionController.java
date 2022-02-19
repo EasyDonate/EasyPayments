@@ -5,7 +5,6 @@ import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
@@ -14,9 +13,9 @@ import ru.easydonate.easydonate4j.exception.JsonSerializationException;
 import ru.easydonate.easypayments.Constants;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.config.Configuration;
-import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Payment;
+import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.easydonate4j.EventType;
 import ru.easydonate.easypayments.easydonate4j.extension.client.EasyPaymentsClient;
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventReportObject;
@@ -48,9 +47,9 @@ import java.util.stream.Collectors;
 @Getter
 public final class ExecutionController {
 
-    private final Plugin plugin;
+    private final EasyPaymentsPlugin plugin;
     private final Configuration config;
-    private final DatabaseManager databaseManager;
+    private final EasyPaymentsClient easyPaymentsClient;
     private final ShopCartStorage shopCartStorage;
     private final InterceptorFactory interceptorFactory;
 
@@ -59,15 +58,15 @@ public final class ExecutionController {
     private final Map<EventType, EventUpdateProcessor<? extends EventObject, ? extends EventReportObject>> eventUpdateProcessors;
 
     public ExecutionController(
-            @NotNull Plugin plugin,
+            @NotNull EasyPaymentsPlugin plugin,
             @NotNull Configuration config,
-            @NotNull DatabaseManager databaseManager,
+            @NotNull EasyPaymentsClient easyPaymentsClient,
             @NotNull ShopCartStorage shopCartStorage,
             @NotNull InterceptorFactory interceptorFactory
     ) {
         this.plugin = plugin;
         this.config = config;
-        this.databaseManager = databaseManager;
+        this.easyPaymentsClient = easyPaymentsClient;
         this.shopCartStorage = shopCartStorage;
         this.interceptorFactory = interceptorFactory;
 
@@ -110,15 +109,15 @@ public final class ExecutionController {
     }
 
     public void refreshCustomer(@NotNull Customer customer) {
-        databaseManager.refreshCustomer(customer).join();
+        plugin.getStorage().refreshCustomer(customer).join();
     }
 
     @SneakyThrows(JsonSerializationException.class)
-    public void uploadReports(@NotNull EasyPaymentsClient client, @Nullable EventUpdateReports reports) throws HttpRequestException, HttpResponseException {
+    public void uploadReports(@Nullable EventUpdateReports reports) throws HttpRequestException, HttpResponseException {
         if(reports == null || reports.isEmpty())
             return;
 
-        if(!client.uploadReports(reports)) {
+        if(!easyPaymentsClient.uploadReports(reports)) {
             plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
             plugin.getLogger().severe("Please, contact with the platform support:");
             plugin.getLogger().severe("https://vk.me/easydonateru");
@@ -129,7 +128,7 @@ public final class ExecutionController {
         System.out.println("Uploaded reports:");
         System.out.println(reports.toPrettyString());
 
-        Map<Integer, Payment> payments = databaseManager.getAllUnreportedPayments(getServerId())
+        Map<Integer, Payment> payments = plugin.getStorage().getAllUnreportedPayments(getServerId())
                 .join()
                 .stream()
                 .collect(Collectors.toMap(Payment::getId, p -> p));
@@ -145,10 +144,65 @@ public final class ExecutionController {
                 .map(payments::get)
                 .filter(Objects::nonNull)
                 .filter(Payment::markAsReported)
-                .map(databaseManager::savePayment)
+                .peek(this::markAsCollectedIfCartDisabled)
+                .map(plugin.getStorage()::savePayment)
                 .parallel()
                 .forEach(CompletableFuture::join);
     }
+
+    @SneakyThrows(JsonSerializationException.class)
+    public void uploadCartReports(@NotNull Collection<Payment> payments) throws HttpRequestException, HttpResponseException {
+        List<NewPaymentReport> eventReports = payments.parallelStream()
+                .map(this::handlePaymentFromCart)
+                .collect(Collectors.toList());
+
+        if(eventReports.isEmpty())
+            return;
+
+        EventUpdateReport<NewPaymentReport> updateReport = new EventUpdateReport<>(EventType.NEW_PAYMENT, eventReports);
+        EventUpdateReports updateReports = new EventUpdateReports(updateReport);
+
+        if(!easyPaymentsClient.uploadReports(updateReports)) {
+            plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
+            plugin.getLogger().severe("Please, contact with the platform support:");
+            plugin.getLogger().severe("https://vk.me/easydonateru");
+            return;
+        }
+
+        // TODO remove that later
+        System.out.println("Uploaded cart reports:");
+        System.out.println(updateReports.toPrettyString());
+
+        payments.stream()
+                .filter(Payment::markAsCollected)
+                .map(plugin.getStorage()::savePayment)
+                .parallel()
+                .forEach(CompletableFuture::join);
+    }
+
+    private @NotNull NewPaymentReport handlePaymentFromCart(@NotNull Payment payment) {
+        NewPaymentReport report = new NewPaymentReport(payment.getId(), false);
+
+        if(payment.hasPurchases())
+            payment.getPurchases().stream() // may be should do this in parallel stream?
+                    .filter(Purchase::hasCommands)
+                    .map(this::handlePurchaseFromCart)
+                    .flatMap(List::stream)
+                    .forEach(report::addCommandReport);
+
+        return report;
+    }
+
+    private @NotNull List<CommandReport> handlePurchaseFromCart(@NotNull Purchase purchase) {
+        List<String> commands = purchase.getCommands();
+
+        List<CommandReport> commandReports = processCommandsKeepSequence(commands);
+        purchase.collect(commandReports);
+
+        plugin.getStorage().savePurchase(purchase).join();
+        return commandReports;
+    }
+
 
     public @NotNull CompletableFuture<EventUpdateReports> processEventUpdates(@NotNull EventUpdates eventUpdates) {
         return CompletableFuture.supplyAsync(() -> {
@@ -270,6 +324,11 @@ public final class ExecutionController {
         }
 
         return interceptor;
+    }
+
+    private void markAsCollectedIfCartDisabled(@NotNull Payment payment) {
+        if(!isShopCartEnabled())
+            payment.markAsCollected();
     }
 
 }

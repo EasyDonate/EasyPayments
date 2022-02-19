@@ -1,10 +1,11 @@
 package ru.easydonate.easypayments.shopcart;
 
-import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
+import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.database.DatabaseManager;
+import ru.easydonate.easypayments.exception.PluginUnavailableException;
 
 import java.util.Collections;
 import java.util.Map;
@@ -12,15 +13,18 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Getter
 public final class ShopCartStorage {
 
-    private final DatabaseManager databaseManager;
+    private final EasyPaymentsPlugin plugin;
     private final Map<String, ShopCart> cachedShopCarts;
 
-    public ShopCartStorage(@NotNull DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
+    public ShopCartStorage(@NotNull EasyPaymentsPlugin plugin) {
+        this.plugin = plugin;
         this.cachedShopCarts = new ConcurrentHashMap<>();
+    }
+
+    public @NotNull DatabaseManager getStorage() {
+        return plugin.getStorage();
     }
 
     public @NotNull @UnmodifiableView Map<String, ShopCart> getCachedShopCarts() {
@@ -35,8 +39,19 @@ public final class ShopCartStorage {
         return Optional.ofNullable(cachedShopCarts.get(playerName));
     }
 
-    public @NotNull CompletableFuture<ShopCart> loadAndCache(@NotNull OfflinePlayer bukkitPlayer) {
-        return databaseManager.getOrCreateCustomer(bukkitPlayer).thenApply(customer -> {
+    public @NotNull CompletableFuture<ShopCart> getAndCache(@NotNull String playerName) throws PluginUnavailableException {
+        return plugin.getStorage().getCustomerByName(playerName).thenApply(customer -> {
+            if(customer == null)
+                return null;
+
+            ShopCart shopCart = new ShopCart(customer);
+            cachedShopCarts.put(playerName, shopCart);
+            return shopCart;
+        });
+    }
+
+    public @NotNull CompletableFuture<ShopCart> loadAndCache(@NotNull OfflinePlayer bukkitPlayer) throws PluginUnavailableException {
+        return plugin.getStorage().getOrCreateCustomer(bukkitPlayer).thenApply(customer -> {
             ShopCart shopCart = new ShopCart(customer);
             cachedShopCarts.put(bukkitPlayer.getName(), shopCart);
             return shopCart;
