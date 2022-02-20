@@ -2,17 +2,17 @@ package ru.easydonate.easypayments.task;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import ru.easydonate.easypayments.EasyPaymentsPlugin;
 
 import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractPluginTask implements PluginTask, Runnable {
 
-    protected final Plugin plugin;
+    protected final EasyPaymentsPlugin plugin;
     protected final long delay;
     protected BukkitTask bukkitTask;
     protected boolean active = true;
@@ -28,7 +28,7 @@ public abstract class AbstractPluginTask implements PluginTask, Runnable {
 
     @Override
     public boolean isWorking() {
-        return bukkitTask != null && !bukkitTask.isCancelled();
+        return bukkitTask != null && !plugin.getVersionedFeaturesProvider().isTaskCancelled(bukkitTask);
     }
 
     @Override

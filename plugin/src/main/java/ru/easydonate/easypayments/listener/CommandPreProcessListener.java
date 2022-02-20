@@ -10,8 +10,13 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
+import ru.easydonate.easypayments.utility.Reflection;
+
+import java.lang.reflect.Method;
 
 public final class CommandPreProcessListener implements Listener {
+
+    private static final Method setCancelled = Reflection.getMethod(ServerCommandEvent.class, "setCancelled", boolean.class);
 
     private final InteractiveSetupProvider setupProvider;
 
@@ -36,12 +41,8 @@ public final class CommandPreProcessListener implements Listener {
         CommandSender sender = event.getSender();
 
         if(setupProvider.handleChatMessage(sender, message)) {
-            try {
-                event.setCommand(null);
-                event.setCancelled(true);
-            } catch (Exception ignored) {
-                // ServerCommandEvent isn't cancellable on 1.8.X
-            }
+            event.setCommand(null);
+            Reflection.invokeVoidMethod(setCancelled, event, true);
         }
     }
 

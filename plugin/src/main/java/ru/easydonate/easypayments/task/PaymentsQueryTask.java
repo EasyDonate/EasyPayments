@@ -1,7 +1,6 @@
 package ru.easydonate.easypayments.task;
 
 import lombok.SneakyThrows;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easydonate4j.api.v3.exception.ApiResponseFailureException;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
@@ -25,7 +24,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
     private final ExecutorService longPollExecutorService;
     private CompletableFuture<EventUpdates> longPollQueryTask;
 
-    public PaymentsQueryTask(@NotNull Plugin plugin, @NotNull ExecutionController executionController) {
+    public PaymentsQueryTask(@NotNull EasyPaymentsPlugin plugin, @NotNull ExecutionController executionController) {
         super(plugin, 100L);
         this.executionController = executionController;
         this.longPollExecutorService = Executors.newSingleThreadExecutor();

@@ -2,6 +2,7 @@ package ru.easydonate.easypayments.nms.provider;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.execution.interceptor.InterceptorFactory;
 import ru.easydonate.easypayments.nms.MinecraftVersion;
@@ -62,6 +63,8 @@ public interface VersionedFeaturesProvider {
     @NotNull String getNMSVersion();
 
     @NotNull InterceptorFactory getInterceptorFactory();
+
+    boolean isTaskCancelled(@NotNull BukkitTask bukkitTask);
 
     interface Builder {
 

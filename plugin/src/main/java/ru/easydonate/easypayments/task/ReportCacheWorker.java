@@ -1,6 +1,5 @@
 package ru.easydonate.easypayments.task;
 
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easydonate4j.api.v3.exception.ApiResponseFailureException;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
@@ -27,7 +26,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
 
     private final ExecutionController executionController;
 
-    public ReportCacheWorker(@NotNull Plugin plugin, @NotNull ExecutionController executionController) {
+    public ReportCacheWorker(@NotNull EasyPaymentsPlugin plugin, @NotNull ExecutionController executionController) {
         super(plugin, 20L);
         this.executionController = executionController;
     }

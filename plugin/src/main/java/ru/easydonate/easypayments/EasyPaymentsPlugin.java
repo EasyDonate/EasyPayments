@@ -153,6 +153,10 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         closeStorage();
     }
 
+    public @NotNull VersionedFeaturesProvider getVersionedFeaturesProvider() {
+        return versionedFeaturesProvider;
+    }
+
     public @NotNull DatabaseManager getStorage() {
         if(!isPluginEnabled() || databaseManager == null)
             throw new PluginUnavailableException();

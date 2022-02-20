@@ -3,6 +3,7 @@ package ru.easydonate.easypayments.nms.provider;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.execution.interceptor.InterceptorFactory;
 
@@ -32,6 +33,11 @@ public abstract class AbstractVersionedFeaturesProvider implements VersionedFeat
     }
 
     protected abstract @NotNull InterceptorFactory createInterceptorFactory(@NotNull String executorName, int permissionLevel);
+
+    @Override
+    public boolean isTaskCancelled(@NotNull BukkitTask bukkitTask) {
+        return bukkitTask.isCancelled();
+    }
 
     @RequiredArgsConstructor
     protected static final class Builder implements VersionedFeaturesProvider.Builder {
