@@ -20,8 +20,6 @@ public final class NewWithdrawEvent extends EventObject {
 
     @Override
     public void validate() throws StructureValidationException {
-        super.validate();
-
         if(withdrawId <= 0)
             validationFail("'withdrawId' must be > 0, but it's %d", withdrawId);
 
