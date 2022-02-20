@@ -19,7 +19,7 @@ public abstract class AbstractRemoteDatabaseCredentials extends AbstractAuthData
     @CredentialField("port")
     protected int port;
 
-    @CredentialField("name")
+    @CredentialField("database")
     protected String databaseName;
 
     protected AbstractRemoteDatabaseCredentials(@NotNull DatabaseType databaseType) {

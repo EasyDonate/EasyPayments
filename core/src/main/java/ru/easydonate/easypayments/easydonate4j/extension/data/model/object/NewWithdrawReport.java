@@ -12,14 +12,14 @@ import java.util.Objects;
 @Getter
 public final class NewWithdrawReport extends EventReportObject implements CommandReporting {
 
-    @SerializedName("payment_id")
-    private final int paymentId;
+    @SerializedName("withdraw_id")
+    private final int withdrawId;
 
     @SerializedName("commands")
     private List<CommandReport> commandReports;
 
-    public NewWithdrawReport(int paymentId) {
-        this.paymentId = paymentId;
+    public NewWithdrawReport(int withdrawId) {
+        this.withdrawId = withdrawId;
     }
 
     @Override
@@ -37,20 +37,20 @@ public final class NewWithdrawReport extends EventReportObject implements Comman
         if (!super.equals(o)) return false;
 
         NewWithdrawReport that = (NewWithdrawReport) o;
-        return paymentId == that.paymentId &&
+        return withdrawId == that.withdrawId &&
                 Objects.equals(commandReports, that.commandReports);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), paymentId, commandReports);
+        return Objects.hash(super.hashCode(), withdrawId, commandReports);
     }
 
     @Override
     public @NotNull String toString() {
         return "NewWithdrawReport{" +
                 "pluginEventReports=" + pluginEventReports +
-                ", paymentId=" + paymentId +
+                ", withdrawId=" + withdrawId +
                 ", commandReports=" + commandReports +
                 '}';
     }

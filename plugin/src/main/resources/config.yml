@@ -29,8 +29,8 @@ database:
   mysql:
     host: localhost
     port: 3306
-    name: easypayments
-    user: admin
+    database: easypayments
+    username: admin
     password: easypayments
     params:
     - 'autoReconnect=true'
@@ -40,8 +40,8 @@ database:
   postgresql:
     host: localhost
     port: 5432
-    name: easypayments
-    user: admin
+    database: easypayments
+    username: admin
     password: easypayments
     params:
     - 'autoReconnect=true'
@@ -49,7 +49,7 @@ database:
 
   # Конфигурация подключения к H2
   h2:
-    file: database.db
+    file: database.mv.db
 
   # Конфигурация подключения к SQLite
   sqlite:

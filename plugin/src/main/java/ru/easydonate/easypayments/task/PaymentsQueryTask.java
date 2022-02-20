@@ -75,8 +75,11 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 if(updates == null || updates.isEmpty())
                     return;
 
-                System.out.println("LongPoll API updates:");
-                System.out.println(updates.toPrettyString());
+                if(EasyPaymentsPlugin.isDebugEnabled()) {
+                    plugin.getLogger().info("[Debug] LongPoll API updates:");
+                    plugin.getLogger().info(updates.toPrettyString());
+                }
+
                 EventUpdateReports reports = executionController.processEventUpdates(updates).join();
                 executionController.uploadReports(reports);
             } catch (ApiResponseFailureException ex) {

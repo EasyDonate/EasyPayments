@@ -20,8 +20,8 @@ public final class NewWithdrawObjectProcessor extends EventObjectProcessor<NewWi
     public @NotNull NewWithdrawReport processObject(@NotNull NewWithdrawEvent eventObject) throws StructureValidationException {
         eventObject.validate();
 
-        int paymentId = eventObject.getPaymentId();
-        NewWithdrawReport report = new NewWithdrawReport(paymentId);
+        int withdrawId = eventObject.getWithdrawId();
+        NewWithdrawReport report = new NewWithdrawReport(withdrawId);
         List<String> commands = eventObject.getCommands();
 
         // execute commands just now

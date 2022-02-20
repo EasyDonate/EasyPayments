@@ -117,6 +117,11 @@ public final class ExecutionController {
         if(reports == null || reports.isEmpty())
             return;
 
+        if(EasyPaymentsPlugin.isDebugEnabled()) {
+            plugin.getLogger().info("[Debug] Uploading reports:");
+            plugin.getLogger().info(reports.toPrettyString());
+        }
+
         if(!easyPaymentsClient.uploadReports(reports)) {
             plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
             plugin.getLogger().severe("Please, contact with the platform support:");
@@ -125,8 +130,7 @@ public final class ExecutionController {
         }
 
         if(EasyPaymentsPlugin.isDebugEnabled()) {
-            plugin.getLogger().info("[Debug] Uploaded reports:");
-            plugin.getLogger().info(reports.toPrettyString());
+            plugin.getLogger().info("[Debug] Reports have been uploaded.");
         }
 
         Map<Integer, Payment> payments = plugin.getStorage().getAllUnreportedPayments(getServerId())
@@ -156,6 +160,20 @@ public final class ExecutionController {
 
     @SneakyThrows(JsonSerializationException.class)
     public void uploadCartReports(@NotNull Collection<Payment> payments) throws HttpRequestException, HttpResponseException {
+        if(EasyPaymentsPlugin.isDebugEnabled()) {
+            plugin.getLogger().info("[Debug] Marking payments as collected...");
+        }
+
+        payments.stream()
+                .filter(Payment::markAsCollected)
+                .map(plugin.getStorage()::savePayment)
+                .parallel()
+                .forEach(CompletableFuture::join);
+
+        if(EasyPaymentsPlugin.isDebugEnabled()) {
+            plugin.getLogger().info("[Debug] Constructing the event update report...");
+        }
+
         List<NewPaymentReport> eventReports = payments.parallelStream()
                 .map(this::handlePaymentFromCart)
                 .collect(Collectors.toList());
@@ -166,6 +184,11 @@ public final class ExecutionController {
         EventUpdateReport<NewPaymentReport> updateReport = new EventUpdateReport<>(EventType.NEW_PAYMENT, eventReports);
         EventUpdateReports updateReports = new EventUpdateReports(updateReport);
 
+        if(EasyPaymentsPlugin.isDebugEnabled()) {
+            plugin.getLogger().info("[Debug] Uploading cart reports:");
+            plugin.getLogger().info(updateReports.toPrettyString());
+        }
+
         if(!easyPaymentsClient.uploadReports(updateReports)) {
             plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
             plugin.getLogger().severe("Please, contact with the platform support:");
@@ -174,15 +197,8 @@ public final class ExecutionController {
         }
 
         if(EasyPaymentsPlugin.isDebugEnabled()) {
-            plugin.getLogger().info("[Debug] Uploaded cart reports:");
-            plugin.getLogger().info(updateReports.toPrettyString());
+            plugin.getLogger().info("[Debug] Cart reports have been uploaded.");
         }
-
-        payments.stream()
-                .filter(Payment::markAsCollected)
-                .map(plugin.getStorage()::savePayment)
-                .parallel()
-                .forEach(CompletableFuture::join);
     }
 
     private @NotNull NewPaymentReport handlePaymentFromCart(@NotNull Payment payment) {

@@ -12,8 +12,8 @@ import java.util.Objects;
 @Getter
 public final class NewWithdrawEvent extends EventObject {
 
-    @SerializedName("payment_id")
-    private int paymentId;
+    @SerializedName("withdraw_id")
+    private int withdrawId;
 
     @SerializedName("commands")
     private List<String> commands;
@@ -22,8 +22,8 @@ public final class NewWithdrawEvent extends EventObject {
     public void validate() throws StructureValidationException {
         super.validate();
 
-        if(paymentId <= 0)
-            validationFail("'paymentId' must be > 0, but it's %d", paymentId);
+        if(withdrawId <= 0)
+            validationFail("'withdrawId' must be > 0, but it's %d", withdrawId);
 
         if(commands == null || commands.isEmpty())
             validationFail("no commands present");
@@ -36,13 +36,13 @@ public final class NewWithdrawEvent extends EventObject {
         if (!super.equals(o)) return false;
 
         NewWithdrawEvent that = (NewWithdrawEvent) o;
-        return paymentId == that.paymentId &&
+        return withdrawId == that.withdrawId &&
                 Objects.equals(commands, that.commands);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), paymentId, commands);
+        return Objects.hash(super.hashCode(), withdrawId, commands);
     }
 
     @Override
@@ -50,7 +50,7 @@ public final class NewWithdrawEvent extends EventObject {
         return "NewWithdrawEvent{" +
                 "customer='" + customer + '\'' +
                 ", pluginEvents=" + pluginEvents +
-                ", paymentId=" + paymentId +
+                ", withdrawId=" + withdrawId +
                 ", commands=" + commands +
                 '}';
     }
