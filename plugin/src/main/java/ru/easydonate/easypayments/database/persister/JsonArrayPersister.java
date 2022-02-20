@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.internal.$Gson$Types;
 import com.j256.ormlite.field.FieldType;
 import com.j256.ormlite.field.SqlType;
 import com.j256.ormlite.field.types.LongStringType;
@@ -28,7 +28,7 @@ public final class JsonArrayPersister extends LongStringType {
                 .disableHtmlEscaping()
                 .create();
 
-        this.genericType = TypeToken.getParameterized(List.class, String.class).getType();
+        this.genericType = $Gson$Types.newParameterizedTypeWithOwner(null, List.class, String.class);
     }
 
     public static @NotNull JsonArrayPersister getSingleton() {
