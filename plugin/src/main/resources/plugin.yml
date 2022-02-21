@@ -54,6 +54,11 @@ permissions:
     description: Gives access to configure the plugin
     default: op
 
+  # /easypayments migrate <into>
+  easypayments.command.migrate:
+    description: Gives access to migrate plugin data from current database to another
+    default: op
+
   # /easypayments reload
   easypayments.command.reload:
     description: Gives access to reload plugin configurations

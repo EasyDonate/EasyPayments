@@ -59,7 +59,9 @@ public final class CommandBrowse extends CommandExecutor {
     }
 
     @Override
-    public @Nullable List<String> provideTabCompletions(@NotNull CommandSender sender, @NotNull List<String> args) {
+    public @Nullable List<String> provideTabCompletions(@NotNull CommandSender sender, @NotNull List<String> args) throws ExecutionException {
+        validateExecution(sender, args);
+
         if(args.size() != 1)
             return null;
 

@@ -79,6 +79,13 @@ public final class CommandHelp extends CommandExecutor {
                 .add()
 
                 .newLine()
+                .withCommand("easypayments migrate")
+                .withArgumentFrom("database-type")
+                .withDescriptionFrom("migrate")
+                .withPermission("migrate")
+                .add()
+
+                .newLine()
                 .withCommand("easypayments reload")
                 .withDescriptionFrom("reload")
                 .withPermission("reload")

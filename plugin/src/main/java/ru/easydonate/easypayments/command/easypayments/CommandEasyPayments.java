@@ -27,7 +27,8 @@ public final class CommandEasyPayments extends CommandDispatcher {
 
         registerChild(new CommandHelp(messages));
         registerChild(new CommandSetup(config, messages, setupProvider));
-        registerChild(new CommandStatus(config, messages));
+        registerChild(new CommandStatus(plugin, messages));
+        registerChild(new CommandMigrate(plugin, config, messages));
         registerChild(new CommandReload(plugin, messages));
 
         register(plugin);

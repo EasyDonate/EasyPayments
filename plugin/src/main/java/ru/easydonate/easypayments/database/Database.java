@@ -4,6 +4,7 @@ import com.j256.ormlite.field.DataPersister;
 import com.j256.ormlite.field.DataPersisterManager;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,7 @@ import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+@Getter
 public final class Database {
 
     private final DatabaseType databaseType;
@@ -32,19 +34,33 @@ public final class Database {
             DriverLoadException,
             SQLException
     {
+        this(plugin, config, parseDatabaseType(config));
+    }
+
+    public Database(@NotNull Plugin plugin, @NotNull Configuration config, @NotNull DatabaseType databaseType) throws
+            CredentialsParseException,
+            DriverNotFoundException,
+            DriverLoadException,
+            SQLException
+    {
         this.registeredTables = new LinkedHashSet<>();
-
-        String rawType = config.getString("database.type", "");
-        this.databaseType = DatabaseType.getByKey(rawType);
-
-        if(databaseType.isUnknown())
-            throw new IllegalArgumentException(String.format("Unknown database type '%s'!", rawType));
+        this.databaseType = databaseType;
 
         ConfigurationSection credentialsConfig = config.getSection("database." + databaseType.getKey());
         this.databaseCredentials = DatabaseCredentialsParser.parse(plugin, credentialsConfig, databaseType);
         this.databaseCredentials.loadDriver(plugin);
 
         this.bootstrapConnection = establishConnection();
+    }
+
+    private static @NotNull DatabaseType parseDatabaseType(@NotNull Configuration config) throws IllegalArgumentException {
+        String rawType = config.getString("database.type", "");
+        DatabaseType databaseType = DatabaseType.getByKey(rawType);
+
+        if(databaseType.isUnknown())
+            throw new IllegalArgumentException(String.format("Unknown database type '%s'!", rawType));
+
+        return databaseType;
     }
 
     public @NotNull DatabaseType getDatabaseType() {

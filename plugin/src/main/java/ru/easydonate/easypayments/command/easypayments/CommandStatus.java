@@ -9,7 +9,6 @@ import ru.easydonate.easypayments.command.annotation.CommandAliases;
 import ru.easydonate.easypayments.command.annotation.Permission;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
-import ru.easydonate.easypayments.config.Configuration;
 import ru.easydonate.easypayments.config.Messages;
 import ru.easydonate.easypayments.utility.StringMasker;
 
@@ -20,14 +19,14 @@ import java.util.List;
 @Permission("easypayments.command.status")
 public final class CommandStatus extends CommandExecutor {
 
-    private final Configuration config;
+    private final EasyPaymentsPlugin plugin;
 
     public CommandStatus(
-            @NotNull Configuration config,
+            @NotNull EasyPaymentsPlugin plugin,
             @NotNull Messages messages
     ) throws InitializationException {
         super(messages);
-        this.config = config;
+        this.plugin = plugin;
     }
 
     @Override
@@ -37,14 +36,16 @@ public final class CommandStatus extends CommandExecutor {
         boolean isPluginEnabled = EasyPaymentsPlugin.isPluginEnabled();
         boolean isStorageAvailable = EasyPaymentsPlugin.isStorageAvailable();
 
-        String accessKey = StringMasker.maskAccessKey(config.getString("key"));
-        int serverId = config.getInt("server-id", 0);
+        String accessKey = StringMasker.maskAccessKey(plugin.getAccessKey());
+        int serverId = plugin.getServerId();
+        int permissionLevel = plugin.getPermissionLevel();
 
         messages.getAndSend(sender, "status.message",
                 "%plugin_status%", wrapBoolean(isPluginEnabled, "status.working", "status.unconfigured"),
                 "%storage_status%", wrapBoolean(isStorageAvailable, "storage.available", "storage.unavailable"),
                 "%access_key%", accessKey != null && !accessKey.isEmpty() ? accessKey : getNoValueStub(),
-                "%server_id%", serverId > 0 ? ("#" + serverId) : getNoValueStub()
+                "%server_id%", serverId > 0 ? ("#" + serverId) : getNoValueStub(),
+                "%permission_level%", permissionLevel > 0 ? permissionLevel : getNoValueStub()
         );
     }
 

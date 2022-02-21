@@ -26,6 +26,7 @@ import ru.easydonate.easypayments.formatting.RelativeTimeFormatter;
 import ru.easydonate.easypayments.listener.CommandPreProcessListener;
 import ru.easydonate.easypayments.listener.PlayerJoinQuitListener;
 import ru.easydonate.easypayments.nms.UnsupportedVersionException;
+import ru.easydonate.easypayments.nms.provider.AbstractVersionedFeaturesProvider;
 import ru.easydonate.easypayments.nms.provider.VersionedFeaturesProvider;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
@@ -176,6 +177,18 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         return Optional.ofNullable(versionResponse);
     }
 
+    public @Nullable String getAccessKey() {
+        return accessKey;
+    }
+
+    public int getServerId() {
+        return serverId;
+    }
+
+    public int getPermissionLevel() {
+        return permissionLevel;
+    }
+
     public void reload() throws ConfigurationValidationException, StorageLoadException {
         synchronized (this) {
             this.pluginEnabled = false;
@@ -269,6 +282,10 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         this.permissionLevel = config.getInt("permission-level", 4);
         if(permissionLevel < 0)
             permissionLevel = 0;
+
+        // updating permission level in existing versioned features provider instance
+        if(versionedFeaturesProvider != null)
+            ((AbstractVersionedFeaturesProvider) versionedFeaturesProvider).updateInterceptorFactory(COMMAND_EXECUTOR_NAME, permissionLevel);
     }
 
     private boolean resolveNMSImplementation() {

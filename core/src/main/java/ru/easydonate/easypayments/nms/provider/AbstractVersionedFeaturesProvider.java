@@ -13,8 +13,8 @@ import java.util.concurrent.Executor;
 public abstract class AbstractVersionedFeaturesProvider implements VersionedFeaturesProvider {
 
     protected final Plugin plugin;
-    protected final InterceptorFactory interceptorFactory;
     protected final Executor bukkitSyncExecutor;
+    protected InterceptorFactory interceptorFactory;
 
     public AbstractVersionedFeaturesProvider(@NotNull Plugin plugin, @NotNull String executorName, int permissionLevel) {
         this.plugin = plugin;
@@ -34,9 +34,13 @@ public abstract class AbstractVersionedFeaturesProvider implements VersionedFeat
 
     protected abstract @NotNull InterceptorFactory createInterceptorFactory(@NotNull String executorName, int permissionLevel);
 
+    public synchronized void updateInterceptorFactory(@NotNull String executorName, int permissionLevel) {
+        this.interceptorFactory = createInterceptorFactory(executorName, permissionLevel);
+    }
+
     @Override
     public boolean isTaskCancelled(@NotNull BukkitTask bukkitTask) {
-        return bukkitTask.isCancelled();
+        return bukkitTask == null || bukkitTask.isCancelled();
     }
 
     @RequiredArgsConstructor

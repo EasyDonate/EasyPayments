@@ -104,6 +104,7 @@ status:
     &7• &fStorage: &r%storage_status%
     &7• &fPlatform shop key: &b%access_key%
     &7• &fConnected to server: &b%server_id%
+    &7• &fPermissions level: &b%permission_level%
     &7Made with &4♥ &7by EasyDonate
 
   status:
@@ -115,6 +116,33 @@ status:
     unavailable: '&cUnavailable'
 
   no-value-stub: '&c<n/a>'
+
+migrate:
+  failed:
+    storage-unavailable: |
+      &cStorage is unavailable now!
+      &7Probably, this plugin is configured incorrectly.
+    unknown-target: |
+      &cUnknown destination database type!
+      &7Available values: sqlite, h2, mysql, postgresql
+    same-target: |
+      &cIt's useless to migrate from this database and to that!
+      &7Specify any other destination database.
+    invalid-credentials: '&cThe database credentials are specified incorrectly, check it.'
+    driver-load-failed: '&cThe destination database driver is failed to load.'
+    connection-failed: |
+      &cCouldn't connect to the destination database:
+      &c%message%
+    unexpected-error: |
+      &cAn unexpected error occurred during the migration:
+      &c%message%
+  starting: '&7Starting data migration from &b%from% &7to &b%to%&7...'
+  success: |
+    &aData migration from &2%from% &ato &2%to% &ahas been completed!
+    &7Migration results:
+    &7• &fCustomers: &b%customers_amount%
+    &7• &fPayments: &b%payments_amount%
+    &7• &fPurchases: &b%purchases_amount%
 
 reload:
   failed:
@@ -154,6 +182,7 @@ help:
     setup: 'Enter to the fast setup mode'
     setup-access-key: 'Set a new shop key'
     setup-server-id: 'Ser a new server ID'
+    migrate: 'Миграция данных из БД'
     reload: 'Reload this plugin'
 
   # Example: /shopcart browse [player]
@@ -162,6 +191,7 @@ help:
     player: '[player]'
     access-key: '<key>'
     server-id: '<#ID>'
+    database-type: '<target>'
 
 # The relative/estimated time formatting configuration
 # (?) Example: 7h. 37m. ago

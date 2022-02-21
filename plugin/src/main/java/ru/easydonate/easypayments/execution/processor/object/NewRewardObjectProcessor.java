@@ -22,13 +22,10 @@ public final class NewRewardObjectProcessor extends EventObjectProcessor<NewRewa
 
         int rewardId = eventObject.getRewardId();
         NewRewardReport report = new NewRewardReport(rewardId);
+        List<String> commands = eventObject.getCommands();
 
-        if(controller.isOfflineRewardsEnabled() || eventObject.isCustomerOnline()) {
-            // execute commands just now
-            List<String> commands = eventObject.getCommands();
-            controller.processCommandsKeepSequence(commands).forEach(report::addCommandReport);
-        }
-
+        // execute commands just now
+        controller.processCommandsKeepSequence(commands).forEach(report::addCommandReport);
         return report;
     }
 

@@ -48,7 +48,9 @@ public final class H2DatabaseCredentials extends AbstractLocalDatabaseCredential
     protected void checkDriver(@NotNull Plugin plugin, boolean tryDownloadDriver) throws DriverNotFoundException, DriverLoadException {
         try {
             checkDriver(plugin, DRIVER_CLASS);
-            plugin.getLogger().info("H2 JDBC Driver is already loaded in the JVM Runtime.");
+            if(tryDownloadDriver) {
+                plugin.getLogger().info("H2 JDBC Driver is already loaded in the JVM Runtime.");
+            }
         } catch (DriverNotFoundException ex) {
             if(tryDownloadDriver) {
                 tryDownloadDriver(plugin);

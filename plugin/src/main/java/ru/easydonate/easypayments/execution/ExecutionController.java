@@ -3,7 +3,6 @@ package ru.easydonate.easypayments.execution;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -92,20 +91,11 @@ public final class ExecutionController {
     }
 
     public int getFeedbackAwaitTime() {
-        return config.getLimitedInt("feedback-await-time", Constants.MIN_FEEDBACK_AWAIT_TIME, Constants.MAX_FEEDBACK_AWAIT_TIME);
+        return config.getLimitedInt("feedback-await-time", Constants.MIN_FEEDBACK_AWAIT_TIME, Constants.MAX_FEEDBACK_AWAIT_TIME, Constants.DEFAULT_FEEDBACK_AWAIT_TIME);
     }
 
     public boolean isShopCartEnabled() {
         return config.getBoolean("use-shop-cart", Constants.DEFAULT_SHOP_CART_STATUS);
-    }
-
-    public boolean isOfflineRewardsEnabled() {
-        return config.getBoolean("offline-rewards", Constants.DEFAULT_OFFLINE_REWARDS_STATUS);
-    }
-
-    @Deprecated
-    public boolean shouldAddToCart(@NotNull OfflinePlayer customer) {
-        return !customer.isOnline() && isShopCartEnabled();
     }
 
     public void refreshCustomer(@NotNull Customer customer) {

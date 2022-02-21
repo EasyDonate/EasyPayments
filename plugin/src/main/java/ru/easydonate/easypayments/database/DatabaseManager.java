@@ -3,6 +3,8 @@ package ru.easydonate.easypayments.database;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.support.ConnectionSource;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
@@ -18,22 +20,27 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.logging.Logger;
 
 public final class DatabaseManager {
 
     private final Logger logger;
     private final Configuration config;
+    private final Database database;
+
     private final ConnectionSource connectionSource;
     private final ExecutorService asyncExecutorService;
 
-    private final Dao<Customer, String> customersDao;
-    private final Dao<Payment, Integer> paymentsDao;
-    private final Dao<Purchase, Integer> purchasesDao;
+    @Getter(AccessLevel.PRIVATE) private final Dao<Customer, String> customersDao;
+    @Getter(AccessLevel.PRIVATE) private final Dao<Payment, Integer> paymentsDao;
+    @Getter(AccessLevel.PRIVATE) private final Dao<Purchase, Integer> purchasesDao;
 
     public DatabaseManager(@NotNull Plugin plugin, @NotNull Configuration config, @NotNull Database database) throws SQLException {
         this.logger = plugin.getLogger();
         this.config = config;
+        this.database = database;
+
         this.connectionSource = database.establishConnection();
         this.asyncExecutorService = Executors.newCachedThreadPool();
 
@@ -48,6 +55,39 @@ public final class DatabaseManager {
 
         if(connectionSource != null)
             connectionSource.closeQuietly();
+    }
+
+    public @NotNull DatabaseType getDatabaseType() {
+        return database.getDatabaseType();
+    }
+
+    public @NotNull CompletableFuture<Integer> transferCustomersDataFrom(@NotNull DatabaseManager sourceStorage) {
+        return transferDataFrom(sourceStorage, DatabaseManager::getCustomersDao);
+    }
+
+    public @NotNull CompletableFuture<Integer> transferPaymentsDataFrom(@NotNull DatabaseManager sourceStorage) {
+        return transferDataFrom(sourceStorage, DatabaseManager::getPaymentsDao);
+    }
+
+    public @NotNull CompletableFuture<Integer> transferPurchasesDataFrom(@NotNull DatabaseManager sourceStorage) {
+        return transferDataFrom(sourceStorage, DatabaseManager::getPurchasesDao);
+    }
+
+    private <T, ID> @NotNull CompletableFuture<Integer> transferDataFrom(
+            @NotNull DatabaseManager sourceStorage,
+            @NotNull Function<DatabaseManager, Dao<T, ID>> daoExtractor
+    ) {
+        return supplyAsync(() -> {
+            Dao<T, ID> sourceDao = daoExtractor.apply(sourceStorage);
+            Dao<T, ID> destinationDao = daoExtractor.apply(this);
+
+            List<T> entries = sourceDao.queryForAll();
+            for(T entry : entries) {
+                destinationDao.createIfNotExists(entry);
+            }
+
+            return entries.size();
+        });
     }
 
     // --- customers

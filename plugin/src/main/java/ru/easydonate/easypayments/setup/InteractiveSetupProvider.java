@@ -11,12 +11,13 @@ import ru.easydonate.easypayments.setup.session.InteractiveSetupSession;
 import ru.easydonate.easypayments.setup.step.function.*;
 import ru.easydonate.easypayments.utility.StringMasker;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public final class InteractiveSetupProvider {
+
+    private static final List<String> ANSWERS_AGREE = Arrays.asList("yes", "y", "да", "д");
+    private static final List<String> ANSWERS_REFUSE = Arrays.asList("no", "n", "нет", "н");
+    private static final List<String> ANSWERS_EXIT = Arrays.asList("exit", "quit", "q", "выйти");
 
     private final EasyPaymentsPlugin plugin;
     private final Configuration config;
@@ -59,12 +60,10 @@ public final class InteractiveSetupProvider {
         if(answer.isEmpty())
             return ShortAnswer.UNDEFINED;
 
-        List<String> agreeAnswers = config.getStringList("short-answers.agree");
-        if(!agreeAnswers.isEmpty() && agreeAnswers.stream().anyMatch(answer::equalsIgnoreCase))
+        if(ANSWERS_AGREE.stream().anyMatch(answer::equalsIgnoreCase))
             return ShortAnswer.YES;
 
-        List<String> refuseAnswers = config.getStringList("short-answers.refuse");
-        if(!refuseAnswers.isEmpty() && refuseAnswers.stream().anyMatch(answer::equalsIgnoreCase))
+        if(ANSWERS_REFUSE.stream().anyMatch(answer::equalsIgnoreCase))
             return ShortAnswer.NO;
 
         return ShortAnswer.UNDEFINED;
@@ -119,8 +118,7 @@ public final class InteractiveSetupProvider {
         if(message == null || message.isEmpty())
             return false;
 
-        List<String> exitPhrases = config.getStringList("exit-phrases");
-        if(!exitPhrases.isEmpty() && exitPhrases.stream().anyMatch(message::equalsIgnoreCase)) {
+        if(ANSWERS_EXIT.stream().anyMatch(message::equalsIgnoreCase)) {
             messages.getAndSend(session::sendMessage, "setup.exit");
             closeSession(session.asBukkitSender());
             return true;
