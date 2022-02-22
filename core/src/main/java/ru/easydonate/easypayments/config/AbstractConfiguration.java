@@ -31,6 +31,7 @@ public abstract class AbstractConfiguration<C extends AbstractConfiguration<C>> 
 
     protected InputStream resource;
     protected FileConfiguration bukkitConfig;
+    protected boolean newFileCreated;
 
     public AbstractConfiguration(@NotNull Plugin plugin) {
         this.plugin = plugin;
@@ -48,18 +49,25 @@ public abstract class AbstractConfiguration<C extends AbstractConfiguration<C>> 
         return dataFolder.resolve(fileName.replace('/', File.separatorChar));
     }
 
-    public @NotNull C reload() throws ConfigurationValidationException {
-        String resourcePath = getResourcePath();
+    protected @Nullable InputStream getResource(@NotNull String path, boolean mustBeFound) {
+        InputStream resource = plugin.getClass().getResourceAsStream(path);
+        if(mustBeFound && resource == null)
+            throw new IllegalArgumentException("Cannot find a resource by path: " + path);
 
-        this.resource = plugin.getClass().getResourceAsStream(resourcePath);
-        if(resource == null)
-            throw new IllegalArgumentException("Cannot find a resource by path: " + resourcePath);
+        return resource;
+    }
+
+    public @NotNull C reload() throws ConfigurationValidationException {
+        this.resource = getResource(getResourcePath(), true);
 
         Path outputFilePath = resolveOutputFilePath();
         try {
+            this.newFileCreated = false;
+
             if(!Files.isRegularFile(outputFilePath)) {
                 Files.createDirectories(outputFilePath.getParent());
                 Files.copy(resource, outputFilePath, StandardCopyOption.REPLACE_EXISTING);
+                this.newFileCreated = true;
             }
 
             this.bukkitConfig = YamlConfiguration.loadConfiguration(outputFilePath.toFile());
