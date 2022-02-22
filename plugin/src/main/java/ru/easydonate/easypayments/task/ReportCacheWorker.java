@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.RejectedExecutionException;
 
 public final class ReportCacheWorker extends AbstractPluginTask {
 
@@ -45,12 +46,15 @@ public final class ReportCacheWorker extends AbstractPluginTask {
         DatabaseManager databaseManager = executionController.getPlugin().getStorage();
 
         // do that synchronously to prevent any conflicts with other tasks
-        List<Payment> payments;
+        List<Payment> payments = null;
         synchronized (executionController.getPlugin().getStorage()) {
             if(!isWorking())
                 return;
 
-            payments = databaseManager.getAllUnreportedPayments(serverId).join();
+            try {
+                payments = databaseManager.getAllUnreportedPayments(serverId).join();
+            } catch (RejectedExecutionException ignored) {
+            }
         }
 
         if(payments == null || payments.isEmpty()) {
