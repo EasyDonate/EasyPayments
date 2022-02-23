@@ -61,7 +61,7 @@ public final class ShopCartStorage {
     public @NotNull CompletableFuture<ShopCart> loadAndCache(@NotNull OfflinePlayer bukkitPlayer, @NotNull String playerName) throws PluginUnavailableException {
         return plugin.getStorage().getOrCreateCustomer(bukkitPlayer, playerName).thenApply(customer -> {
             ShopCart shopCart = new ShopCart(customer);
-            cachedShopCarts.put(bukkitPlayer.getName(), shopCart);
+            cachedShopCarts.put(playerName, shopCart);
             return shopCart;
         });
     }

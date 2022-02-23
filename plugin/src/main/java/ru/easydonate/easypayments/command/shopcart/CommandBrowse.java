@@ -90,7 +90,7 @@ public final class CommandBrowse extends CommandExecutor {
             } else {
                 plugin.getLogger().warning(String.format("%s's shop cart still isn't cached!", playerName));
                 plugin.getLogger().warning("Probably a database connection is very slow...");
-                throw new ExecutionException(messages.get("cart-browse.failed.cart-unavailable"));
+                throw new ExecutionException(messages.get(messagesRoot + ".failed.cart-unavailable"));
             }
 
         } else {
