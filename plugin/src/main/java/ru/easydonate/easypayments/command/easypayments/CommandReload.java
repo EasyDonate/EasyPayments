@@ -35,7 +35,7 @@ public final class CommandReload extends CommandExecutor {
         } catch (Exception ex) {
             messages.getAndSend(sender, "reload.failed.some-error-occurred",
                     "%error_message%", ex.getMessage(),
-                    "%troubleshooting_post_url%", EasyPaymentsPlugin.TROUBLESHOOTING_POST_URL
+                    "%troubleshooting_page_url%", EasyPaymentsPlugin.TROUBLESHOOTING_PAGE_URL
             );
         }
     }

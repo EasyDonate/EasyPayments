@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 public class EasyPaymentsPlugin extends JavaPlugin {
 
     public static final String COMMAND_EXECUTOR_NAME = "@EasyPayments";
-    public static final String TROUBLESHOOTING_POST_URL = "https://vk.cc/c3JBSF";
+    public static final String TROUBLESHOOTING_PAGE_URL = "https://docs.easypayments.easydonate.ru";
     public static final String USER_AGENT_FORMAT = "EasyPayments %s";
 
     public static final int ACCESS_KEY_LENGTH = 32;
@@ -369,7 +369,8 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         else
             error(ex.toString());
 
-        error("Need a help? Please, check our guide here: %s", TROUBLESHOOTING_POST_URL);
+        error("Need a help? You can learn the documentation here:");
+        error("> %s", TROUBLESHOOTING_PAGE_URL);
     }
 
     private void disablePlugin() {

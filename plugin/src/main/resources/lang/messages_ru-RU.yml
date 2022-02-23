@@ -149,8 +149,8 @@ reload:
     some-error-occurred: |
       &cПри перезагрузке плагина произошла ошибка!
       &c%error_message%
-      &7Нужна помощь? Вы можете изучить данную статью:
-      &7%troubleshooting_post_url%
+      &7Нужна помощь? Вы можете изучить документацию здесь:
+      &7%troubleshooting_page_url%
   success: '&aEasyPayments был успешно перезагружен.'
 
 cart-notification: |-

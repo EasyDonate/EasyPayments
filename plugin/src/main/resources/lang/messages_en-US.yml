@@ -149,8 +149,8 @@ reload:
     some-error-occurred: |
       &cAn error occurred during the plugin reloading!
       &c%error_message%
-      &7Need a help? Please, check our guide here:
-      &7%troubleshooting_post_url%
+      &7Need a help? You can learn the documentation here:
+      &7%troubleshooting_page_url%
   success: '&aEasyPayments has been reloaded.'
 
 cart-notification: |-
