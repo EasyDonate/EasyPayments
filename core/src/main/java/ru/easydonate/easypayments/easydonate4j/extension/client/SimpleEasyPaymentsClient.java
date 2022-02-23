@@ -19,7 +19,7 @@ import ru.easydonate.easypayments.easydonate4j.longpoll.client.LongPollClient;
 @Getter
 final class SimpleEasyPaymentsClient extends SimpleEasyDonateClient implements EasyPaymentsClient {
 
-    private static final String CHECK_FOR_UPDATES_URL = "https://easydonate.ru/api/getPluginUpdates?version=%s&edition=je";
+    private static final String CHECK_FOR_UPDATES_URL = "https://ep.easydonate.ru/updates?version=%s&edition=je";
 
     private final LongPollClient longPollClient;
 
