@@ -53,6 +53,8 @@ public final class ExecutionController {
     private final InterceptorFactory interceptorFactory;
 
     private final ExecutorService asyncExecutorService;
+    private final ExecutorService commandsExecutorService;
+
     private final Map<EventType, EventObjectProcessor<? extends EventObject, ? extends EventReportObject>> eventObjectProcessors;
     private final Map<EventType, EventUpdateProcessor<? extends EventObject, ? extends EventReportObject>> eventUpdateProcessors;
 
@@ -70,6 +72,8 @@ public final class ExecutionController {
         this.interceptorFactory = interceptorFactory;
 
         this.asyncExecutorService = Executors.newCachedThreadPool();
+        this.commandsExecutorService = createAsyncExecutorService();
+
         this.eventObjectProcessors = new HashMap<>();
         this.eventUpdateProcessors = new HashMap<>();
 
@@ -84,6 +88,11 @@ public final class ExecutionController {
         this.eventUpdateProcessors.put(EventType.REPEAT_PAYMENT, new SimplePaymentEventProcessor<RepeatPaymentEvent, RepeatPaymentReport>(this));
         this.eventUpdateProcessors.put(EventType.NEW_WITHDRAW, new SimplePaymentEventProcessor<NewWithdrawEvent, NewWithdrawReport>(this));
         this.eventUpdateProcessors.put(EventType.NEW_REWARD, new SimplePaymentEventProcessor<NewRewardEvent, NewRewardReport>(this));
+    }
+
+    private @NotNull ExecutorService createAsyncExecutorService() {
+        int threadPoolSize = config.getInt("execution-thread-pool-size", -1);
+        return threadPoolSize > 0 ? Executors.newFixedThreadPool(threadPoolSize) : Executors.newCachedThreadPool();
     }
 
     public int getServerId() {
@@ -127,7 +136,6 @@ public final class ExecutionController {
                 .join()
                 .stream()
                 .collect(Collectors.toMap(Payment::getId, p -> p));
-
 
         if(EasyPaymentsPlugin.isDebugEnabled()) {
             plugin.getLogger().info("[Debug] Unreported payments: " + payments);
@@ -322,7 +330,7 @@ public final class ExecutionController {
     ) throws CommandExecutionException {
         try {
             Bukkit.dispatchCommand((CommandSender) interceptor, command);
-            return CompletableFuture.supplyAsync(() -> interceptor, asyncExecutorService);
+            return CompletableFuture.supplyAsync(() -> interceptor, commandsExecutorService);
         } catch (Throwable throwable) {
             throw new CommandExecutionException(command, throwable);
         }
