@@ -132,6 +132,11 @@ public final class ExecutionController {
             plugin.getLogger().info("[Debug] Reports have been uploaded.");
         }
 
+        if(!reports.containsReportWithType(EventType.NEW_PAYMENT)) {
+            plugin.getLogger().info("[Debug] There are no 'new_payment' events, skipping database entries update...");
+            return;
+        }
+
         Map<Integer, Payment> payments = plugin.getStorage().getAllUnreportedPayments(getServerId())
                 .join()
                 .stream()
