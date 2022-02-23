@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.execution.interceptor.InterceptorFactory;
 
 import java.util.concurrent.Executor;
@@ -39,7 +40,7 @@ public abstract class AbstractVersionedFeaturesProvider implements VersionedFeat
     }
 
     @Override
-    public boolean isTaskCancelled(@NotNull BukkitTask bukkitTask) {
+    public boolean isTaskCancelled(@Nullable BukkitTask bukkitTask) {
         return bukkitTask == null || bukkitTask.isCancelled();
     }
 

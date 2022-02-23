@@ -4,6 +4,7 @@ import org.bukkit.craftbukkit.v1_8_R1.scheduler.CraftTask;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.execution.interceptor.InterceptorFactory;
 import ru.easydonate.easypayments.nms.provider.AbstractVersionedFeaturesProvider;
 import ru.easydonate.easypayments.nms.provider.v1_8_R1.interceptor.VersionedInterceptorFactory;
@@ -30,9 +31,12 @@ public final class VersionedFeaturesProvider extends AbstractVersionedFeaturesPr
     }
 
     @Override
-    public boolean isTaskCancelled(@NotNull BukkitTask bukkitTask) {
+    public boolean isTaskCancelled(@Nullable BukkitTask bukkitTask) {
+        if(bukkitTask == null)
+            return true;
+
         if(!(bukkitTask instanceof CraftTask))
-            throw new IllegalArgumentException("this bukkit task isn't a CraftTask instance!");
+            throw new IllegalArgumentException("this bukkit task isn't a CraftTask instance! (" + bukkitTask.getClass() + ")");
 
         Optional<Long> result = Reflection.invokeMethod(getPeriod, bukkitTask);
         return !result.isPresent() || result.get() == -2L;
