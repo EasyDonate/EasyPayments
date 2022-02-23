@@ -51,6 +51,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
         eventObject.validate();
 
         int paymentId = eventObject.getPaymentId();
+        String customerName = eventObject.getCustomer();
         OfflinePlayer customerPlayer = eventObject.getOfflinePlayer();
         boolean useCart = controller.isShopCartEnabled();
 
@@ -60,7 +61,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
 
         DatabaseManager databaseManager = controller.getPlugin().getStorage();
 
-        Customer customer = shopCartStorage.getShopCart(customerPlayer).getCustomer();
+        Customer customer = shopCartStorage.getShopCart(customerPlayer, customerName).getCustomer();
         Payment payment = customer.createPayment(paymentId, controller.getServerId());
         databaseManager.savePayment(payment).join();
 

@@ -110,9 +110,13 @@ public final class DatabaseManager {
     }
 
     public @NotNull CompletableFuture<Customer> getOrCreateCustomer(@NotNull OfflinePlayer bukkitPlayer) {
-        return getCustomer(bukkitPlayer).thenApply(customer -> {
+        return getOrCreateCustomer(bukkitPlayer, bukkitPlayer.getName());
+    }
+
+    public @NotNull CompletableFuture<Customer> getOrCreateCustomer(@NotNull OfflinePlayer bukkitPlayer, @NotNull String playerName) {
+        return getCustomerByName(playerName).thenApply(customer -> {
             if(customer == null) {
-                customer = new Customer(bukkitPlayer);
+                customer = new Customer(playerName, bukkitPlayer.getUniqueId());
                 saveCustomer(customer).join();
             }
 

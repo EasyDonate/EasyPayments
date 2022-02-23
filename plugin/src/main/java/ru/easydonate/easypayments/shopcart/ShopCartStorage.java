@@ -32,7 +32,11 @@ public final class ShopCartStorage {
     }
 
     public @NotNull ShopCart getShopCart(@NotNull OfflinePlayer bukkitPlayer) {
-        return getCached(bukkitPlayer.getName()).orElseGet(() -> loadAndCache(bukkitPlayer).join());
+        return getShopCart(bukkitPlayer, bukkitPlayer.getName());
+    }
+
+    public @NotNull ShopCart getShopCart(@NotNull OfflinePlayer bukkitPlayer, @NotNull String playerName) {
+        return getCached(bukkitPlayer.getName()).orElseGet(() -> loadAndCache(bukkitPlayer, playerName).join());
     }
 
     public @NotNull Optional<ShopCart> getCached(@NotNull String playerName) {
@@ -51,7 +55,11 @@ public final class ShopCartStorage {
     }
 
     public @NotNull CompletableFuture<ShopCart> loadAndCache(@NotNull OfflinePlayer bukkitPlayer) throws PluginUnavailableException {
-        return plugin.getStorage().getOrCreateCustomer(bukkitPlayer).thenApply(customer -> {
+        return loadAndCache(bukkitPlayer, bukkitPlayer.getName());
+    }
+
+    public @NotNull CompletableFuture<ShopCart> loadAndCache(@NotNull OfflinePlayer bukkitPlayer, @NotNull String playerName) throws PluginUnavailableException {
+        return plugin.getStorage().getOrCreateCustomer(bukkitPlayer, playerName).thenApply(customer -> {
             ShopCart shopCart = new ShopCart(customer);
             cachedShopCarts.put(bukkitPlayer.getName(), shopCart);
             return shopCart;
