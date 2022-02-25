@@ -12,6 +12,7 @@ import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventUpdates;
 import ru.easydonate.easypayments.execution.ExecutionController;
 import ru.easydonate.easypayments.utility.ThreadLocker;
 
+import java.net.SocketTimeoutException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -130,6 +131,10 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 warning("[Query Task]: %s", ex.getMessage());
             }
         } catch (HttpRequestException | HttpResponseException ex) {
+            // ignore the timeout exception
+            if(ex.getCause() != null && ex.getCause() instanceof SocketTimeoutException)
+                return null;
+
             // redirect any other errors to error channel
             if(EasyPaymentsPlugin.logQueryTaskErrors()) {
                 error("[Query Task]: %s", ex.getMessage());
