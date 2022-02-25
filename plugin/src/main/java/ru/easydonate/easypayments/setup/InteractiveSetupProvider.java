@@ -12,6 +12,7 @@ import ru.easydonate.easypayments.setup.step.function.*;
 import ru.easydonate.easypayments.utility.StringMasker;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public final class InteractiveSetupProvider {
 
@@ -96,10 +97,12 @@ public final class InteractiveSetupProvider {
                     messages.getAndSend(session::sendMessage, "setup.success.server-id", "%server_id%", serverId);
                 });
 
-                try {
-                    plugin.reload();
-                } catch (Exception ignored) {
-                }
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        plugin.reload();
+                    } catch (Exception ignored) {
+                    }
+                });
             }
 
             currentStepIn(session);

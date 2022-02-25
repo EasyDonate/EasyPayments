@@ -20,7 +20,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 public final class PaymentsQueryTask extends AbstractPluginTask {
 
-    private static final String THREAD_NAME = "EasyPayments-Query-Task";
+    private static final String THREAD_NAME = "EasyPayments LongPoll Events Listener";
     private static final long TASK_PERIOD_MILLIS = 3000L;
 
     private final ExecutionController executionController;

@@ -12,6 +12,7 @@ import ru.easydonate.easypayments.command.exception.InitializationException;
 import ru.easydonate.easypayments.config.Messages;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Command("reload")
 @CommandAliases({"r", "refresh"})
@@ -29,15 +30,17 @@ public final class CommandReload extends CommandExecutor {
     public void executeCommand(@NotNull CommandSender sender, @NotNull List<String> args) throws ExecutionException {
         validateExecution(sender, args);
 
-        try {
-            plugin.reload();
-            messages.getAndSend(sender, "reload.success");
-        } catch (Exception ex) {
-            messages.getAndSend(sender, "reload.failed.some-error-occurred",
-                    "%error_message%", ex.getMessage(),
-                    "%troubleshooting_page_url%", EasyPaymentsPlugin.TROUBLESHOOTING_PAGE_URL
-            );
-        }
+        CompletableFuture.runAsync(() -> {
+            try {
+                plugin.reload();
+                messages.getAndSend(sender, "reload.success");
+            } catch (Exception ex) {
+                messages.getAndSend(sender, "reload.failed.some-error-occurred",
+                        "%error_message%", ex.getMessage(),
+                        "%troubleshooting_page_url%", EasyPaymentsPlugin.TROUBLESHOOTING_PAGE_URL
+                );
+            }
+        });
     }
 
 }

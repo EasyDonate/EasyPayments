@@ -147,6 +147,9 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         // closing internal tasks
         closeTasks();
 
+        // shutting down execution controller
+        shutdownExecutionController();
+
         // shutting down the API client
         shutdownApiClient();
 
@@ -195,6 +198,7 @@ public class EasyPaymentsPlugin extends JavaPlugin {
 
             // shutting down
             closeTasks();
+            shutdownExecutionController();
             shutdownApiClient();
             closeStorage();
 
@@ -260,6 +264,11 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         // execution controller initialization
         InterceptorFactory interceptorFactory = versionedFeaturesProvider.getInterceptorFactory();
         this.executionController = new ExecutionController(this, config, easyPaymentsClient, shopCartStorage, interceptorFactory);
+    }
+
+    private synchronized void shutdownExecutionController() {
+        if(executionController != null)
+            executionController.shutdown();
     }
 
     private synchronized void validateConfiguration(@NotNull Configuration config) throws ConfigurationValidationException {

@@ -41,6 +41,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -72,7 +73,7 @@ public final class ExecutionController {
         this.shopCartStorage = shopCartStorage;
         this.interceptorFactory = interceptorFactory;
 
-        this.asyncExecutorService = Executors.newCachedThreadPool();
+        this.asyncExecutorService = Executors.newCachedThreadPool(new ExecutionControllerThreadFactory("Async Execution Worker"));
         this.commandsExecutorService = createAsyncExecutorService();
 
         this.eventObjectProcessors = new HashMap<>();
@@ -93,7 +94,19 @@ public final class ExecutionController {
 
     private @NotNull ExecutorService createAsyncExecutorService() {
         int threadPoolSize = config.getInt("execution-thread-pool-size", -1);
-        return threadPoolSize > 0 ? Executors.newFixedThreadPool(threadPoolSize) : Executors.newCachedThreadPool();
+        ThreadFactory threadFactory = new ExecutionControllerThreadFactory("Command Execution Worker");
+
+        return threadPoolSize > 0
+                ? Executors.newFixedThreadPool(threadPoolSize, threadFactory)
+                : Executors.newCachedThreadPool(threadFactory);
+    }
+
+    public void shutdown() {
+        if(commandsExecutorService != null)
+            commandsExecutorService.shutdown();
+
+        if(asyncExecutorService != null)
+            asyncExecutorService.shutdown();
     }
 
     public int getServerId() {
@@ -351,6 +364,23 @@ public final class ExecutionController {
     private void markAsCollectedIfCartDisabled(@NotNull Payment payment) {
         if(!isShopCartEnabled())
             payment.markAsCollected();
+    }
+
+    private static final class ExecutionControllerThreadFactory implements ThreadFactory {
+
+        private final String baseThreadName;
+        private final AtomicInteger indexer;
+
+        public ExecutionControllerThreadFactory(@NotNull String baseThreadName) {
+            this.baseThreadName = baseThreadName;
+            this.indexer = new AtomicInteger();
+        }
+
+        @Override
+        public @NotNull Thread newThread(@NotNull Runnable task) {
+            return new Thread(task, String.format("EasyPayments %s #%d", baseThreadName, indexer.incrementAndGet()));
+        }
+
     }
 
 }
