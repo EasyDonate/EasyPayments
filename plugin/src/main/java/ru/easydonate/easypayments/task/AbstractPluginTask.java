@@ -8,9 +8,13 @@ import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractPluginTask implements PluginTask, Runnable {
+
+    protected static final Lock DATABASE_QUERIES_LOCK = new ReentrantLock();
 
     protected final EasyPaymentsPlugin plugin;
     protected final long delay;
@@ -38,7 +42,7 @@ public abstract class AbstractPluginTask implements PluginTask, Runnable {
 
         this.bukkitTask = period >= 0L
                 ? scheduler.runTaskTimerAsynchronously(plugin, this, delay, period)
-                : scheduler.runTaskLater(plugin, this, delay);
+                : scheduler.runTaskLaterAsynchronously(plugin, this, delay);
     }
 
     @Override

@@ -35,6 +35,7 @@ import ru.easydonate.easypayments.execution.processor.object.*;
 import ru.easydonate.easypayments.execution.processor.update.EventUpdateProcessor;
 import ru.easydonate.easypayments.execution.processor.update.SimplePaymentEventProcessor;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
+import ru.easydonate.easypayments.utility.ThreadLocker;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -99,7 +100,7 @@ public final class ExecutionController {
         return config.getInt("server-id", 0);
     }
 
-    public int getFeedbackAwaitTime() {
+    public int getFeedbackAwaitTimeMillis() {
         return config.getLimitedInt("feedback-await-time", Constants.MIN_FEEDBACK_AWAIT_TIME, Constants.MAX_FEEDBACK_AWAIT_TIME, Constants.DEFAULT_FEEDBACK_AWAIT_TIME);
     }
 
@@ -146,7 +147,7 @@ public final class ExecutionController {
             plugin.getLogger().info("[Debug] Unreported payments: " + payments);
         }
 
-        reports.stream()
+        CompletableFuture<?>[] futures = reports.stream()
                 .map(EventUpdateReport::getReportObjects)
                 .flatMap(List::stream)
                 .filter(object -> object instanceof NewPaymentReport)
@@ -157,8 +158,9 @@ public final class ExecutionController {
                 .filter(Payment::markAsReported)
                 .peek(this::markAsCollectedIfCartDisabled)
                 .map(plugin.getStorage()::savePayment)
-                .parallel()
-                .forEach(CompletableFuture::join);
+                .toArray(CompletableFuture<?>[]::new);
+
+        CompletableFuture.allOf(futures).join();
     }
 
     @SneakyThrows(JsonSerializationException.class)
@@ -342,11 +344,7 @@ public final class ExecutionController {
     }
 
     private @NotNull FeedbackInterceptor awaitForFeedback(@NotNull FeedbackInterceptor interceptor) {
-        try {
-            Thread.sleep(getFeedbackAwaitTime());
-        } catch (InterruptedException ignored) {
-        }
-
+        ThreadLocker.lockUninterruptive(getFeedbackAwaitTimeMillis());
         return interceptor;
     }
 

@@ -45,16 +45,18 @@ public final class ReportCacheWorker extends AbstractPluginTask {
         int serverId = executionController.getServerId();
         DatabaseManager databaseManager = executionController.getPlugin().getStorage();
 
-        // do that synchronously to prevent any conflicts with other tasks
         List<Payment> payments = null;
-        synchronized (executionController.getPlugin().getStorage()) {
-            if(!isWorking())
-                return;
 
-            try {
+        // do that synchronously to prevent any conflicts with other tasks
+        DATABASE_QUERIES_LOCK.lock();
+
+        try {
+            if(isWorking()) {
                 payments = databaseManager.getAllUnreportedPayments(serverId).join();
-            } catch (RejectedExecutionException ignored) {
             }
+        } catch (RejectedExecutionException ignored) {
+        } finally {
+            DATABASE_QUERIES_LOCK.unlock();
         }
 
         if(payments == null || payments.isEmpty()) {
@@ -62,39 +64,34 @@ public final class ReportCacheWorker extends AbstractPluginTask {
             return;
         }
 
-        // lock to database manager to make stable any working with commands
-        synchronized (executionController) {
-            if(!isWorking())
-                return;
+        // here the storage instance locking may be required if the storage will be used by any commands
+        EventUpdateReports reports = new EventUpdateReports();
+        EventUpdateReport<NewPaymentReport> report = new EventUpdateReport<>(EventType.NEW_PAYMENT);
+        reports.add(report);
 
-            EventUpdateReports reports = new EventUpdateReports();
-            EventUpdateReport<NewPaymentReport> report = new EventUpdateReport<>(EventType.NEW_PAYMENT);
-            reports.add(report);
+        payments.parallelStream()
+                .map(this::handlePayment)
+                .forEach(report::addObject);
 
-            payments.parallelStream()
-                    .map(this::handlePayment)
-                    .forEach(report::addObject);
+        try {
+            executionController.uploadReports(reports);
 
-            try {
-                executionController.uploadReports(reports);
-
-                payments.stream()
-                        .filter(Payment::markAsReported)
-                        .map(databaseManager::savePayment)
-                        .parallel()
-                        .forEach(CompletableFuture::join);
-            } catch (ApiResponseFailureException ex) {
-                // redirect API errors to warning channel
-                if(EasyPaymentsPlugin.logCacheWorkerWarnings() && EasyPaymentsPlugin.isDebugEnabled()) {
-                    warning(ex.getMessage());
-                }
-            } catch (HttpRequestException | HttpResponseException ex) {
-                // redirect any other errors to error channel
-                if(EasyPaymentsPlugin.logCacheWorkerErrors()) {
-                    error(ex.getMessage());
-                    if(EasyPaymentsPlugin.isDebugEnabled()) {
-                        ex.printStackTrace();
-                    }
+            payments.stream()
+                    .filter(Payment::markAsReported)
+                    .map(databaseManager::savePayment)
+                    .parallel()
+                    .forEach(CompletableFuture::join);
+        } catch (ApiResponseFailureException ex) {
+            // redirect API errors to warning channel
+            if(EasyPaymentsPlugin.logCacheWorkerWarnings() && EasyPaymentsPlugin.isDebugEnabled()) {
+                warning(ex.getMessage());
+            }
+        } catch (HttpRequestException | HttpResponseException ex) {
+            // redirect any other errors to error channel
+            if(EasyPaymentsPlugin.logCacheWorkerErrors()) {
+                error(ex.getMessage());
+                if(EasyPaymentsPlugin.isDebugEnabled()) {
+                    ex.printStackTrace();
                 }
             }
         }
