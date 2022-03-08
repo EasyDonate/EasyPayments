@@ -11,7 +11,9 @@ import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateR
 import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventUpdates;
 import ru.easydonate.easypayments.execution.ExecutionController;
 import ru.easydonate.easypayments.utility.ThreadLocker;
+import ru.easydonate.easypayments.utility.ThrowableToolbox;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -131,9 +133,17 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 warning("[Query Task]: %s", ex.getMessage());
             }
         } catch (HttpRequestException | HttpResponseException ex) {
+            Throwable lastCause = ThrowableToolbox.findLastCause(ex);
+
             // ignore the timeout exception
-            if(ex.getCause() != null && ex.getCause() instanceof SocketTimeoutException)
+            if(lastCause instanceof SocketTimeoutException)
                 return null;
+
+            // ignore HTTP 403 (access denied)
+            if(lastCause instanceof IOException && lastCause.getMessage().contains("Server returned HTTP response code: 403")) {
+                error("Access denied! Please, make sure that you are using a latest version!");
+                return null;
+            }
 
             // redirect any other errors to error channel
             if(EasyPaymentsPlugin.logQueryTaskErrors()) {

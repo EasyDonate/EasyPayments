@@ -14,7 +14,9 @@ import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateR
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.CommandReport;
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.NewPaymentReport;
 import ru.easydonate.easypayments.execution.ExecutionController;
+import ru.easydonate.easypayments.utility.ThrowableToolbox;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -87,6 +89,15 @@ public final class ReportCacheWorker extends AbstractPluginTask {
                 warning(ex.getMessage());
             }
         } catch (HttpRequestException | HttpResponseException ex) {
+            Throwable lastCause = ThrowableToolbox.findLastCause(ex);
+
+            // ignore HTTP 403 (access denied)
+            if(lastCause instanceof IOException && lastCause.getMessage().contains("Server returned HTTP response code: 403")) {
+                error("Access denied! Please, make sure that you are using a latest version!");
+                updateActivityState();
+                return;
+            }
+
             // redirect any other errors to error channel
             if(EasyPaymentsPlugin.logCacheWorkerErrors()) {
                 error(ex.getMessage());
