@@ -110,12 +110,6 @@
                 <artifactId>gson-json-provider</artifactId>
                 <version>${easydonate4j.version}</version>
                 <scope>compile</scope>
-<!--                <exclusions>-->
-<!--                    <exclusion>-->
-<!--                        <groupId>com.google.code.gson</groupId>-->
-<!--                        <artifactId>gson</artifactId>-->
-<!--                    </exclusion>-->
-<!--                </exclusions>-->
             </dependency>
             <dependency>
                 <groupId>ru.easydonate.easydonate4j</groupId>
@@ -140,7 +134,7 @@
                 <scope>provided</scope>
             </dependency>
 
-            <!-- All NMS implementations from 1.8.R1 to 1.18.R1 -->
+            <!-- All NMS implementations from 1.8.R1 to 1.18.R2 -->
 
             <!-- NMS 1.8.R1 -->
             <dependency>
@@ -338,6 +332,18 @@
             <dependency>
                 <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_18_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.18.R2 -->
+            <dependency>
+                <groupId>ru.easydonate.easypayments</groupId>
+                <artifactId>v1_18_R2</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>

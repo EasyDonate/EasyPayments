@@ -51,7 +51,7 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
-        <!-- All NMS implementations from 1.8.R1 to 1.16.R3 -->
+        <!-- All NMS implementations from 1.8.R1 to 1.18.R2 -->
 
         <!-- NMS 1.8.R1 -->
         <dependency>
@@ -137,6 +137,11 @@
         <dependency>
             <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_18_R1</artifactId>
+        </dependency>
+        <!-- NMS 1.18.R2 -->
+        <dependency>
+            <groupId>ru.easydonate.easypayments</groupId>
+            <artifactId>v1_18_R2</artifactId>
         </dependency>
     </dependencies>
 
