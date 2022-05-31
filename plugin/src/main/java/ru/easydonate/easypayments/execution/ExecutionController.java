@@ -290,7 +290,7 @@ public final class ExecutionController {
 
     public @NotNull CompletableFuture<CommandReport> processObjectCommand(@NotNull String command) {
         return interceptorFactory.createFeedbackInterceptorAsync()
-                .thenCompose(interceptor -> executeCommand(interceptor, command))
+                .thenComposeAsync(interceptor -> executeCommand(interceptor, command))
                 .thenApply(this::awaitForFeedback)
                 .thenApply(FeedbackInterceptor::getFeedbackMessages)
                 .thenApply(feedback -> CommandReport.create(command, feedback))
