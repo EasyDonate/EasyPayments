@@ -8,10 +8,10 @@ import java.util.Objects;
 import java.util.function.Function;
 
 @Getter
-public final class IndexedWrapper<T> {
+public class IndexedWrapper<T> implements Comparable<IndexedWrapper<T>> {
 
-    private final int index;
-    private T object;
+    protected final int index;
+    protected T object;
 
     public IndexedWrapper(int index) {
         this(index, null);
@@ -30,6 +30,11 @@ public final class IndexedWrapper<T> {
     public @NotNull IndexedWrapper<T> setObject(@Nullable T object) {
         this.object = object;
         return this;
+    }
+
+    @Override
+    public int compareTo(@NotNull IndexedWrapper<T> o) {
+        return Integer.compare(index, o.index);
     }
 
     @Override
