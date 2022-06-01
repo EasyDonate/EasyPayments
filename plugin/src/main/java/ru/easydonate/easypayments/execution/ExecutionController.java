@@ -288,21 +288,17 @@ public final class ExecutionController {
                 .thenApply(report -> processor.processPluginEvents(eventObject, report));
     }
 
-    public @NotNull CompletableFuture<CommandReport> processObjectCommand(@NotNull String command) {
+    public @NotNull CompletableFuture<FeedbackInterceptor> processObjectCommand(@NotNull String command) {
         return interceptorFactory.createFeedbackInterceptorAsync()
-                .thenComposeAsync(interceptor -> executeCommand(interceptor, command))
-                .thenApply(this::awaitForFeedback)
-                .thenApply(FeedbackInterceptor::getFeedbackMessages)
-                .thenApply(feedback -> CommandReport.create(command, feedback))
-                .exceptionally(this::handleExceptionalReport);
+                .thenCompose(interceptor -> executeCommand(interceptor, command))
+                .exceptionally(this::handleExceptionalExecution);
     }
 
-    public @NotNull CompletableFuture<IndexedWrapper<CommandReport>> processObjectCommandIndexed(@NotNull String command, int index) {
-        IndexedWrapper<CommandReport> wrapper = new IndexedWrapper<>(index);
+    public @NotNull CompletableFuture<ExecutionWrapper> processObjectCommandIndexed(@NotNull String command, int index) {
+        ExecutionWrapper wrapper = new ExecutionWrapper(index, command);
         return processObjectCommand(command).thenApply(wrapper::setObject);
     }
 
-    @SuppressWarnings("unchecked")
     public @NotNull List<CommandReport> processCommandsKeepSequence(@NotNull List<String> commands) {
         if(commands == null)
             return null;
@@ -317,28 +313,33 @@ public final class ExecutionController {
 
         CompletableFuture.allOf(futures).join();
 
+        // awaiting commands feedback
+        ThreadLocker.lockUninterruptive(getFeedbackAwaitTimeMillis());
+
         return Arrays.stream(futures)
                 .map(CompletableFuture::join)
                 .filter(Objects::nonNull)
                 .sequential()
-                .map(object -> (IndexedWrapper<CommandReport>) object)
-                .sorted(Comparator.comparingInt(IndexedWrapper::getIndex))
-                .map(IndexedWrapper::getObject)
+                .map(object -> (ExecutionWrapper) object)
+                .sorted()
+                .map(ExecutionWrapper::createReport)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
-    private @NotNull CommandReport handleExceptionalReport(@NotNull Throwable cause) {
+    private @NotNull FeedbackInterceptor handleExceptionalExecution(@NotNull Throwable cause) {
         if(cause instanceof CommandExecutionException) {
             CommandExecutionException exception = (CommandExecutionException) cause;
             String command = exception.getCommand();
+            FeedbackInterceptor executor = exception.getExecutor();
             String response = exception.toString();
 
             plugin.getLogger().severe(response);
             if(EasyPaymentsPlugin.isDebugEnabled())
                 exception.getCause().printStackTrace();
 
-            return CommandReport.create(command, response);
+            executor.getFeedbackMessages().add(response);
+            return executor;
         }
 
         throw new IllegalStateException("An unexpected exception has been thrown!", cause);
@@ -352,7 +353,7 @@ public final class ExecutionController {
             Bukkit.dispatchCommand((CommandSender) interceptor, command);
             return CompletableFuture.supplyAsync(() -> interceptor, commandsExecutorService);
         } catch (Throwable throwable) {
-            throw new CommandExecutionException(command, throwable);
+            throw new CommandExecutionException(command, interceptor, throwable);
         }
     }
 
