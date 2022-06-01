@@ -91,6 +91,9 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
 
         try {
             EventUpdates updates = longPollQueryTask.exceptionally(throwable -> {
+                if (throwable instanceof CancellationException || throwable instanceof RejectedExecutionException)
+                    return null;
+
                 // bad response time delay
                 if (EasyPaymentsPlugin.logQueryTaskErrors() && EasyPaymentsPlugin.isDebugEnabled()) {
                     warning("[Debug] Bad response received from the API Server, just waiting for 60 seconds...");
