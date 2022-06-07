@@ -7,7 +7,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>ru.easydonate.easypayments</groupId>
-        <version>2.0.4</version>
+        <version>2.0.5</version>
     </parent>
 
     <artifactId>nms-parent</artifactId>
@@ -34,6 +34,7 @@
         <module>v1_17_R1</module>
         <module>v1_18_R1</module>
         <module>v1_18_R2</module>
+        <module>v1_19_R1</module>
     </modules>
 
     <properties>
