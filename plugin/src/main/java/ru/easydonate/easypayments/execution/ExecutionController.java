@@ -38,6 +38,8 @@ import ru.easydonate.easypayments.execution.processor.update.SimplePaymentEventP
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 import ru.easydonate.easypayments.utility.ThreadLocker;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -335,23 +337,33 @@ public final class ExecutionController {
 
                 String command = exception.getCommand();
                 FeedbackInterceptor executor = exception.getExecutor();
-                String response;
+                String response = exception.getMessage();
+                boolean stackTracePrintRequired = false;
+
+                plugin.getLogger().severe(response);
+                executor.getFeedbackMessages().add(response);
 
                 if (cause instanceof CommandException) {
                     CommandException bukkitException = (CommandException) cause;
                     String bukkitMessage = bukkitException.getMessage();
 
                     cause = bukkitException.getCause();
-                    response = bukkitMessage;
-                } else {
-                    response = exception.toString();
+                    stackTracePrintRequired = true;
+
+                    plugin.getLogger().severe(bukkitMessage);
+                    executor.getFeedbackMessages().add(bukkitMessage);
                 }
 
-                plugin.getLogger().severe(response);
-                if (EasyPaymentsPlugin.isDebugEnabled() && cause != null)
-                    cause.printStackTrace();
+                if ((stackTracePrintRequired || EasyPaymentsPlugin.isDebugEnabled()) && cause != null) {
+                    StringWriter stringWriter = new StringWriter();
+                    PrintWriter printWriter = new PrintWriter(stringWriter);
+                    cause.printStackTrace(printWriter);
 
-                executor.getFeedbackMessages().add(response);
+                    String stackTrace = stringWriter.toString();
+                    if (!stackTrace.isEmpty())
+                        Arrays.stream(stackTrace.split("\r\n")).forEach(plugin.getLogger()::severe);
+                }
+
                 return executor;
             }
         }
