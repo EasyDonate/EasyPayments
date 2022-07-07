@@ -3,6 +3,7 @@ package ru.easydonate.easypayments.execution;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,10 +39,7 @@ import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 import ru.easydonate.easypayments.utility.ThreadLocker;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -328,18 +326,34 @@ public final class ExecutionController {
     }
 
     private @NotNull FeedbackInterceptor handleExceptionalExecution(@NotNull Throwable cause) {
-        if(cause instanceof CommandExecutionException) {
-            CommandExecutionException exception = (CommandExecutionException) cause;
-            String command = exception.getCommand();
-            FeedbackInterceptor executor = exception.getExecutor();
-            String response = exception.toString();
+        if(cause instanceof CompletionException) {
+            cause = cause.getCause();
 
-            plugin.getLogger().severe(response);
-            if(EasyPaymentsPlugin.isDebugEnabled())
-                exception.getCause().printStackTrace();
+            if (cause instanceof CommandExecutionException) {
+                CommandExecutionException exception = (CommandExecutionException) cause;
+                cause = exception.getCause();
 
-            executor.getFeedbackMessages().add(response);
-            return executor;
+                String command = exception.getCommand();
+                FeedbackInterceptor executor = exception.getExecutor();
+                String response;
+
+                if (cause instanceof CommandException) {
+                    CommandException bukkitException = (CommandException) cause;
+                    String bukkitMessage = bukkitException.getMessage();
+
+                    cause = bukkitException.getCause();
+                    response = bukkitMessage;
+                } else {
+                    response = exception.toString();
+                }
+
+                plugin.getLogger().severe(response);
+                if (EasyPaymentsPlugin.isDebugEnabled() && cause != null)
+                    cause.printStackTrace();
+
+                executor.getFeedbackMessages().add(response);
+                return executor;
+            }
         }
 
         throw new IllegalStateException("An unexpected exception has been thrown!", cause);
