@@ -41,11 +41,11 @@ import java.util.regex.Pattern;
 public class EasyPaymentsPlugin extends JavaPlugin {
 
     public static final String COMMAND_EXECUTOR_NAME = "@EasyPayments";
-    public static final String TROUBLESHOOTING_PAGE_URL = "https://docs.easypayments.easydonate.ru";
+    public static final String TROUBLESHOOTING_PAGE_URL = "https://easypayments.easydonate.ru";
     public static final String USER_AGENT_FORMAT = "EasyPayments %s";
 
     public static final int ACCESS_KEY_LENGTH = 32;
-    public static final Pattern ACCESS_KEY_REGEX = Pattern.compile("[a-f0-9]{32}");
+    public static final Pattern ACCESS_KEY_REGEX = Pattern.compile("[a-f\\d]{32}");
     public static final Pattern CONFIG_ACCESS_KEY_REGEX = Pattern.compile("^'?\"?key\"?'?:\\s*'?\"?([\\w\\d]*)\"?'?");
     public static final Pattern CONFIG_SERVER_ID_REGEX = Pattern.compile("^'?\"?server-id\"?'?:\\s*(\\d*)");
 
