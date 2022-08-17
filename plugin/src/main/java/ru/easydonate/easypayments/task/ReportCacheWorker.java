@@ -1,6 +1,7 @@
 package ru.easydonate.easypayments.task;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easydonate4j.api.v3.exception.ApiResponseFailureException;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
 import ru.easydonate.easydonate4j.exception.HttpResponseException;
@@ -124,7 +125,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
         return new NewPaymentReport(payment.getId(), addedToCart, commandReports);
     }
 
-    private @NotNull List<CommandReport> processPurchase(@NotNull Purchase purchase) {
+    private @Nullable List<CommandReport> processPurchase(@NotNull Purchase purchase) {
         return purchase.isCollected() ? purchase.constructCommandReports() : null;
     }
 
