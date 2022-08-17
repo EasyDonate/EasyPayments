@@ -77,7 +77,12 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
         ThreadLocker.lockUninterruptive(delay * 50L);
 
         while(isWorking()) {
-            doQuery();
+            try {
+                doQuery();
+            } catch (Throwable ex) {
+                plugin.getLogger().severe("An unexpected error was occurred!");
+                ex.printStackTrace();
+            }
 
             if(isWorking()) {
                 ThreadLocker.lockUninterruptive(TASK_PERIOD_MILLIS);
