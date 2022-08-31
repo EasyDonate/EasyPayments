@@ -96,9 +96,8 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
     ) {
         AtomicInteger indexer = new AtomicInteger();
 
-        List<String> commands = product.getObject().getCommands();
+        List<String> commands = getAllCommands(product.getObject());
         List<CommandReport> reports = controller.processCommandsKeepSequence(commands);
-
         DatabaseManager databaseManager = controller.getPlugin().getStorage();
 
         Purchase purchase = payment.createPurchase(product.getObject(), reports);
