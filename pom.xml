@@ -364,6 +364,18 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- NMS 1.19.R2 -->
+            <dependency>
+                <groupId>ru.easydonate.easypayments</groupId>
+                <artifactId>v1_19_R2</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

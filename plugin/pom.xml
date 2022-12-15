@@ -148,6 +148,11 @@
             <groupId>ru.easydonate.easypayments</groupId>
             <artifactId>v1_19_R1</artifactId>
         </dependency>
+        <!-- NMS 1.19.R2 -->
+        <dependency>
+            <groupId>ru.easydonate.easypayments</groupId>
+            <artifactId>v1_19_R2</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
