@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPaymentEvent, NewPaymentReport> {
 
@@ -75,11 +76,15 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
                     .forEach(CompletableFuture::join);
         } else {
             // execute commands just now
-            products.stream()
+            List<IndexedWrapper<PurchasedProduct>> indexedWrappers = products.stream()
                     .map(product -> new IndexedWrapper<>(indexer.getAndIncrement(), product))
-                    .parallel()
+                    .collect(Collectors.toList());
+
+            List<IndexedWrapper<List<CommandReport>>> executionResults = indexedWrappers.parallelStream()
                     .map(product -> executeCommandsAndSavePurchase(payment, product))
-                    .sequential()
+                    .collect(Collectors.toList());
+
+            executionResults.stream()
                     .sorted(Comparator.comparingInt(IndexedWrapper::getIndex))
                     .map(IndexedWrapper::getObject)
                     .flatMap(List::stream)
@@ -102,6 +107,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
 
         Purchase purchase = payment.createPurchase(product.getObject(), reports);
         databaseManager.savePurchase(purchase).join();
+        controller.refreshPayment(payment);
 
         return new IndexedWrapper<>(product.getIndex(), reports);
     }

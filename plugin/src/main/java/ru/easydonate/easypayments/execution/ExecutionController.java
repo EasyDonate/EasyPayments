@@ -125,6 +125,10 @@ public final class ExecutionController {
         plugin.getStorage().refreshCustomer(customer).join();
     }
 
+    public void refreshPayment(@NotNull Payment payment) {
+        plugin.getStorage().refreshPayment(payment).join();
+    }
+
     @SneakyThrows(JsonSerializationException.class)
     public void uploadReports(@Nullable EventUpdateReports reports) throws HttpRequestException, HttpResponseException {
         if(reports == null || reports.isEmpty())

@@ -149,6 +149,10 @@ public final class DatabaseManager {
         return supplyAsync(() -> paymentsDao.queryForId(paymentId));
     }
 
+    public @NotNull CompletableFuture<Void> refreshPayment(@NotNull Payment payment) {
+        return runAsync(() -> paymentsDao.refresh(payment));
+    }
+
     public @NotNull CompletableFuture<Void> savePayment(@NotNull Payment payment) {
         return runAsync(() -> paymentsDao.createOrUpdate(payment));
     }
