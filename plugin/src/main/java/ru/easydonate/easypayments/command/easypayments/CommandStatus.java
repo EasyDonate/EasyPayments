@@ -41,6 +41,7 @@ public final class CommandStatus extends CommandExecutor {
         int permissionLevel = plugin.getPermissionLevel();
 
         messages.getAndSend(sender, "status.message",
+                "%plugin_version%", plugin.getDescription().getVersion(),
                 "%plugin_status%", wrapBoolean(isPluginEnabled, "status.working", "status.unconfigured"),
                 "%storage_status%", wrapBoolean(isStorageAvailable, "storage.available", "storage.unavailable"),
                 "%access_key%", accessKey != null && !accessKey.isEmpty() ? accessKey : getNoValueStub(),

@@ -100,6 +100,7 @@ setup:
 status:
   message: |
     &6-=- &7Информация об EasyPayments &6-=-
+    &7• &fВерсия ПО: &b%plugin_version%
     &7• &fСостояние: &r%plugin_status%
     &7• &fХранилище: &r%storage_status%
     &7• &fКлюч магазина: &b%access_key%
