@@ -92,9 +92,12 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
 
     @SneakyThrows(JsonSerializationException.class)
     private void doQuery() {
-        this.longPollQueryTask = CompletableFuture.supplyAsync(this::queryUpdates, longPollExecutorService);
+        if (longPollExecutorService.isShutdown() || longPollExecutorService.isTerminated())
+            return;
 
         try {
+            this.longPollQueryTask = CompletableFuture.supplyAsync(this::queryUpdates, longPollExecutorService);
+
             EventUpdates updates = longPollQueryTask.exceptionally(throwable -> {
                 if (throwable instanceof CancellationException || throwable instanceof RejectedExecutionException)
                     return null;
