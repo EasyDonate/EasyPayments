@@ -79,6 +79,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
         while(isWorking()) {
             try {
                 doQuery();
+            } catch (RejectedExecutionException | CancellationException ignored) {
             } catch (Throwable ex) {
                 plugin.getLogger().severe("An unexpected error was occurred!");
                 ex.printStackTrace();
