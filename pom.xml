@@ -6,7 +6,7 @@
 
     <groupId>ru.easydonate.easypayments</groupId>
     <artifactId>parent</artifactId>
-    <version>2.0.8</version>
+    <version>2.0.9</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -26,7 +26,7 @@
         <java.version>8</java.version>
 
         <!-- Manifest -->
-        <manifest.developer.contact>https://vk.me/soknight</manifest.developer.contact>
+        <manifest.developer.contact>https://t.me/soknight</manifest.developer.contact>
         <manifest.developer.name>SoKnight</manifest.developer.name>
         <manifest.organization.name>EasyDonate</manifest.organization.name>
         <manifest.organization.website>https://easydonate.ru/</manifest.organization.website>
@@ -38,16 +38,16 @@
         <plugin.description>The official payment processing implementation as alternative for the RCON protocol</plugin.description>
 
         <!-- Dependencies versions -->
-        <spigot.api.version>1.17-R0.1-SNAPSHOT</spigot.api.version>
+        <spigot.api.version>1.19.4-R0.1-SNAPSHOT</spigot.api.version>
         <easydonate4j.version>2.0.6</easydonate4j.version>
         <ormlite.version>6.1</ormlite.version>
-        <lombok.version>1.18.22</lombok.version>
+        <lombok.version>1.18.26</lombok.version>
 
         <!-- Maven plugins -->
-        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
-        <maven.shade.plugin.version>3.3.1-SNAPSHOT</maven.shade.plugin.version>
-        <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
-        <maven.toolchains.plugin.version>3.0.0</maven.toolchains.plugin.version>
+        <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
+        <maven.shade.plugin.version>3.4.1</maven.shade.plugin.version>
+        <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
+        <maven.toolchains.plugin.version>3.1.0</maven.toolchains.plugin.version>
     </properties>
 
     <repositories>
@@ -59,18 +59,7 @@
             <id>minecraft-libraries</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
-        <repository>
-            <id>nexus-snapshots</id>
-            <url>https://repo.soknight.me/repository/snapshots/</url>
-        </repository>
     </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>apache-snapshots</id>
-            <url>https://repository.apache.org/snapshots/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
@@ -134,7 +123,7 @@
                 <scope>provided</scope>
             </dependency>
 
-            <!-- All NMS implementations from 1.8.R1 to 1.18.R2 -->
+            <!-- All NMS implementations from 1.8.R1 to 1.19.R3 -->
 
             <!-- NMS 1.8.R1 -->
             <dependency>
@@ -376,11 +365,23 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- NMS 1.19.R3 -->
+            <dependency>
+                <groupId>ru.easydonate.easypayments</groupId>
+                <artifactId>v1_19_R3</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
-        <finalName>easypayments-${project.artifactId}-${project.version}</finalName>
+        <finalName>EasyPayments-${project.artifactId}-${project.version}-without-dependencies</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -435,7 +436,7 @@
                         <createDependencyReducedPom>false</createDependencyReducedPom>
                         <shadedArtifactAttached>true</shadedArtifactAttached>
                         <shadedClassifierName>full</shadedClassifierName>
-                        <finalName>easypayments-${project.artifactId}-${project.version}-full</finalName>
+                        <finalName>EasyPayments-${project.artifactId}-${project.version}</finalName>
                         <filters>
                             <filter>
                                 <artifact>*:*</artifact>

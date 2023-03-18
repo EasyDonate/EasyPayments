@@ -10,12 +10,13 @@
         <version>2.0.9</version>
     </parent>
 
-    <artifactId>v1_16_R1</artifactId>
-    <name>EasyPayments - NMS 1.16.R1</name>
+    <artifactId>v1_19_R3</artifactId>
+    <name>EasyPayments - NMS 1.19.R3</name>
 
     <properties>
-        <java.version>8</java.version>
-        <spigot.version>1.16.1-SNAPSHOT</spigot.version>
+        <java.version>17</java.version>
+        <spigot.api.version>1.19.4-R0.1-SNAPSHOT</spigot.api.version>
+        <spigot.version>1.19.4-SNAPSHOT</spigot.version>
     </properties>
 
     <dependencies>
@@ -25,10 +26,29 @@
             <artifactId>core</artifactId>
         </dependency>
 
-        <!-- Spigot 1.16.1 -->
+        <!-- Spigot API -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+        </dependency>
+
+        <!-- Spigot 1.19.4 -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
+            <classifier>remapped-mojang</classifier>
+        </dependency>
+
+        <!-- Mojang Authlib -->
+        <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>authlib</artifactId>
+        </dependency>
+
+        <!-- Mojang Brigadier -->
+        <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>brigadier</artifactId>
         </dependency>
 
         <!-- Lombok -->
@@ -44,6 +64,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <!-- Maven toolchains plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-toolchains-plugin</artifactId>
+            </plugin>
+
+            <!-- Special source maven plugin -->
+            <plugin>
+                <groupId>net.md-5</groupId>
+                <artifactId>specialsource-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

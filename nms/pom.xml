@@ -7,7 +7,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>ru.easydonate.easypayments</groupId>
-        <version>2.0.8</version>
+        <version>2.0.9</version>
     </parent>
 
     <artifactId>nms-parent</artifactId>
@@ -36,13 +36,14 @@
         <module>v1_18_R2</module>
         <module>v1_19_R1</module>
         <module>v1_19_R2</module>
+        <module>v1_19_R3</module>
     </modules>
 
     <properties>
         <java.version>8</java.version>
 
         <!-- Dependencies -->
-        <spigot.version>1.17-R0.1-SNAPSHOT</spigot.version>
+        <spigot.version>1.19.4-R0.1-SNAPSHOT</spigot.version>
         <mojang.authlib.version>3.2.38</mojang.authlib.version>
         <mojang.brigadier.version>1.0.18</mojang.brigadier.version>
 
@@ -121,6 +122,7 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Special source maven plugin -->
                 <plugin>
                     <groupId>net.md-5</groupId>
                     <artifactId>specialsource-maven-plugin</artifactId>
