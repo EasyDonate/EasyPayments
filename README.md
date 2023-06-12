@@ -1,6 +1,6 @@
 [platformSite]: https://easydonate.ru/
 
-[supportedVersions]: https://img.shields.io/badge/%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F%20%D0%B8%D0%B3%D1%80%D1%8B-1.8.X%20--%201.19.X-3BAF18?style=for-the-badge
+[supportedVersions]: https://img.shields.io/badge/%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F%20%D0%B8%D0%B3%D1%80%D1%8B-1.8.X%20--%201.20.X-3BAF18?style=for-the-badge
 
 [latestReleaseImg]: https://img.shields.io/github/v/release/EasyDonate/EasyPayments?color=3BAF18&label=%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F%20%D0%BF%D0%BB%D0%B0%D0%B3%D0%B8%D0%BD%D0%B0&logo=github&sort=semver&style=for-the-badge
 [latestRelease]: https://github.com/EasyDonate/EasyPayments/releases/latest
