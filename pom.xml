@@ -6,7 +6,7 @@
 
     <groupId>ru.easydonate.easypayments</groupId>
     <artifactId>parent</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -38,7 +38,7 @@
         <plugin.description>The official payment processing implementation as alternative for the RCON protocol</plugin.description>
 
         <!-- Dependencies versions -->
-        <spigot.api.version>1.19.4-R0.1-SNAPSHOT</spigot.api.version>
+        <spigot.api.version>1.20.2-R0.1-SNAPSHOT</spigot.api.version>
         <easydonate4j.version>2.0.6</easydonate4j.version>
         <ormlite.version>6.1</ormlite.version>
         <lombok.version>1.18.26</lombok.version>
@@ -381,6 +381,18 @@
             <dependency>
                 <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_20_R1</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.20.R2 -->
+            <dependency>
+                <groupId>ru.easydonate.easypayments</groupId>
+                <artifactId>v1_20_R2</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>

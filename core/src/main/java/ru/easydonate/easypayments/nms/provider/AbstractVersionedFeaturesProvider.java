@@ -45,7 +45,7 @@ public abstract class AbstractVersionedFeaturesProvider implements VersionedFeat
     }
 
     @RequiredArgsConstructor
-    protected static final class Builder implements VersionedFeaturesProvider.Builder {
+    public static final class Builder implements VersionedFeaturesProvider.Builder {
 
         private final Creator creator;
 

@@ -10,13 +10,13 @@
         <version>2.1.1</version>
     </parent>
 
-    <artifactId>v1_19_R1</artifactId>
-    <name>EasyPayments - NMS 1.19.R1</name>
+    <artifactId>v1_20_R2</artifactId>
+    <name>EasyPayments - NMS 1.20.R2</name>
 
     <properties>
         <java.version>17</java.version>
-        <spigot.api.version>1.19-R0.1-SNAPSHOT</spigot.api.version>
-        <spigot.version>1.19-SNAPSHOT</spigot.version>
+        <spigot.api.version>1.20.2-R0.1-SNAPSHOT</spigot.api.version>
+        <spigot.version>1.20.2-R0.1-SNAPSHOT</spigot.version>
     </properties>
 
     <dependencies>
@@ -32,7 +32,7 @@
             <artifactId>spigot-api</artifactId>
         </dependency>
 
-        <!-- Spigot 1.19 -->
+        <!-- Spigot 1.20.2 -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
