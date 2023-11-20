@@ -122,7 +122,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
                     .forEach(commandReports::add);
 
         boolean addedToCart = commandReports.isEmpty();
-        return new NewPaymentReport(payment.getId(), addedToCart, commandReports);
+        return new NewPaymentReport(payment.getId(), addedToCart, payment.getCustomer().getPlayerName(), commandReports);
     }
 
     private @Nullable List<CommandReport> processPurchase(@NotNull Purchase purchase) {

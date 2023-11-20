@@ -101,7 +101,7 @@ public final class CommandGet extends CommandExecutor {
     private @NotNull CompletableFuture<Void> uploadReports(@NotNull Collection<Payment> payments) {
         return CompletableFuture.runAsync(() -> {
             try {
-                plugin.getExecutionController().uploadCartReports(payments);
+                plugin.getExecutionController().givePurchasesFromCartAndReport(payments);
             } catch (HttpRequestException | HttpResponseException ex) {
                 plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
                 plugin.getLogger().severe("Please, contact with the platform support:");

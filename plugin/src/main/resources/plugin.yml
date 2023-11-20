@@ -36,12 +36,27 @@ permissions:
 
   # /shopcart browse
   easypayments.command.cart.browse:
-    description: Gives access to see browse own shop cart
+    description: Gives access to browse own shop cart
     default: true
 
   # /shopcart browse <player>
   easypayments.command.cart.browse.other:
-    description: Gives access to see browse other player's shop cart
+    description: Gives access to browse other player's shop cart
+    default: op
+
+  # /shopcart clear
+  easypayments.command.cart.clear:
+    description: Gives access to clear own shop cart
+    default: op
+
+  # /shopcart clear <player>
+  easypayments.command.cart.clear.other:
+    description: Gives access to clear other player's shop cart
+    default: op
+
+  # /shopcart transfer <source> <payment-id> <target>
+  easypayments.command.cart.transfer:
+    description: Gives access to transfer payment related purchases from source shop cart to the target
     default: op
 
   # /easypayments status

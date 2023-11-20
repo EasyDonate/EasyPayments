@@ -6,7 +6,7 @@
 
     <groupId>ru.easydonate.easypayments</groupId>
     <artifactId>parent</artifactId>
-    <version>2.1.1</version>
+    <version>2.2.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -123,7 +123,7 @@
                 <scope>provided</scope>
             </dependency>
 
-            <!-- All NMS implementations from 1.8.R1 to 1.19.R3 -->
+            <!-- All NMS implementations from 1.8.R1 to latest -->
 
             <!-- NMS 1.8.R1 -->
             <dependency>

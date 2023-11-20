@@ -44,6 +44,7 @@ cart-browse:
 
   other:
     failed:
+      cart-unavailable: '&cЧто-то пошло не так. Попробуйте снова через несколько секунд!'
       no-purchases: '&cКорзина %player% пуста!'
 
     header: '&6-=- &7Корзина %player% &6-=-'
@@ -51,6 +52,29 @@ cart-browse:
     footer: ' '
 
     no-value-stub: '&c<н/д>'
+
+cart-clear:
+  yourself:
+    failed:
+      cart-unavailable: '&cЧто-то пошло не так. Попробуйте снова через несколько секунд!'
+      no-purchases: '&cВаша корзина пуста!'
+    success: '&aВаша корзина успешно очищена.'
+
+  other:
+    failed:
+      cart-unavailable: '&cЧто-то пошло не так. Попробуйте снова через несколько секунд!'
+      no-purchases: '&cКорзина %player% пуста!'
+    success: '&aКорзина &2%player% &aуспешно очищена.'
+
+cart-transfer:
+  failed:
+    bad-payment-id: '&cУкажите положительное число в качестве идентификатора платежа!'
+    payment-not-found: '&cПлатёж #%payment_id% не существует!'
+    payment-not-owned: '&cПокупки платежа #%payment_id% не принадлежит корзине %source%!'
+    no-purchases: '&cПлатёж #%payment_id% не содержит покупок!'
+    purchases-already-collected: '&cПокупки платежа #%payment_id% уже выданы игроку!'
+    target-cart-not-found: '&cКорзина %target% не существует! Возможно, этот игрок никогда не был на сервере.'
+  success: '&aВсе покупки платежа &2#%payment_id% &aперемещены из корзины &2%source% &aв корзину &2%target%&a.'
 
 setup:
   failed:
@@ -184,6 +208,8 @@ help:
     help: 'Показать эту страницу'
     cart-get: 'Забрать товары из корзины'
     cart-browse: 'Показать содержимое корзины'
+    cart-clear: 'Очистить корзину'
+    cart-transfer: 'Перенести покупки платежа'
     status: 'Показать состояние плагина'
     setup: 'Режим быстрой настройки'
     setup-access-key: 'Установить ключ магазина'
@@ -200,6 +226,9 @@ help:
     access-key: '<ключ>'
     server-id: '<#ID>'
     database-type: '<куда>'
+    source: '<от кого>'
+    payment-id: '<ID платежа>'
+    target: '<кому>'
 
 # Форматирование относительного времени
 # (?) В некоторых сообщениях время может выводиться

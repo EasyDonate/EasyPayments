@@ -25,6 +25,9 @@ public final class PurchasedProduct implements PrettyPrintable {
     @SerializedName("commands")
     private List<String> commands;
 
+    @SerializedName("raw_commands")
+    private List<String> rawCommands;
+
     @SerializedName("cost")
     private double cost;
 
@@ -40,6 +43,9 @@ public final class PurchasedProduct implements PrettyPrintable {
 
         if(commands == null || commands.isEmpty())
             throw new StructureValidationException(this, "no commands present");
+
+        if(rawCommands == null || rawCommands.isEmpty())
+            throw new StructureValidationException(this, "no raw commands present");
 
         if(cost < 0D)
             throw new StructureValidationException(this, "'cost' must be >= 0, but it's %s", cost);
@@ -58,12 +64,13 @@ public final class PurchasedProduct implements PrettyPrintable {
                 Double.compare(product.cost, cost) == 0 &&
                 count == product.count &&
                 Objects.equals(name, product.name) &&
-                Objects.equals(commands, product.commands);
+                Objects.equals(commands, product.commands) &&
+                Objects.equals(rawCommands, product.rawCommands);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, commands, cost, count);
+        return Objects.hash(id, name, commands, rawCommands, cost, count);
     }
 
     @Override
@@ -72,6 +79,7 @@ public final class PurchasedProduct implements PrettyPrintable {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", commands=" + commands +
+                ", rawCommands=" + rawCommands +
                 ", cost=" + cost +
                 ", count=" + count +
                 '}';

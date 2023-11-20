@@ -107,6 +107,11 @@ public final class Payment {
         return true;
     }
 
+    public void transfer(Customer customer) {
+        this.customer = customer;
+        this.updatedAt = LocalDateTime.now();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

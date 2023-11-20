@@ -180,8 +180,7 @@ public final class ExecutionController {
         CompletableFuture.allOf(futures).join();
     }
 
-    @SneakyThrows(JsonSerializationException.class)
-    public void uploadCartReports(@NotNull Collection<Payment> payments) throws HttpRequestException, HttpResponseException {
+    public void givePurchasesFromCartAndReport(@NotNull Collection<Payment> payments) throws HttpRequestException, HttpResponseException {
         if(EasyPaymentsPlugin.isDebugEnabled()) {
             plugin.getLogger().info("[Debug] Marking payments as collected...");
         }
@@ -200,6 +199,11 @@ public final class ExecutionController {
                 .map(this::handlePaymentFromCart)
                 .collect(Collectors.toList());
 
+        uploadCartReports(eventReports);
+    }
+
+    @SneakyThrows(JsonSerializationException.class)
+    public void uploadCartReports(List<NewPaymentReport> eventReports) throws HttpRequestException, HttpResponseException {
         if(eventReports.isEmpty())
             return;
 
@@ -224,20 +228,26 @@ public final class ExecutionController {
     }
 
     private @NotNull NewPaymentReport handlePaymentFromCart(@NotNull Payment payment) {
-        NewPaymentReport report = new NewPaymentReport(payment.getId(), false);
+        String customer = payment.getCustomer().getPlayerName();
+        NewPaymentReport report = new NewPaymentReport(payment.getId(), false, customer);
 
-        if(payment.hasPurchases())
+        if(payment.hasPurchases()) {
             payment.getPurchases().stream() // may be should do this in parallel stream?
                     .filter(Purchase::hasCommands)
-                    .map(this::handlePurchaseFromCart)
+                    .map(purchase -> handlePurchaseFromCart(customer, purchase))
                     .flatMap(List::stream)
                     .forEach(report::addCommandReport);
+        }
 
         return report;
     }
 
-    private @NotNull List<CommandReport> handlePurchaseFromCart(@NotNull Purchase purchase) {
+    private @NotNull List<CommandReport> handlePurchaseFromCart(String customer, @NotNull Purchase purchase) {
         List<String> commands = purchase.getCommands();
+        if (commands != null && !commands.isEmpty())
+            commands = commands.stream()
+                    .map(command -> command != null ? command.replace("{user}", customer) : command)
+                    .collect(Collectors.toList());
 
         List<CommandReport> commandReports = processCommandsKeepSequence(commands);
         purchase.collect(commandReports);

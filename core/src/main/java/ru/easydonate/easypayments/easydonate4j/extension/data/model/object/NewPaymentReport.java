@@ -20,12 +20,25 @@ public final class NewPaymentReport extends EventReportObject implements Command
     @SerializedName("in_cart")
     private final boolean addedToCart;
 
+    @SerializedName("customer")
+    private final String customer;
+
     @SerializedName("commands")
     private List<CommandReport> commandReports;
 
-    public NewPaymentReport(int paymentId, boolean addedToCart) {
+    public NewPaymentReport(int paymentId, boolean addedToCart, String customer) {
         this.paymentId = paymentId;
         this.addedToCart = addedToCart;
+        this.customer = customer;
+    }
+
+    public static NewPaymentReport createCartClearReport(int paymentId, String customer) {
+        NewPaymentReport report = new NewPaymentReport(paymentId, false, customer);
+        report.addCommandReport(
+                "[EasyPayments] This payment was removed from the cart!",
+                "[EasyPayments] Reason: an operator used '/cart clear'"
+        );
+        return report;
     }
 
     @Override
@@ -45,12 +58,13 @@ public final class NewPaymentReport extends EventReportObject implements Command
         NewPaymentReport report = (NewPaymentReport) o;
         return paymentId == report.paymentId &&
                 addedToCart == report.addedToCart &&
+                Objects.equals(customer, report.customer) &&
                 Objects.equals(commandReports, report.commandReports);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), paymentId, addedToCart, commandReports);
+        return Objects.hash(super.hashCode(), paymentId, addedToCart, customer, commandReports);
     }
 
     @Override
@@ -59,6 +73,7 @@ public final class NewPaymentReport extends EventReportObject implements Command
                 "pluginEventReports=" + pluginEventReports +
                 ", paymentId=" + paymentId +
                 ", addedToCart=" + addedToCart +
+                ", customer=" + customer +
                 ", commandReports=" + commandReports +
                 '}';
     }

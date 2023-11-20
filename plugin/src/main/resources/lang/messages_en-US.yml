@@ -44,6 +44,7 @@ cart-browse:
 
   other:
     failed:
+      cart-unavailable: '&cPlease, try it again later!'
       no-purchases: "&c%player%'s shop cart is empty!"
 
     header: "&6-=- &7%player%'s Shop Cart &6-=-"
@@ -51,6 +52,29 @@ cart-browse:
     footer: ' '
 
     no-value-stub: '&c<n/a>'
+
+cart-clear:
+  yourself:
+    failed:
+      cart-unavailable: '&cPlease, try it again later!'
+      no-purchases: "&cYour shop cart is empty!"
+    success: '&aYour shop cart has been cleared successfully.'
+
+  other:
+    failed:
+      cart-unavailable: '&cPlease, try it again later!'
+      no-purchases: "&c%player%'s shop cart is empty!"
+    success: "&2%player%'s &ashop cart has been cleared successfully."
+
+cart-transfer:
+  failed:
+    bad-payment-id: '&cPlease, enter a valid payment ID as a positive integer!'
+    payment-not-found: "&cPayment #%payment_id% isn't found!"
+    payment-not-owned: '&cPurchases of payment #%payment_id% are not owned by %source%!'
+    no-purchases: '&cPayment #%payment_id% has no purchases!'
+    purchases-already-collected: '&cPurchases of payment #%payment_id% are already given to the player!'
+    target-cart-not-found: "&c%target%'s shop cart not found! Seems that this player has never been on this server."
+  success: '&aAll purchases of payment &2#%payment_id% &ahas been transferred from &2%source% &ato &2%target%&a.'
 
 setup:
   failed:
@@ -179,6 +203,8 @@ help:
     help: 'Show this page'
     cart-get: 'Collect purchases from cart'
     cart-browse: 'Show the shop cart content'
+    cart-clear: 'Clear shop cart'
+    cart-transfer: 'Transfer payment purchases'
     status: 'Show the plugin status'
     setup: 'Enter to the fast setup mode'
     setup-access-key: 'Set a new shop key'
@@ -193,6 +219,9 @@ help:
     access-key: '<key>'
     server-id: '<#ID>'
     database-type: '<target>'
+    source: '<source>'
+    payment-id: '<payment ID>'
+    target: '<target>'
 
 # The relative/estimated time formatting configuration
 # (?) Example: 7h. 37m. ago

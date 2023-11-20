@@ -135,7 +135,7 @@ public abstract class CommandExecutor implements Executor {
                 .append('/')
                 .append(resolveFullCommand());
 
-        if(arguments != null && arguments.length != 0) {
+        if(arguments != null) {
             for(String key : arguments) {
                 String argument = messages.getOrDefault("help.arguments." + key, '<' + key + '>');
                 syntax.append(' ').append(argument);

@@ -6,13 +6,13 @@ import ru.easydonate.easypayments.easydonate4j.PluginEventType;
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventReportObject;
 import ru.easydonate.easypayments.easydonate4j.extension.data.model.plugin.PluginEventReport;
 import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventObject;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.PurchasedProduct;
 import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.plugin.PluginEvent;
 import ru.easydonate.easypayments.exception.PluginEventProcessingException;
 import ru.easydonate.easypayments.exception.StructureValidationException;
 
-import java.util.*;
-import java.util.stream.IntStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public abstract class EventObjectProcessor<E extends EventObject, R extends EventReportObject> {
 
@@ -29,15 +29,6 @@ public abstract class EventObjectProcessor<E extends EventObject, R extends Even
             @NotNull PluginEventProcessor<P> pluginEventProcessor
     ) {
         pluginEventProcessors.put(pluginType, pluginEventProcessor);
-    }
-
-    protected List<String> getAllCommands(PurchasedProduct product) {
-        if (product.getCount() > 1)
-            return product.getCommands();
-
-        return IntStream.range(0, product.getCount())
-                .mapToObj(i -> product.getCommands())
-                .collect(ArrayList::new, List::addAll, List::addAll);
     }
 
     public @NotNull R processPluginEvents(@NotNull E eventObject, @NotNull R eventReportObject) {

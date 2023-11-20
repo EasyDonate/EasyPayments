@@ -56,7 +56,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
         OfflinePlayer customerPlayer = eventObject.getOfflinePlayer();
         boolean useCart = controller.isShopCartEnabled();
 
-        NewPaymentReport report = new NewPaymentReport(paymentId, useCart);
+        NewPaymentReport report = new NewPaymentReport(paymentId, useCart, customerName);
         List<PurchasedProduct> products = eventObject.getProducts();
         products.forEach(PurchasedProduct::validate);
 
@@ -101,7 +101,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
     ) {
         AtomicInteger indexer = new AtomicInteger();
 
-        List<String> commands = getAllCommands(product.getObject());
+        List<String> commands = product.getObject().getCommands();
         List<CommandReport> reports = controller.processCommandsKeepSequence(commands);
         DatabaseManager databaseManager = controller.getPlugin().getStorage();
 

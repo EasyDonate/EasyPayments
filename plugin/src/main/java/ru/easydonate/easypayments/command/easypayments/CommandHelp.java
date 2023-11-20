@@ -53,6 +53,21 @@ public final class CommandHelp extends CommandExecutor {
                 .add()
 
                 .newLine()
+                .withCommand("cart clear")
+                .withDescriptionFrom("cart-clear")
+                .withPermission("cart.clear")
+                .add()
+
+                .newLine()
+                .withCommand("cart transfer")
+                .withArgumentFrom("source")
+                .withArgumentFrom("payment-id")
+                .withArgumentFrom("target")
+                .withDescriptionFrom("cart-transfer")
+                .withPermission("cart.transfer")
+                .add()
+
+                .newLine()
                 .withCommand("easypayments status")
                 .withDescriptionFrom("status")
                 .withPermission("status")

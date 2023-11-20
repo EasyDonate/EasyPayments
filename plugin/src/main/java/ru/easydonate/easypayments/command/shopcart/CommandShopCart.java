@@ -22,6 +22,8 @@ public final class CommandShopCart extends CommandDispatcher {
 
         registerChild(new CommandGet(plugin, messages, shopCartStorage));
         registerChild(new CommandBrowse(plugin, messages, shopCartStorage));
+        registerChild(new CommandClear(plugin, messages, shopCartStorage));
+        registerChild(new CommandTransfer(plugin, messages, shopCartStorage));
 
         register(plugin);
     }

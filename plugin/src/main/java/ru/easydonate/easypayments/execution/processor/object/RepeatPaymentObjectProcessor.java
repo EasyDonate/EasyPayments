@@ -28,7 +28,7 @@ public final class RepeatPaymentObjectProcessor extends EventObjectProcessor<Rep
         products.forEach(PurchasedProduct::validate);
 
         List<String> commands = products.stream()
-                .map(this::getAllCommands)
+                .map(PurchasedProduct::getCommands)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 

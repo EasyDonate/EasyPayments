@@ -32,7 +32,7 @@ public abstract class CommandDispatcher extends CommandExecutor {
         registeredCommands.put(command, executor);
 
         String[] aliases = executor.getAliases();
-        if(aliases != null && aliases.length != 0)
+        if(aliases != null)
             for(String alias : aliases)
                 registeredCommands.put(alias, executor);
     }

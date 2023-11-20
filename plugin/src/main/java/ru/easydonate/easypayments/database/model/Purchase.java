@@ -30,8 +30,6 @@ public final class Purchase {
     public static final String COLUMN_COST = "cost";
     public static final String COLUMN_COMMANDS = "commands";
     public static final String COLUMN_RESPONSES = "responses";
-    public static final String COLUMN_COLLECTED_AT = "collected_at";
-    public static final String COLUMN_REPORTED_AT = "reported_at";
     public static final String COLUMN_CREATED_AT = "created_at";
     public static final String COLUMN_UPDATED_AT = "updated_at";
 
@@ -83,7 +81,7 @@ public final class Purchase {
                 product.getName(),
                 product.getCount(),
                 product.getCost(),
-                product.getCommands()
+                product.getRawCommands()
         );
     }
 
