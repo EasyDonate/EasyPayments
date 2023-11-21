@@ -41,13 +41,13 @@ public final class CommandHelp extends CommandExecutor {
 
                 .newLine()
                 .withCommand("cart get")
-                .withArgumentFrom("player")
                 .withDescriptionFrom("cart-get")
                 .withPermission("cart.get")
                 .add()
 
                 .newLine()
                 .withCommand("cart browse")
+                .withArgumentFrom("player")
                 .withDescriptionFrom("cart-browse")
                 .withPermission("cart.browse")
                 .add()

@@ -44,14 +44,15 @@ public final class PurchasedProduct implements PrettyPrintable {
         if(commands == null || commands.isEmpty())
             throw new StructureValidationException(this, "no commands present");
 
-        if(rawCommands == null || rawCommands.isEmpty())
-            throw new StructureValidationException(this, "no raw commands present");
-
         if(cost < 0D)
             throw new StructureValidationException(this, "'cost' must be >= 0, but it's %s", cost);
 
         if(count <= 0)
             throw new StructureValidationException(this, "'count' must be > 0, but it's %s", count);
+    }
+
+    public List<String> getRawCommands() {
+        return rawCommands != null ? rawCommands : commands;
     }
 
     @Override

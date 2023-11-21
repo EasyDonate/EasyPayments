@@ -70,7 +70,7 @@ cart-transfer:
   failed:
     bad-payment-id: '&cУкажите положительное число в качестве идентификатора платежа!'
     payment-not-found: '&cПлатёж #%payment_id% не существует!'
-    payment-not-owned: '&cПокупки платежа #%payment_id% не принадлежит корзине %source%!'
+    payment-not-owned: '&cПокупки платежа #%payment_id% не принадлежат корзине %source%!'
     no-purchases: '&cПлатёж #%payment_id% не содержит покупок!'
     purchases-already-collected: '&cПокупки платежа #%payment_id% уже выданы игроку!'
     target-cart-not-found: '&cКорзина %target% не существует! Возможно, этот игрок никогда не был на сервере.'
