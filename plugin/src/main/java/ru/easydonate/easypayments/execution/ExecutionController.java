@@ -13,6 +13,7 @@ import ru.easydonate.easydonate4j.exception.JsonSerializationException;
 import ru.easydonate.easypayments.Constants;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.config.Configuration;
+import ru.easydonate.easypayments.config.Messages;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
@@ -50,6 +51,7 @@ public final class ExecutionController {
 
     private final EasyPaymentsPlugin plugin;
     private final Configuration config;
+    private final Messages messages;
     private final EasyPaymentsClient easyPaymentsClient;
     private final ShopCartStorage shopCartStorage;
     private final InterceptorFactory interceptorFactory;
@@ -63,12 +65,14 @@ public final class ExecutionController {
     public ExecutionController(
             @NotNull EasyPaymentsPlugin plugin,
             @NotNull Configuration config,
+            @NotNull Messages messages,
             @NotNull EasyPaymentsClient easyPaymentsClient,
             @NotNull ShopCartStorage shopCartStorage,
             @NotNull InterceptorFactory interceptorFactory
     ) {
         this.plugin = plugin;
         this.config = config;
+        this.messages = messages;
         this.easyPaymentsClient = easyPaymentsClient;
         this.shopCartStorage = shopCartStorage;
         this.interceptorFactory = interceptorFactory;

@@ -1,6 +1,7 @@
 package ru.easydonate.easypayments.execution.processor.object;
 
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.database.DatabaseManager;
@@ -74,6 +75,12 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
                     .map(databaseManager::savePurchase)
                     .parallel()
                     .forEach(CompletableFuture::join);
+
+            // send a notification
+            Player onlinePlayer = controller.getPlugin().getServer().getPlayer(customerName);
+            if (onlinePlayer != null && onlinePlayer.isOnline()) {
+                controller.getMessages().getAndSend(onlinePlayer, "cart-notification");
+            }
         } else {
             // execute commands just now
             List<IndexedWrapper<PurchasedProduct>> indexedWrappers = products.stream()

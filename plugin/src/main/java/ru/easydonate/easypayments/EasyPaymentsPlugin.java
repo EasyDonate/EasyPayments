@@ -263,7 +263,7 @@ public class EasyPaymentsPlugin extends JavaPlugin {
     private synchronized void loadExecutionController() {
         // execution controller initialization
         InterceptorFactory interceptorFactory = versionedFeaturesProvider.getInterceptorFactory();
-        this.executionController = new ExecutionController(this, config, easyPaymentsClient, shopCartStorage, interceptorFactory);
+        this.executionController = new ExecutionController(this, config, messages, easyPaymentsClient, shopCartStorage, interceptorFactory);
     }
 
     private synchronized void shutdownExecutionController() {
