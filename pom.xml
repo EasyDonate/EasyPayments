@@ -6,7 +6,7 @@
 
     <groupId>ru.easydonate.easypayments</groupId>
     <artifactId>parent</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -58,6 +58,10 @@
         <repository>
             <id>minecraft-libraries</id>
             <url>https://libraries.minecraft.net/</url>
+        </repository>
+        <repository>
+            <id>easylauncher</id>
+            <url>https://repo.easylauncher.org/repository/spigot-builds/</url>
         </repository>
     </repositories>
 
@@ -393,6 +397,18 @@
             <dependency>
                 <groupId>ru.easydonate.easypayments</groupId>
                 <artifactId>v1_20_R2</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- NMS 1.20.R3 -->
+            <dependency>
+                <groupId>ru.easydonate.easypayments</groupId>
+                <artifactId>v1_20_R3</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>
