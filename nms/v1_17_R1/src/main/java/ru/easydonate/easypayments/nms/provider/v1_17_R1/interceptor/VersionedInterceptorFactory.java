@@ -1,7 +1,7 @@
 package ru.easydonate.easypayments.nms.provider.v1_17_R1.interceptor;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldServer;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.jetbrains.annotations.NotNull;
@@ -22,12 +22,12 @@ public final class VersionedInterceptorFactory extends AbstractInterceptorFactor
     @Override
     public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
         MinecraftServer minecraftServer = ((CraftServer) Bukkit.getServer()).getServer();
-        ServerLevel serverLevel = minecraftServer.getLevel(ServerLevel.OVERWORLD);
+        WorldServer worldServer = minecraftServer.getWorldServer(WorldServer.f);
 
         InterceptedCommandListener commandListener = new InterceptedCommandListener(executorName);
         InterceptedCommandListenerWrapper listenerWrapper = new InterceptedCommandListenerWrapper(
                 commandListener,
-                serverLevel,
+                worldServer,
                 executorName,
                 permissionLevel
         );

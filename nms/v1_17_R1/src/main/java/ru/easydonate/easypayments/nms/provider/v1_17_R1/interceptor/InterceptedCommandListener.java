@@ -1,9 +1,9 @@
 package ru.easydonate.easypayments.nms.provider.v1_17_R1.interceptor;
 
 import lombok.Getter;
-import net.minecraft.commands.CommandSource;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
+import net.minecraft.commands.CommandListenerWrapper;
+import net.minecraft.commands.ICommandListener;
+import net.minecraft.network.chat.IChatBaseComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_17_R1.command.ServerCommandSender;
 import org.bukkit.permissions.Permission;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
-public final class InterceptedCommandListener extends ServerCommandSender implements CommandSource {
+public final class InterceptedCommandListener extends ServerCommandSender implements ICommandListener {
 
     private final String username;
     private final List<String> feedbackMessages;
@@ -26,27 +26,27 @@ public final class InterceptedCommandListener extends ServerCommandSender implem
     }
 
     @Override
-    public void sendMessage(Component component, UUID uuid) {
-        feedbackMessages.add(component.getString());
+    public void sendMessage(IChatBaseComponent iChatBaseComponent, UUID uuid) {
+        feedbackMessages.add(iChatBaseComponent.getString());
     }
 
     @Override
-    public boolean acceptsSuccess() {
+    public boolean shouldSendSuccess() {
         return Constants.COMMAND_SENDER_ACCEPTS_SUCCESS;
     }
 
     @Override
-    public boolean acceptsFailure() {
+    public boolean shouldSendFailure() {
         return Constants.COMMAND_SENDER_ACCEPTS_FAILURE;
     }
 
     @Override
-    public boolean shouldInformAdmins() {
+    public boolean shouldBroadcastCommands() {
         return Constants.COMMAND_SENDER_INFORM_ADMINS;
     }
 
     @Override
-    public CommandSender getBukkitSender(CommandSourceStack commandSourceStack) {
+    public CommandSender getBukkitSender(CommandListenerWrapper commandListenerWrapper) {
         return this;
     }
 
