@@ -6,7 +6,7 @@
 
     <groupId>ru.easydonate.easypayments</groupId>
     <artifactId>parent</artifactId>
-    <version>2.2.2</version>
+    <version>2.2.3</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -38,16 +38,16 @@
         <plugin.description>The official payment processing implementation as alternative for the RCON protocol</plugin.description>
 
         <!-- Dependencies versions -->
-        <spigot.api.version>1.20.2-R0.1-SNAPSHOT</spigot.api.version>
+        <spigot.api.version>1.20.6-R0.1-SNAPSHOT</spigot.api.version>
         <easydonate4j.version>2.0.6</easydonate4j.version>
         <ormlite.version>6.1</ormlite.version>
-        <lombok.version>1.18.26</lombok.version>
+        <lombok.version>1.18.32</lombok.version>
 
         <!-- Maven plugins -->
-        <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
-        <maven.shade.plugin.version>3.4.1</maven.shade.plugin.version>
-        <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
-        <maven.toolchains.plugin.version>3.1.0</maven.toolchains.plugin.version>
+        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
+        <maven.shade.plugin.version>3.5.3</maven.shade.plugin.version>
+        <maven.jar.plugin.version>3.4.1</maven.jar.plugin.version>
+        <maven.toolchains.plugin.version>3.2.0</maven.toolchains.plugin.version>
     </properties>
 
     <repositories>
@@ -58,10 +58,6 @@
         <repository>
             <id>minecraft-libraries</id>
             <url>https://libraries.minecraft.net/</url>
-        </repository>
-        <repository>
-            <id>easylauncher</id>
-            <url>https://repo.easylauncher.org/repository/spigot-builds/</url>
         </repository>
     </repositories>
 
@@ -417,6 +413,18 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- NMS 1.20.R4 -->
+            <dependency>
+                <groupId>ru.easydonate.easypayments</groupId>
+                <artifactId>v1_20_R4</artifactId>
+                <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.spigotmc</groupId>
+                        <artifactId>spigot</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -585,6 +593,9 @@
                             </jdk>
                             <jdk>
                                 <version>17</version>
+                            </jdk>
+                            <jdk>
+                                <version>21</version>
                             </jdk>
                         </toolchains>
                     </configuration>

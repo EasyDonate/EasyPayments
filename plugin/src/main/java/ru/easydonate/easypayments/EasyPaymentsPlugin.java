@@ -135,7 +135,7 @@ public class EasyPaymentsPlugin extends JavaPlugin {
 
             info(" ");
             info(" &eEasyPayments &ris an official payment processing implementation.");
-            info(" &6© EasyDonate 2020-2023 &r- All rights reserved.");
+            info(" &6© EasyDonate 2020-2024 &r- All rights reserved.");
             info(" ");
         }
 
