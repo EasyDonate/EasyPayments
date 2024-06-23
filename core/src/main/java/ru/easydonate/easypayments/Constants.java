@@ -5,10 +5,10 @@ public final class Constants {
     public static final String MIN_SUPPORTED_VERSION = "1.8";
     public static final String MIN_SUPPORTED_VERSION_X = "1.8.X";
 
-    public static final String MAX_SUPPORTED_VERSION = "1.20.6";
-    public static final String MAX_SUPPORTED_VERSION_X = "1.20.X";
+    public static final String MAX_SUPPORTED_VERSION = "1.21";
+    public static final String MAX_SUPPORTED_VERSION_X = "1.21.X";
 
-    public static final String MINECRAFT_LAST_RELEASE_DATE = "2024-05-20";
+    public static final String MINECRAFT_LAST_RELEASE_DATE = "2024-06-13";
 
     public static final boolean COMMAND_SENDER_ACCEPTS_SUCCESS = true;
     public static final boolean COMMAND_SENDER_ACCEPTS_FAILURE = true;

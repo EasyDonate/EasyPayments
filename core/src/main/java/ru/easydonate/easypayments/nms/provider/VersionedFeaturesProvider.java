@@ -35,6 +35,11 @@ public interface VersionedFeaturesProvider {
                 case "1.20.5":
                 case "1.20.6":
                     return "1_20_R4";
+                case "1.21.0":
+                case "1.21.1":
+                case "1.21.2":
+                case "1.21.3":
+                    return "1_21_R1";
             }
         }
 
@@ -83,7 +88,7 @@ public interface VersionedFeaturesProvider {
 
     @NotNull String getMinecraftVersion();
 
-    @NotNull String getNMSVersion();
+    @Nullable String getNMSVersion();
 
     @NotNull InterceptorFactory getInterceptorFactory();
 

@@ -29,7 +29,7 @@ public abstract class AbstractVersionedFeaturesProvider implements VersionedFeat
     }
 
     @Override
-    public @NotNull String getNMSVersion() {
+    public @Nullable String getNMSVersion() {
         return NMS_VERSION;
     }
 
