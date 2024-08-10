@@ -41,7 +41,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
 
     private @Nullable PluginEventReport processPurchaseNotifications(@NotNull PurchaseNotificationsPluginEvent pluginEvent) {
         List<String> commands = pluginEvent.getCommands();
-        if(commands == null || commands.isEmpty())
+        if (commands == null || commands.isEmpty())
             return null;
 
         List<CommandReport> reports = controller.processCommandsKeepSequence(commands);
@@ -68,7 +68,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
         databaseManager.savePayment(payment).join();
 
         AtomicInteger indexer = new AtomicInteger();
-        if(useCart) {
+        if (useCart) {
             // add purchases to shop cart
             products.stream()
                     .map(payment::createPurchase)

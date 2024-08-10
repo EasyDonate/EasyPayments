@@ -45,7 +45,7 @@ public final class ShopCartStorage {
 
     public @NotNull CompletableFuture<ShopCart> getAndCache(@NotNull String playerName) throws PluginUnavailableException {
         return plugin.getStorage().getCustomerByName(playerName).thenApply(customer -> {
-            if(customer == null)
+            if (customer == null)
                 return null;
 
             ShopCart shopCart = new ShopCart(customer);

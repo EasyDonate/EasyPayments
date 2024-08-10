@@ -21,10 +21,10 @@ public final class RepeatPaymentEvent extends EventObject {
     public void validate() {
         super.validate();
 
-        if(paymentId <= 0)
+        if (paymentId <= 0)
             validationFail("'paymentId' must be >0, but it's %d", paymentId);
 
-        if(products == null || products.isEmpty())
+        if (products == null || products.isEmpty())
             validationFail("no products list");
     }
 

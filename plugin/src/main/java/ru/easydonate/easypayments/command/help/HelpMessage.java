@@ -23,13 +23,13 @@ public final class HelpMessage {
     public @NotNull List<String> getAsMultiLineMessage(@NotNull Permissible receiver) {
         List<String> content = new ArrayList<>();
 
-        if(headerStub != null)
+        if (headerStub != null)
             content.add(headerStub.get());
 
-        if(lineFormat != null && !lines.isEmpty())
+        if (lineFormat != null && !lines.isEmpty())
             lines.forEach(line -> line.formatAsMessageLine(receiver, lineFormat.get(), content));
 
-        if(footerStub != null)
+        if (footerStub != null)
             content.add(footerStub.get());
 
         return content;
@@ -38,7 +38,7 @@ public final class HelpMessage {
     public void sendTo(@NotNull CommandSender receiver) {
         List<String> message = getAsMultiLineMessage(receiver);
 
-        if(receiver instanceof Player)
+        if (receiver instanceof Player)
             receiver.sendMessage(String.join("\n", message));
         else
             message.forEach(receiver::sendMessage);

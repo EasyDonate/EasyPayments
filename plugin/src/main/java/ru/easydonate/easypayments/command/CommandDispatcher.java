@@ -25,28 +25,28 @@ public abstract class CommandDispatcher extends CommandExecutor {
     protected void onUsageWithoutArgs(@NotNull CommandSender sender) throws ExecutionException {}
 
     protected void registerChild(@NotNull Executor executor) {
-        if(executor instanceof CommandExecutor)
+        if (executor instanceof CommandExecutor)
             ((CommandExecutor) executor).setParent(this);
 
         String command = executor.getCommand();
         registeredCommands.put(command, executor);
 
         String[] aliases = executor.getAliases();
-        if(aliases != null)
-            for(String alias : aliases)
+        if (aliases != null)
+            for (String alias : aliases)
                 registeredCommands.put(alias, executor);
     }
 
     @Override
     public void executeCommand(@NotNull CommandSender sender, @NotNull List<String> args) throws ExecutionException {
-        if(args.isEmpty()) {
+        if (args.isEmpty()) {
             onUsageWithoutArgs(sender);
             return;
         }
 
         String command = args.remove(0);
         Executor executor = findRelevantExecutor(command);
-        if(executor == null)
+        if (executor == null)
             throw new ExecutionException(messages.get("error.unknown-command"));
 
         executor.executeCommand(sender, args);
@@ -54,10 +54,10 @@ public abstract class CommandDispatcher extends CommandExecutor {
 
     @Override
     public @Nullable List<String> provideTabCompletions(@NotNull CommandSender sender, @NotNull List<String> args) throws ExecutionException {
-        if(args.isEmpty())
+        if (args.isEmpty())
             return null;
 
-        if(args.size() == 1) {
+        if (args.size() == 1) {
             String input = args.get(0).toLowerCase();
             return registeredCommands.keySet().stream()
                     .filter(command -> command.toLowerCase().startsWith(input))
@@ -70,9 +70,9 @@ public abstract class CommandDispatcher extends CommandExecutor {
     }
 
     private @Nullable Executor findRelevantExecutor(@Nullable String command) {
-        if(command != null && !command.isEmpty())
-            for(String registeredCommand : registeredCommands.keySet())
-                if(command.equalsIgnoreCase(registeredCommand))
+        if (command != null && !command.isEmpty())
+            for (String registeredCommand : registeredCommands.keySet())
+                if (command.equalsIgnoreCase(registeredCommand))
                     return registeredCommands.get(registeredCommand);
 
         return null;

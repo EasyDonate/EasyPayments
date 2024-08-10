@@ -24,7 +24,7 @@ public final class LocalDateTimePersister extends StringType {
 
     @Override
     public @Nullable String javaToSqlArg(@NotNull FieldType fieldType, @Nullable Object javaObject) {
-        if(javaObject instanceof LocalDateTime) {
+        if (javaObject instanceof LocalDateTime) {
             LocalDateTime asLocalDateTime = (LocalDateTime) javaObject;
             return DATE_TIME_FORMATTER.format(asLocalDateTime);
         }
@@ -34,7 +34,7 @@ public final class LocalDateTimePersister extends StringType {
 
     @Override
     public @Nullable LocalDateTime sqlArgToJava(@NotNull FieldType fieldType, @Nullable Object sqlArg, int columnPos) {
-        if(sqlArg instanceof String) {
+        if (sqlArg instanceof String) {
             String asString = (String) sqlArg;
             return LocalDateTime.from(DATE_TIME_FORMATTER.parse(asString));
         }

@@ -54,17 +54,17 @@ public final class InteractiveSetupProvider {
     }
 
     public @NotNull ShortAnswer defineShortAnswer(@NotNull String rawAnswer) {
-        if(rawAnswer == null || rawAnswer.isEmpty())
+        if (rawAnswer == null || rawAnswer.isEmpty())
             return ShortAnswer.UNDEFINED;
 
         String answer = rawAnswer.trim();
-        if(answer.isEmpty())
+        if (answer.isEmpty())
             return ShortAnswer.UNDEFINED;
 
-        if(ANSWERS_AGREE.stream().anyMatch(answer::equalsIgnoreCase))
+        if (ANSWERS_AGREE.stream().anyMatch(answer::equalsIgnoreCase))
             return ShortAnswer.YES;
 
-        if(ANSWERS_REFUSE.stream().anyMatch(answer::equalsIgnoreCase))
+        if (ANSWERS_REFUSE.stream().anyMatch(answer::equalsIgnoreCase))
             return ShortAnswer.NO;
 
         return ShortAnswer.UNDEFINED;
@@ -125,18 +125,18 @@ public final class InteractiveSetupProvider {
     }
 
     public boolean handleChatMessage(@NotNull InteractiveSetupSession session, @Nullable String message) {
-        if(message == null || message.isEmpty())
+        if (message == null || message.isEmpty())
             return false;
 
-        if(ANSWERS_EXIT.stream().anyMatch(message::equalsIgnoreCase)) {
+        if (ANSWERS_EXIT.stream().anyMatch(message::equalsIgnoreCase)) {
             messages.getAndSend(session::sendMessage, "setup.exit");
             closeSession(session.asBukkitSender());
             return true;
         }
 
-        if(session.isAwaitingShortAnswer()) {
+        if (session.isAwaitingShortAnswer()) {
             ShortAnswer shortAnswer = defineShortAnswer(message);
-            if(shortAnswer.isUndefined()) {
+            if (shortAnswer.isUndefined()) {
                 messages.getAndSend(session::sendMessage, "setup.failed.wrong-short-answer");
             } else {
                 session.acceptShortAnswer(shortAnswer);
@@ -147,7 +147,7 @@ public final class InteractiveSetupProvider {
         SetupStepFunction stepFunction = getCurrentStepFunction(session);
 
         boolean validated = stepFunction.validateInput(session, message);
-        if(validated) {
+        if (validated) {
             stepFunction.applyInputValue(session, message);
             nextSetupStep(session);
         } else {
@@ -182,7 +182,7 @@ public final class InteractiveSetupProvider {
 
     public @NotNull InteractiveSetupSession openSession(@NotNull CommandSender sender, boolean returnExisting) throws UnsupportedCallerException {
         Optional<InteractiveSetupSession> existingSession = getSession(sender);
-        if(existingSession.isPresent() && returnExisting)
+        if (existingSession.isPresent() && returnExisting)
             return existingSession.get();
 
         synchronized (sessions) {

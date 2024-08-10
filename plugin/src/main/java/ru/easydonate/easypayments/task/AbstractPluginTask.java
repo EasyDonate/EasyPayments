@@ -53,7 +53,7 @@ public abstract class AbstractPluginTask implements PluginTask, Runnable {
 
     @Override
     public void shutdown() {
-        if(bukkitTask == null)
+        if (bukkitTask == null)
             return;
 
         this.bukkitTask.cancel();

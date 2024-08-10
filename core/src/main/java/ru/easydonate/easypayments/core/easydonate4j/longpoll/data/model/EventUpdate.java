@@ -35,10 +35,10 @@ public final class EventUpdate<E extends EventObject> implements PrettyPrintable
     }
 
     public void validate() throws StructureValidationException {
-        if(hasUnknownType())
+        if (hasUnknownType())
             throw new StructureValidationException(this, "no known event type present");
 
-        if(!hasEventObjects())
+        if (!hasEventObjects())
             throw new StructureValidationException(this, "no event objects present");
     }
 

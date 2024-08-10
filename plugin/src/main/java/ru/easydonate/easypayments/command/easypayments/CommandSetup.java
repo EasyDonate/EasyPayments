@@ -38,7 +38,7 @@ public final class CommandSetup extends CommandDispatcher {
     protected void onUsageWithoutArgs(@NotNull CommandSender sender) throws ExecutionException {
         validateExecution(sender);
 
-        if(setupProvider.hasSession(sender)) {
+        if (setupProvider.hasSession(sender)) {
             setupProvider.closeSession(sender);
             messages.getAndSend(sender, "setup.exit");
         } else {

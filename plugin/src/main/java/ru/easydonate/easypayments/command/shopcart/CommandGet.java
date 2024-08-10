@@ -52,7 +52,7 @@ public final class CommandGet extends CommandExecutor {
         Player player = (Player) sender;
         Optional<ShopCart> cachedCart = shopCartStorage.getCached(player.getName());
 
-        if(!cachedCart.isPresent()) {
+        if (!cachedCart.isPresent()) {
             plugin.getLogger().warning(String.format("%s's shop cart still isn't cached!", player.getName()));
             plugin.getLogger().warning("Probably a database connection is very slow...");
             throw new ExecutionException(messages.get("cart-get.failed.cart-unavailable"));
@@ -61,7 +61,7 @@ public final class CommandGet extends CommandExecutor {
         ShopCart shopCart = cachedCart.get();
         Collection<Payment> cartContent = shopCart.getContent();
 
-        if(cartContent.isEmpty())
+        if (cartContent.isEmpty())
             throw new ExecutionException(messages.get("cart-get.failed.no-purchases"));
 
         uploadReports(cartContent).thenRun(() -> {

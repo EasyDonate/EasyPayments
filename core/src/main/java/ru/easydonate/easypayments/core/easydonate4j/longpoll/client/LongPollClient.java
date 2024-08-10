@@ -61,7 +61,7 @@ public final class LongPollClient {
     }
 
     public void shutdown() {
-        if(asyncExecutorService != null)
+        if (asyncExecutorService != null)
             asyncExecutorService.shutdown();
     }
 
@@ -74,7 +74,7 @@ public final class LongPollClient {
             return request(EasyHttpRequest.builder(httpClient, HttpClient.Method.GET), GetUpdatesListResponse.class);
         } catch (ApiResponseFailureException responseFailureException) {
             ErrorResponse errorResponse = responseFailureException.getErrorResponse();
-            if(errorResponse.getErrorCode() == 0) {
+            if (errorResponse.getErrorCode() == 0) {
                 return EventUpdates.EMPTY;
             } else {
                 throw responseFailureException;

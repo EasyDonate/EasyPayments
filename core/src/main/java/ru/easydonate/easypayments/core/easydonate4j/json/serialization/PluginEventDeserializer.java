@@ -39,7 +39,7 @@ public final class PluginEventDeserializer implements JsonDeserializer {
 
         String rawType = rootObject.get("type").getAsString();
         PluginEventType type = PluginEventType.getByKey(rawType);
-        if(type == PluginEventType.UNKNOWN)
+        if (type == PluginEventType.UNKNOWN)
             return null;
 
         Class<?> pluginEventClass = type.getPluginEventClass();

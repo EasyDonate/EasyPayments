@@ -39,7 +39,7 @@ public final class PlayerJoinQuitListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(@NotNull PlayerJoinEvent event) {
-        if(!EasyPaymentsPlugin.isPluginEnabled())
+        if (!EasyPaymentsPlugin.isPluginEnabled())
             return;
 
         Player player = event.getPlayer();
@@ -54,7 +54,7 @@ public final class PlayerJoinQuitListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerQuit(@NotNull PlayerQuitEvent event) {
-        if(!EasyPaymentsPlugin.isPluginEnabled())
+        if (!EasyPaymentsPlugin.isPluginEnabled())
             return;
 
         Player player = event.getPlayer();
@@ -62,17 +62,17 @@ public final class PlayerJoinQuitListener implements Listener {
     }
 
     private void notifyAboutCartContent(@NotNull Player player, @NotNull ShopCart shopCart) {
-        if(!player.hasPermission("easypayments.notify.cart"))
+        if (!player.hasPermission("easypayments.notify.cart"))
             return;
 
-        if(shopCart == null || shopCart.isEmpty())
+        if (shopCart == null || shopCart.isEmpty())
             return;
 
         messages.getAndSend(player, "cart-notification");
     }
 
     private void notifyAboutVersionUpdate(@NotNull Player player) {
-        if(!player.hasPermission("easypayments.notify.update"))
+        if (!player.hasPermission("easypayments.notify.update"))
             return;
 
         plugin.getVersionResponse().ifPresent(response -> messages.getAndSend(player, "update-notification",
@@ -86,17 +86,17 @@ public final class PlayerJoinQuitListener implements Listener {
         DatabaseManager databaseManager = shopCartStorage.getStorage();
 
         Customer customer = databaseManager.getCustomer(player).join();
-        if(customer == null)
+        if (customer == null)
             return;
 
-        if(databaseManager.isUuidIdentificationEnabled()) {
+        if (databaseManager.isUuidIdentificationEnabled()) {
             // UUID = constant, updating player name
-            if(!player.getName().equals(customer.getPlayerName())) {
+            if (!player.getName().equals(customer.getPlayerName())) {
                 databaseManager.transferCustomerOwnership(customer, player.getName()).join();
             }
         } else {
             // name = constant, updating player UUID
-            if(!player.getUniqueId().equals(customer.getPlayerUUID())) {
+            if (!player.getUniqueId().equals(customer.getPlayerUUID())) {
                 customer.updateUUID(player.getUniqueId());
                 databaseManager.saveCustomer(customer).join();
             }

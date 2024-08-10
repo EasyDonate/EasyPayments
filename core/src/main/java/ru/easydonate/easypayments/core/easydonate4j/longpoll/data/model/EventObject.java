@@ -45,10 +45,10 @@ public abstract class EventObject implements PrettyPrintable {
     }
 
     public void validate() throws StructureValidationException {
-        if(customer == null)
+        if (customer == null)
             validationFail("'customer' = null");
 
-        if(customer.isEmpty())
+        if (customer.isEmpty())
             validationFail("'customer' is empty");
     }
 

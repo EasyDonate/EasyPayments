@@ -35,7 +35,7 @@ public abstract class AbstractDatabaseCredentials implements DatabaseCredentials
     protected List<String> parameters;
 
     protected String formatParameters() {
-        if(parameters == null || parameters.isEmpty())
+        if (parameters == null || parameters.isEmpty())
             return "";
 
         String joined = parameters.stream()
@@ -78,7 +78,7 @@ public abstract class AbstractDatabaseCredentials implements DatabaseCredentials
             Path driverFile = downloadDriver(plugin);
             loaded = dependencyLoader.load(driverFile);
 
-            if(loaded) {
+            if (loaded) {
                 checkDriver(plugin, false);
                 plugin.getLogger().info(databaseType.getName() + " JDBC Driver has been loaded into the JVM Runtime.");
             }
@@ -90,7 +90,7 @@ public abstract class AbstractDatabaseCredentials implements DatabaseCredentials
             throw new DriverNotFoundException(ex, databaseType);
         }
 
-        if(!loaded)
+        if (!loaded)
             throw new DriverLoadException("Couldn't download the " + databaseType.getName() + " JDBC Driver!", databaseType);
     }
 

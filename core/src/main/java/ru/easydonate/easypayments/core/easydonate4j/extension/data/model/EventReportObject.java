@@ -17,7 +17,7 @@ public abstract class EventReportObject implements PrettyPrintable {
     protected List<PluginEventReport> pluginEventReports;
 
     public synchronized void addPluginEventReport(@NotNull PluginEventReport pluginEventReport) {
-        if(pluginEventReports == null)
+        if (pluginEventReports == null)
             pluginEventReports = new ArrayList<>();
 
         pluginEventReports.add(pluginEventReport);

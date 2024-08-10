@@ -14,7 +14,7 @@ public final class ServerIdStepFunction extends SetupStepFunction {
     @Override
     public void onStepIn(@NotNull InteractiveSetupSession session) {
         int currentValue = config().getInt("server-id", 0);
-        if(currentValue > 0) {
+        if (currentValue > 0) {
             session.awaitShortAnswer();
             sendMessage(session, "setup.interactive.server-id.already-specified", "%server_id%", currentValue);
             return;
@@ -47,7 +47,7 @@ public final class ServerIdStepFunction extends SetupStepFunction {
     public boolean validateInput(@NotNull InteractiveSetupSession session, @NotNull String rawInput) {
         try {
             int asInt = Integer.parseInt(rawInput);
-            if(asInt > 0) {
+            if (asInt > 0) {
                 return true;
             }
         } catch (NumberFormatException ignored) {

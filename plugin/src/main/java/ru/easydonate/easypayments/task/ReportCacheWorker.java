@@ -42,7 +42,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
 
     @Override
     public void run() {
-        if(!isWorking())
+        if (!isWorking())
             return;
 
         int serverId = executionController.getServerId();
@@ -54,7 +54,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
         DATABASE_QUERIES_LOCK.lock();
 
         try {
-            if(isWorking()) {
+            if (isWorking()) {
                 payments = databaseManager.getAllUnreportedPayments(serverId).join();
             }
         } catch (RejectedExecutionException ignored) {
@@ -62,7 +62,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
             DATABASE_QUERIES_LOCK.unlock();
         }
 
-        if(payments == null || payments.isEmpty()) {
+        if (payments == null || payments.isEmpty()) {
             updateActivityState();
             return;
         }
@@ -86,23 +86,23 @@ public final class ReportCacheWorker extends AbstractPluginTask {
                     .forEach(CompletableFuture::join);
         } catch (ApiResponseFailureException ex) {
             // redirect API errors to warning channel
-            if(EasyPaymentsPlugin.logCacheWorkerWarnings() && EasyPaymentsPlugin.isDebugEnabled()) {
+            if (EasyPaymentsPlugin.logCacheWorkerWarnings() && EasyPaymentsPlugin.isDebugEnabled()) {
                 warning(ex.getMessage());
             }
         } catch (HttpRequestException | HttpResponseException ex) {
             Throwable lastCause = ThrowableCauseFinder.findLastCause(ex);
 
             // ignore HTTP 403 (access denied)
-            if(lastCause instanceof IOException && lastCause.getMessage().contains("Server returned HTTP response code: 403")) {
+            if (lastCause instanceof IOException && lastCause.getMessage().contains("Server returned HTTP response code: 403")) {
                 error("Access denied! Please, make sure that you are using a latest version!");
                 updateActivityState();
                 return;
             }
 
             // redirect any other errors to error channel
-            if(EasyPaymentsPlugin.logCacheWorkerErrors()) {
+            if (EasyPaymentsPlugin.logCacheWorkerErrors()) {
                 error(ex.getMessage());
-                if(EasyPaymentsPlugin.isDebugEnabled()) {
+                if (EasyPaymentsPlugin.isDebugEnabled()) {
                     ex.printStackTrace();
                 }
             }
@@ -114,7 +114,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
     private @NotNull NewPaymentReport handlePayment(@NotNull Payment payment) {
         List<CommandReport> commandReports = new ArrayList<>();
 
-        if(payment.hasPurchases())
+        if (payment.hasPurchases())
             payment.getPurchases().stream()
                     .map(this::processPurchase)
                     .filter(Objects::nonNull)

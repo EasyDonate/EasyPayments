@@ -32,11 +32,11 @@ public final class EventUpdateDeserializer implements JsonDeserializer {
 
         String rawType = rootObject.get("type").getAsString();
         EventType type = EventType.getByKey(rawType);
-        if(type == EventType.UNKNOWN)
+        if (type == EventType.UNKNOWN)
             return null;
 
         List<E> eventObjects = null;
-        if(rootObject.has("objects")) {
+        if (rootObject.has("objects")) {
             JsonArray rawEventObjects = rootObject.getAsJsonArray("objects");
             Class<E> eventObjectClass = (Class<E>) type.getEventObjectClass();
             eventObjects = context.deserialize(rawEventObjects, TypeToken.getParameterized(List.class, eventObjectClass).getType());

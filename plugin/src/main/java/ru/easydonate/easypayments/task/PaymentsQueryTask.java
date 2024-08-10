@@ -54,13 +54,13 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
 
     @Override
     public void shutdown() {
-        if(workingThread == null)
+        if (workingThread == null)
             return;
 
         this.workingThread.interrupt();
 
         try {
-            if(longPollQueryTask != null)
+            if (longPollQueryTask != null)
                 longPollQueryTask.cancel(true);
 
             longPollExecutorService.shutdownNow();
@@ -85,7 +85,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 ex.printStackTrace();
             }
 
-            if(isWorking()) {
+            if (isWorking()) {
                 ThreadLocker.lockUninterruptive(TASK_PERIOD_MILLIS);
             }
         }
@@ -112,10 +112,10 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 return null;
             }).join();
 
-            if(updates == null || updates.isEmpty())
+            if (updates == null || updates.isEmpty())
                 return;
 
-            if(EasyPaymentsPlugin.isDebugEnabled()) {
+            if (EasyPaymentsPlugin.isDebugEnabled()) {
                 plugin.getLogger().info("[Debug] LongPoll API updates:");
                 plugin.getLogger().info(updates.toPrettyString());
             }
@@ -124,7 +124,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             DATABASE_QUERIES_LOCK.lock();
 
             try {
-                if(isWorking()) {
+                if (isWorking()) {
                     EventUpdateReports reports = executionController.processEventUpdates(updates).join();
                     executionController.uploadReports(reports);
                 }
@@ -138,9 +138,9 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             }
         } catch (HttpRequestException | HttpResponseException ex) {
             // redirect any other errors to error channel
-            if(EasyPaymentsPlugin.logQueryTaskErrors()) {
+            if (EasyPaymentsPlugin.logQueryTaskErrors()) {
                 error("[Query Task]: %s", ex.getMessage());
-                if(EasyPaymentsPlugin.isDebugEnabled()) {
+                if (EasyPaymentsPlugin.isDebugEnabled()) {
                     ex.printStackTrace();
                 }
             }
@@ -154,29 +154,29 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             return executionController.getEasyPaymentsClient().getLongPollClient().getUpdatesListSync();
         } catch (ApiResponseFailureException ex) {
             // redirect API errors to warning channel
-            if(EasyPaymentsPlugin.logQueryTaskErrors() && EasyPaymentsPlugin.isDebugEnabled()) {
+            if (EasyPaymentsPlugin.logQueryTaskErrors() && EasyPaymentsPlugin.isDebugEnabled()) {
                 warning("[Query Task]: %s", ex.getMessage());
             }
         } catch (HttpRequestException | HttpResponseException ex) {
             Throwable lastCause = ThrowableCauseFinder.findLastCause(ex);
 
-            if(lastCause instanceof SocketTimeoutException) {
+            if (lastCause instanceof SocketTimeoutException) {
                 // ignore the timeout exception
                 return null;
 
-            } else if(lastCause instanceof FileNotFoundException) {
+            } else if (lastCause instanceof FileNotFoundException) {
                 // handle unknown endpoint response
                 String endpointUrl = lastCause.getMessage();
-                if(endpointUrl != null && !endpointUrl.isEmpty()) {
+                if (endpointUrl != null && !endpointUrl.isEmpty()) {
                     error("The EasyPayments' endpoint '%s' isn't available now, will try to connect later...", endpointUrl);
                     throw new BadResponseException(404);
                 }
 
-            } else if(lastCause instanceof IOException) {
+            } else if (lastCause instanceof IOException) {
                 // handle some HTTP response codes
                 try {
                     Matcher matcher = RESPONSE_CODE_EXCEPTION.matcher(lastCause.getMessage());
-                    if(matcher.matches()) {
+                    if (matcher.matches()) {
                         int code = Integer.parseInt(matcher.group("code"));
                         String url = matcher.group("url");
 
@@ -194,7 +194,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                                 break;
                         }
 
-                        if(code / 100 != 2 && code / 100 != 3)
+                        if (code / 100 != 2 && code / 100 != 3)
                             throw new BadResponseException(code);
                     }
                 } catch (NumberFormatException ignored) {
@@ -202,9 +202,9 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             }
 
             // redirect any other errors to error channel
-            if(EasyPaymentsPlugin.logQueryTaskErrors()) {
+            if (EasyPaymentsPlugin.logQueryTaskErrors()) {
                 error("[Query Task]: %s", ex.getMessage());
-                if(EasyPaymentsPlugin.isDebugEnabled()) {
+                if (EasyPaymentsPlugin.isDebugEnabled()) {
                     ex.printStackTrace();
                 }
             }

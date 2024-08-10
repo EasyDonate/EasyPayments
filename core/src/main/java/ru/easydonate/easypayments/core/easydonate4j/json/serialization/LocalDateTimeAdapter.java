@@ -28,7 +28,7 @@ public final class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>
             @NotNull JsonDeserializationContext context
     ) throws JsonParseException {
         String asString = json.getAsString();
-        if(asString == null || asString.isEmpty())
+        if (asString == null || asString.isEmpty())
             return null;
 
         TemporalAccessor accessor = DATE_TIME_FORMAT.parse(asString);

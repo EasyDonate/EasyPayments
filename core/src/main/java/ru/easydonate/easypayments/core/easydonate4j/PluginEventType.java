@@ -23,9 +23,9 @@ public enum PluginEventType {
     }
 
     public static @NotNull PluginEventType getByKey(@Nullable String key) {
-        if(key != null && !key.isEmpty())
-            for(PluginEventType eventType : values())
-                if(eventType.getKey().equalsIgnoreCase(key))
+        if (key != null && !key.isEmpty())
+            for (PluginEventType eventType : values())
+                if (eventType.getKey().equalsIgnoreCase(key))
                     return eventType;
 
         return UNKNOWN;

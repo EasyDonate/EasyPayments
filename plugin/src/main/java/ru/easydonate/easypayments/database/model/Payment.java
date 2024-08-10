@@ -92,7 +92,7 @@ public final class Payment {
     }
 
     public boolean markAsCollected() {
-        if(isCollected())
+        if (isCollected())
             return false;
 
         this.collectedAt = updatedAt = LocalDateTime.now();
@@ -100,7 +100,7 @@ public final class Payment {
     }
 
     public boolean markAsReported() {
-        if(isReported())
+        if (isReported())
             return false;
 
         this.reportedAt = updatedAt = LocalDateTime.now();

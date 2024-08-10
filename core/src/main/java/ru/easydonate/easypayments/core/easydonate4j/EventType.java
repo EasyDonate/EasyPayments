@@ -29,9 +29,9 @@ public enum EventType {
     }
 
     public static @NotNull EventType getByKey(@Nullable String key) {
-        if(key != null && !key.isEmpty())
-            for(EventType eventType : values())
-                if(eventType.getKey().equalsIgnoreCase(key))
+        if (key != null && !key.isEmpty())
+            for (EventType eventType : values())
+                if (eventType.getKey().equalsIgnoreCase(key))
                     return eventType;
 
         return UNKNOWN;

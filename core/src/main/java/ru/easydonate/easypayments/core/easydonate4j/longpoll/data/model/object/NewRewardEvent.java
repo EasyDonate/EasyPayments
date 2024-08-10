@@ -22,10 +22,10 @@ public final class NewRewardEvent extends EventObject {
     public void validate() throws StructureValidationException {
         super.validate();
 
-        if(rewardId <= 0)
+        if (rewardId <= 0)
             validationFail("'rewardId' must be > 0, but it's %d", rewardId);
 
-        if(commands == null || commands.isEmpty())
+        if (commands == null || commands.isEmpty())
             validationFail("no commands present");
     }
 

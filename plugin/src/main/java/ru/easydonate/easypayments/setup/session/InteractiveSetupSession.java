@@ -24,9 +24,9 @@ public interface InteractiveSetupSession {
             @NotNull InteractiveSetupProvider setupProvider,
             @NotNull CommandSender sender
     ) throws UnsupportedCallerException {
-        if(sender instanceof Player) {
+        if (sender instanceof Player) {
             return new PlayerSetupSession(setupProvider, (Player) sender);
-        } else if(sender instanceof ConsoleCommandSender) {
+        } else if (sender instanceof ConsoleCommandSender) {
             return new ConsoleSetupSession(setupProvider);
         } else {
             throw new UnsupportedCallerException();

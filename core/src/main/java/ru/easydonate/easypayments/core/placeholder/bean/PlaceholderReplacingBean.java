@@ -18,7 +18,7 @@ final class PlaceholderReplacingBean<T> implements PlaceholderSupportingBean<T> 
         StringContainer processed = stringContainer.copy().processPlaceholders(replacerBus, bukkitPlayer);
 
         String processedString = processed.get();
-        if(processedString == null || processedString.isEmpty())
+        if (processedString == null || processedString.isEmpty())
             return null;
 
         try {

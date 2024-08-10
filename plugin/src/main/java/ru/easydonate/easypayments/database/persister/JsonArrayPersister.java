@@ -38,7 +38,7 @@ public final class JsonArrayPersister extends LongStringType {
     @Override
     public @Nullable String javaToSqlArg(@NotNull FieldType fieldType, @Nullable Object javaObject) {
         try {
-            if(javaObject instanceof List) {
+            if (javaObject instanceof List) {
                 List<?> asList = (List<?>) javaObject;
                 return gson.toJson(asList);
             }
@@ -51,7 +51,7 @@ public final class JsonArrayPersister extends LongStringType {
     @Override
     public @Nullable List<String> sqlArgToJava(@NotNull FieldType fieldType, @Nullable Object sqlArg, int columnPos) {
         try {
-            if(sqlArg instanceof String) {
+            if (sqlArg instanceof String) {
                 String asString = (String) sqlArg;
                 return gson.fromJson(asString, genericType);
             }

@@ -27,9 +27,9 @@ public final class RelativeTimeFormatter {
         this.timeUnitDelimiter = messages.getColoredString("relative-time-format.delimiter", "");
         this.timeUnitFormats.clear();
 
-        for(RelativeTimeUnit timeUnit : RelativeTimeUnit.values()) {
+        for (RelativeTimeUnit timeUnit : RelativeTimeUnit.values()) {
             String timeUnitFormat = messages.getColoredString(timeUnit.getFormatLocaleKey(), "");
-            if(!timeUnitFormat.isEmpty()) {
+            if (!timeUnitFormat.isEmpty()) {
                 this.timeUnitFormats.put(timeUnit, timeUnitFormat);
             }
         }
@@ -49,7 +49,7 @@ public final class RelativeTimeFormatter {
         addTimeUnitValue(timeUnitValues, RelativeTimeUnit.MINUTES, minutes);
         addTimeUnitValue(timeUnitValues, RelativeTimeUnit.SECONDS, seconds);
 
-        if(timeUnitValues.isEmpty())
+        if (timeUnitValues.isEmpty())
             addTimeUnitValue(timeUnitValues, RelativeTimeUnit.SECONDS, 1);
 
         return String.join(timeUnitDelimiter, timeUnitValues);
@@ -62,13 +62,13 @@ public final class RelativeTimeFormatter {
     }
 
     private void addTimeUnitValue(@NotNull List<String> addTo, @NotNull RelativeTimeUnit timeUnit, int value) {
-        if(value > 0)
+        if (value > 0)
             addTo.add(formatTimeUnitValue(timeUnit, value));
     }
 
     private @NotNull String formatTimeUnitValue(@NotNull RelativeTimeUnit timeUnit, int value) {
         String format = timeUnitFormats.get(timeUnit);
-        if(format == null)
+        if (format == null)
             return "";
 
         try {

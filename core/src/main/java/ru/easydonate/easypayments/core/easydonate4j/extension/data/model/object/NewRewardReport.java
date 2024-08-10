@@ -24,7 +24,7 @@ public final class NewRewardReport extends EventReportObject implements CommandR
 
     @Override
     public synchronized void addCommandReport(@NotNull CommandReport commandReport) {
-        if(commandReports == null)
+        if (commandReports == null)
             commandReports = new ArrayList<>();
 
         commandReports.add(commandReport);

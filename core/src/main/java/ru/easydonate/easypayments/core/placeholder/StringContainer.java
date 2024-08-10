@@ -33,7 +33,7 @@ public final class StringContainer {
     }
 
     public @NotNull StringContainer processPlaceholders(@NotNull PlaceholderReplacerBus replacerBus, @NotNull Player bukkitPlayer) {
-        if(isEmpty())
+        if (isEmpty())
             return this;
 
         return replacerBus.processPlaceholders(bukkitPlayer, this);

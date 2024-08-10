@@ -58,7 +58,7 @@ public final class Database {
         String rawType = config.getString("database.type", "");
         DatabaseType databaseType = DatabaseType.getByKey(rawType);
 
-        if(databaseType.isUnknown())
+        if (databaseType.isUnknown())
             throw new IllegalArgumentException(String.format("Unknown database type '%s'!", rawType));
 
         return databaseType;
@@ -69,7 +69,7 @@ public final class Database {
     }
 
     public @NotNull ConnectionSource getBootstrapConnection() {
-        if(bootstrapConnection == null)
+        if (bootstrapConnection == null)
             throw new IllegalStateException("The database instance wasn't initialized correctly!");
 
         return bootstrapConnection;
@@ -81,8 +81,8 @@ public final class Database {
 
     public @NotNull Database complete() throws SQLException {
         ConnectionSource bootstrapConnection = getBootstrapConnection();
-        if(!registeredTables.isEmpty())
-            for(Class<?> registeredTable : registeredTables)
+        if (!registeredTables.isEmpty())
+            for (Class<?> registeredTable : registeredTables)
                 TableUtils.createTableIfNotExists(bootstrapConnection, registeredTable);
 
         bootstrapConnection.closeQuietly();

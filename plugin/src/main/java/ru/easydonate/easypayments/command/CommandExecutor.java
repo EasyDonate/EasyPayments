@@ -51,7 +51,7 @@ public abstract class CommandExecutor implements Executor {
 
     public void register(@NotNull EasyPaymentsPlugin plugin) {
         PluginCommand pluginCommand = plugin.getCommand(command);
-        if(pluginCommand != null) {
+        if (pluginCommand != null) {
             pluginCommand.setExecutor(this);
             pluginCommand.setTabCompleter(this);
         }
@@ -60,7 +60,7 @@ public abstract class CommandExecutor implements Executor {
     public @NotNull String resolveFullCommand() {
         StringBuilder fullCommand = new StringBuilder();
 
-        if(parent != null)
+        if (parent != null)
             fullCommand.append(parent.resolveFullCommand()).append(' ');
 
         fullCommand.append(command);
@@ -79,7 +79,7 @@ public abstract class CommandExecutor implements Executor {
     }
 
     protected void checkPermission(@NotNull CommandSender sender) throws ExecutionException {
-        if(permission != null && !sender.hasPermission(permission))
+        if (permission != null && !sender.hasPermission(permission))
             throwNoPermissions();
     }
 
@@ -88,7 +88,7 @@ public abstract class CommandExecutor implements Executor {
     }
 
     protected void checkCommandSender(@NotNull CommandSender sender) throws ExecutionException {
-        if(onlyForPlayers && !isPlayer(sender))
+        if (onlyForPlayers && !isPlayer(sender))
             throwOnlyForPlayers();
     }
 
@@ -97,7 +97,7 @@ public abstract class CommandExecutor implements Executor {
     }
 
     protected void checkCommandSyntax(@NotNull CommandSender sender, @NotNull List<String> args) throws ExecutionException {
-        if(minimalArgsCount > args.size())
+        if (minimalArgsCount > args.size())
             throwWrongSyntax();
     }
 
@@ -106,7 +106,7 @@ public abstract class CommandExecutor implements Executor {
     }
 
     protected void checkFeatureAvailability() throws ExecutionException {
-        if(pluginEnableRequired && !EasyPaymentsPlugin.isPluginEnabled())
+        if (pluginEnableRequired && !EasyPaymentsPlugin.isPluginEnabled())
             throwUnavailableFeature();
     }
 
@@ -135,8 +135,8 @@ public abstract class CommandExecutor implements Executor {
                 .append('/')
                 .append(resolveFullCommand());
 
-        if(arguments != null) {
-            for(String key : arguments) {
+        if (arguments != null) {
+            for (String key : arguments) {
                 String argument = messages.getOrDefault("help.arguments." + key, '<' + key + '>');
                 syntax.append(' ').append(argument);
             }

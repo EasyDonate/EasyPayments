@@ -97,9 +97,9 @@ public class Reflection {
             @NotNull BiFunction<T, Class<A>, A> annotationExtractor
     ) {
         Map<T, A> annotatedElements = new LinkedHashMap<>();
-        for(T element : collection) {
+        for (T element : collection) {
             A annotation = annotationExtractor.apply(element, annotationType);
-            if(annotation != null) {
+            if (annotation != null) {
                 annotatedElements.put(element, annotation);
             }
         }
@@ -109,7 +109,7 @@ public class Reflection {
 
     private void walkClassTree(@NotNull Class<?> type, @NotNull Consumer<Class<?>> typeConsumer) {
         Class<?> clazz = type;
-        while(clazz != null) {
+        while (clazz != null) {
             typeConsumer.accept(clazz);
             clazz = clazz.getSuperclass();
         }

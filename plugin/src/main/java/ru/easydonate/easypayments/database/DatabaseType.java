@@ -26,9 +26,9 @@ public enum DatabaseType {
     private final Class<? extends DatabaseCredentials> providingClass;
 
     public static @NotNull DatabaseType getByKey(@Nullable String key) {
-        if(key != null && !key.isEmpty())
-            for(DatabaseType databaseType : values())
-                if(databaseType.getKey().equalsIgnoreCase(key))
+        if (key != null && !key.isEmpty())
+            for (DatabaseType databaseType : values())
+                if (databaseType.getKey().equalsIgnoreCase(key))
                     return databaseType;
 
         return UNKNOWN;

@@ -48,7 +48,7 @@ public final class PluginDependencyLoader implements DependencyLoader {
 
     private PluginDependencyLoader(final @NotNull Plugin plugin) {
         ClassLoader pluginClassLoader = plugin.getClass().getClassLoader();
-        if(pluginClassLoader instanceof URLClassLoader)
+        if (pluginClassLoader instanceof URLClassLoader)
             this.pluginClassLoader = (URLClassLoader) pluginClassLoader;
         else
             throw new IllegalArgumentException("Plugin class loader is not instance of URLClassLoader");
@@ -65,7 +65,7 @@ public final class PluginDependencyLoader implements DependencyLoader {
     @Override
     public boolean load(final @NotNull Path dependencyPath) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, MalformedURLException {
         Method addUrlMethod = getAddUrlMethod();
-        if(addUrlMethod == null)
+        if (addUrlMethod == null)
             return false;
 
         URL url = dependencyPath.toUri().toURL();

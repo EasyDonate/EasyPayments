@@ -92,11 +92,11 @@ public final class Purchase {
     }
 
     public @NotNull List<CommandReport> constructCommandReports() {
-        if(commands == null || responses == null)
+        if (commands == null || responses == null)
             return Collections.emptyList();
 
         List<CommandReport> commandReports = new ArrayList<>();
-        for(int i = 0; i < commands.size(); i++) {
+        for (int i = 0; i < commands.size(); i++) {
             String command = commands.get(i);
             String response = getResponse(i, "");
             commandReports.add(CommandReport.create(command, response));
@@ -106,7 +106,7 @@ public final class Purchase {
     }
 
     public @Nullable String getResponse(int index, @Nullable String defaultValue) {
-        if(responses == null || index >= responses.size())
+        if (responses == null || index >= responses.size())
             return defaultValue;
         else
             return responses.get(index);
@@ -121,7 +121,7 @@ public final class Purchase {
     }
 
     public boolean collect(@NotNull List<CommandReport> commandReports) {
-        if(isCollected())
+        if (isCollected())
              return false;
 
         this.commands = commandReports.stream().map(CommandReport::getCommand).collect(Collectors.toList());

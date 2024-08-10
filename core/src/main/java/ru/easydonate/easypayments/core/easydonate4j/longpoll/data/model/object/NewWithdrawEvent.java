@@ -20,10 +20,10 @@ public final class NewWithdrawEvent extends EventObject {
 
     @Override
     public void validate() throws StructureValidationException {
-        if(withdrawId <= 0)
+        if (withdrawId <= 0)
             validationFail("'withdrawId' must be > 0, but it's %d", withdrawId);
 
-        if(commands == null || commands.isEmpty())
+        if (commands == null || commands.isEmpty())
             validationFail("no commands present");
     }
 

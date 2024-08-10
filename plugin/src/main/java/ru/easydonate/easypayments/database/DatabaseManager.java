@@ -50,10 +50,10 @@ public final class DatabaseManager {
     }
 
     public void shutdown() {
-        if(asyncExecutorService != null)
+        if (asyncExecutorService != null)
             asyncExecutorService.shutdown();
 
-        if(connectionSource != null)
+        if (connectionSource != null)
             connectionSource.closeQuietly();
     }
 
@@ -82,7 +82,7 @@ public final class DatabaseManager {
             Dao<T, ID> destinationDao = daoExtractor.apply(this);
 
             List<T> entries = sourceDao.queryForAll();
-            for(T entry : entries) {
+            for (T entry : entries) {
                 destinationDao.createIfNotExists(entry);
             }
 
@@ -103,7 +103,7 @@ public final class DatabaseManager {
     }
 
     public @NotNull CompletableFuture<Customer> getCustomer(@NotNull OfflinePlayer bukkitPlayer) {
-        if(isUuidIdentificationEnabled())
+        if (isUuidIdentificationEnabled())
             return getCustomerByName(bukkitPlayer.getName());
         else
             return getCustomerByUUID(bukkitPlayer.getUniqueId());
@@ -115,7 +115,7 @@ public final class DatabaseManager {
 
     public @NotNull CompletableFuture<Customer> getOrCreateCustomer(@NotNull OfflinePlayer bukkitPlayer, @NotNull String playerName) {
         return getCustomerByName(playerName).thenApply(customer -> {
-            if(customer == null) {
+            if (customer == null) {
                 customer = new Customer(playerName, bukkitPlayer.getUniqueId());
                 saveCustomer(customer).join();
             }

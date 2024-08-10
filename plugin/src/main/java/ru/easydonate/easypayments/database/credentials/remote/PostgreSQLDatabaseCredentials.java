@@ -48,11 +48,11 @@ public final class PostgreSQLDatabaseCredentials extends AbstractRemoteDatabaseC
     protected void checkDriver(@NotNull Plugin plugin, boolean tryDownloadDriver) throws DriverNotFoundException, DriverLoadException {
         try {
             checkDriver(plugin, DRIVER_CLASS);
-            if(tryDownloadDriver) {
+            if (tryDownloadDriver) {
                 plugin.getLogger().info("PostgreSQL JDBC Driver is already loaded in the JVM Runtime.");
             }
         } catch (DriverNotFoundException ex) {
-            if(tryDownloadDriver) {
+            if (tryDownloadDriver) {
                 tryDownloadDriver(plugin);
             } else {
                 throw ex;

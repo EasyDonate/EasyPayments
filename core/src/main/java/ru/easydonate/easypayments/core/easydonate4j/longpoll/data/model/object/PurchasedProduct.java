@@ -35,19 +35,19 @@ public final class PurchasedProduct implements PrettyPrintable {
     private int count;
 
     public void validate() throws StructureValidationException {
-        if(id <= 0)
+        if (id <= 0)
             throw new StructureValidationException(this, "'id' must be > 0, but it's %d", id);
 
-        if(name == null || name.isEmpty())
+        if (name == null || name.isEmpty())
             throw new StructureValidationException(this, "'name' is required");
 
-        if(commands == null || commands.isEmpty())
+        if (commands == null || commands.isEmpty())
             throw new StructureValidationException(this, "no commands present");
 
-        if(cost < 0D)
+        if (cost < 0D)
             throw new StructureValidationException(this, "'cost' must be >= 0, but it's %s", cost);
 
-        if(count <= 0)
+        if (count <= 0)
             throw new StructureValidationException(this, "'count' must be > 0, but it's %s", count);
     }
 

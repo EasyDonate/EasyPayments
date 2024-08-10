@@ -45,18 +45,18 @@ public final class DatabaseCredentialsParser {
 
         // working with fields
         Map<Field, CredentialField> fields = Reflection.findAnnotatedDeclaredFields(providingClass, CredentialField.class);
-        if(!fields.isEmpty()) {
+        if (!fields.isEmpty()) {
             for (Field field : fields.keySet()) {
                 CredentialField annotation = fields.get(field);
 
                 String fieldName = field.getName();
                 String configField = annotation.value();
-                if(configField == null)
+                if (configField == null)
                     continue;
 
                 Object configValue = keys.get(configField);
-                if(configValue == null) {
-                    if(annotation.optional()) {
+                if (configValue == null) {
+                    if (annotation.optional()) {
                         continue;
                     } else {
                         throw new CredentialsParseException("A required credentials field '" + fieldName + "' isn't specified in your config!", databaseType);

@@ -15,8 +15,8 @@ public final class PlaceholderReplacerBus {
     }
 
     public @NotNull StringContainer processPlaceholders(@NotNull Player bukkitPlayer, @NotNull StringContainer container) {
-        if(!replacers.isEmpty() && container.isSupportingPlaceholders())
-            for(PlaceholderReplacer replacer : replacers)
+        if (!replacers.isEmpty() && container.isSupportingPlaceholders())
+            for (PlaceholderReplacer replacer : replacers)
                 replacer.replace(bukkitPlayer, container);
 
         return container;

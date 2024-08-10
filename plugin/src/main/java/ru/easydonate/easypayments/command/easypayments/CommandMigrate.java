@@ -54,17 +54,17 @@ public final class CommandMigrate extends CommandExecutor {
     public void executeCommand(@NotNull CommandSender sender, @NotNull List<String> args) throws ExecutionException {
         validateExecution(sender, args);
 
-        if(!EasyPaymentsPlugin.isStorageAvailable())
+        if (!EasyPaymentsPlugin.isStorageAvailable())
             throw new ExecutionException(messages.get("migrate.failed.storage-unavailable"));
 
         String rawType = args.get(0);
         DatabaseType destinationType = DatabaseType.getByKey(rawType);
 
-        if(destinationType.isUnknown())
+        if (destinationType.isUnknown())
             throw new ExecutionException(messages.get("migrate.failed.unknown-target"));
 
         DatabaseType sourceType = plugin.getStorage().getDatabaseType();
-        if(destinationType == sourceType)
+        if (destinationType == sourceType)
             throw new ExecutionException(messages.get("migrate.failed.same-target"));
 
         messages.getAndSend(sender, "migrate.starting",
@@ -108,7 +108,7 @@ public final class CommandMigrate extends CommandExecutor {
                 );
             } catch (Exception ex) {
                 messages.getAndSend(sender, "migrate.failed.unexpected-error", "%message%", ex);
-                if(EasyPaymentsPlugin.isDebugEnabled()) {
+                if (EasyPaymentsPlugin.isDebugEnabled()) {
                     ex.printStackTrace();
                 }
             }
@@ -116,13 +116,13 @@ public final class CommandMigrate extends CommandExecutor {
             messages.getAndSend(sender, "migrate.failed.invalid-credentials");
         } catch (DriverNotFoundException | DriverLoadException ex) {
             messages.getAndSend(sender, "migrate.failed.driver-load-failed");
-            if(EasyPaymentsPlugin.isDebugEnabled()) {
+            if (EasyPaymentsPlugin.isDebugEnabled()) {
                 ex.printStackTrace();
             }
         } catch (SQLException ex) {
             Throwable cause = ex;
             while(cause != null) {
-                if(cause instanceof ConnectException) {
+                if (cause instanceof ConnectException) {
                     messages.getAndSend(sender, "migrate.failed.invalid-credentials");
                     return;
                 }
@@ -130,7 +130,7 @@ public final class CommandMigrate extends CommandExecutor {
             }
 
             messages.getAndSend(sender, "migrate.failed.connection-failed", "%message%", ex);
-            if(EasyPaymentsPlugin.isDebugEnabled()) {
+            if (EasyPaymentsPlugin.isDebugEnabled()) {
                 ex.printStackTrace();
             }
         }
@@ -140,7 +140,7 @@ public final class CommandMigrate extends CommandExecutor {
     public @Nullable List<String> provideTabCompletions(@NotNull CommandSender sender, @NotNull List<String> args) throws ExecutionException {
         validateExecution(sender, args);
 
-        if(!EasyPaymentsPlugin.isStorageAvailable() || args.size() != 1)
+        if (!EasyPaymentsPlugin.isStorageAvailable() || args.size() != 1)
             return null;
 
         String arg = args.get(0).toLowerCase();

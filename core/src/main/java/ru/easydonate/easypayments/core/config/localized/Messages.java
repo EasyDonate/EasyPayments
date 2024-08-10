@@ -57,11 +57,11 @@ public final class Messages extends LocalizedConfigurationBase {
     }
 
     public @NotNull Messages send(@NotNull CommandSender sender, @NotNull String message) {
-        if(message != null && !message.isEmpty()) {
-            if(sender instanceof Player) {
+        if (message != null && !message.isEmpty()) {
+            if (sender instanceof Player) {
                 sender.sendMessage(message);
             } else {
-                for(String line : message.split("\n")) {
+                for (String line : message.split("\n")) {
                     sender.sendMessage(line);
                 }
             }

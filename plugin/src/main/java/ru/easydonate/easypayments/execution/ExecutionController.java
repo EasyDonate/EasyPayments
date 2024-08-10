@@ -106,10 +106,10 @@ public final class ExecutionController {
     }
 
     public void shutdown() {
-        if(commandsExecutorService != null)
+        if (commandsExecutorService != null)
             commandsExecutorService.shutdown();
 
-        if(asyncExecutorService != null)
+        if (asyncExecutorService != null)
             asyncExecutorService.shutdown();
     }
 
@@ -135,26 +135,26 @@ public final class ExecutionController {
 
     @SneakyThrows(JsonSerializationException.class)
     public void uploadReports(@Nullable EventUpdateReports reports) throws HttpRequestException, HttpResponseException {
-        if(reports == null || reports.isEmpty())
+        if (reports == null || reports.isEmpty())
             return;
 
-        if(EasyPaymentsPlugin.isDebugEnabled()) {
+        if (EasyPaymentsPlugin.isDebugEnabled()) {
             plugin.getLogger().info("[Debug] Uploading reports:");
             plugin.getLogger().info(reports.toPrettyString());
         }
 
-        if(!easyPaymentsClient.uploadReports(reports)) {
+        if (!easyPaymentsClient.uploadReports(reports)) {
             plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
             plugin.getLogger().severe("Please, contact with the platform support:");
             plugin.getLogger().severe("https://vk.me/easydonateru");
             return;
         }
 
-        if(EasyPaymentsPlugin.isDebugEnabled()) {
+        if (EasyPaymentsPlugin.isDebugEnabled()) {
             plugin.getLogger().info("[Debug] Reports have been uploaded.");
         }
 
-        if(!reports.containsReportWithType(EventType.NEW_PAYMENT)) {
+        if (!reports.containsReportWithType(EventType.NEW_PAYMENT)) {
             plugin.getLogger().info("[Debug] There are no 'new_payment' events, skipping database entries update...");
             return;
         }
@@ -164,7 +164,7 @@ public final class ExecutionController {
                 .stream()
                 .collect(Collectors.toMap(Payment::getId, p -> p));
 
-        if(EasyPaymentsPlugin.isDebugEnabled()) {
+        if (EasyPaymentsPlugin.isDebugEnabled()) {
             plugin.getLogger().info("[Debug] Unreported payments: " + payments);
         }
 
@@ -185,7 +185,7 @@ public final class ExecutionController {
     }
 
     public void givePurchasesFromCartAndReport(@NotNull Collection<Payment> payments) throws HttpRequestException, HttpResponseException {
-        if(EasyPaymentsPlugin.isDebugEnabled()) {
+        if (EasyPaymentsPlugin.isDebugEnabled()) {
             plugin.getLogger().info("[Debug] Marking payments as collected...");
         }
 
@@ -195,7 +195,7 @@ public final class ExecutionController {
                 .parallel()
                 .forEach(CompletableFuture::join);
 
-        if(EasyPaymentsPlugin.isDebugEnabled()) {
+        if (EasyPaymentsPlugin.isDebugEnabled()) {
             plugin.getLogger().info("[Debug] Constructing the event update report...");
         }
 
@@ -208,25 +208,25 @@ public final class ExecutionController {
 
     @SneakyThrows(JsonSerializationException.class)
     public void uploadCartReports(List<NewPaymentReport> eventReports) throws HttpRequestException, HttpResponseException {
-        if(eventReports.isEmpty())
+        if (eventReports.isEmpty())
             return;
 
         EventUpdateReport<NewPaymentReport> updateReport = new EventUpdateReport<>(EventType.NEW_PAYMENT, eventReports);
         EventUpdateReports updateReports = new EventUpdateReports(updateReport);
 
-        if(EasyPaymentsPlugin.isDebugEnabled()) {
+        if (EasyPaymentsPlugin.isDebugEnabled()) {
             plugin.getLogger().info("[Debug] Uploading cart reports:");
             plugin.getLogger().info(updateReports.toPrettyString());
         }
 
-        if(!easyPaymentsClient.uploadReports(updateReports)) {
+        if (!easyPaymentsClient.uploadReports(updateReports)) {
             plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
             plugin.getLogger().severe("Please, contact with the platform support:");
             plugin.getLogger().severe("https://vk.me/easydonateru");
             return;
         }
 
-        if(EasyPaymentsPlugin.isDebugEnabled()) {
+        if (EasyPaymentsPlugin.isDebugEnabled()) {
             plugin.getLogger().info("[Debug] Cart reports have been uploaded.");
         }
     }
@@ -235,7 +235,7 @@ public final class ExecutionController {
         String customer = payment.getCustomer().getPlayerName();
         NewPaymentReport report = new NewPaymentReport(payment.getId(), false, customer);
 
-        if(payment.hasPurchases()) {
+        if (payment.hasPurchases()) {
             payment.getPurchases().stream() // may be should do this in parallel stream?
                     .filter(Purchase::hasCommands)
                     .map(purchase -> handlePurchaseFromCart(customer, purchase))
@@ -281,7 +281,7 @@ public final class ExecutionController {
     ) {
         EventType eventType = eventUpdate.getEventType();
         EventUpdateProcessor<E, R> processor = (EventUpdateProcessor<E, R>) eventUpdateProcessors.get(eventType);
-        if(processor == null)
+        if (processor == null)
             throw new IllegalArgumentException(String.format(
                     "There are no event update processor present for event type '%s'!",
                     eventType
@@ -296,7 +296,7 @@ public final class ExecutionController {
             @NotNull E eventObject
     ) {
         EventObjectProcessor<E, R> processor = (EventObjectProcessor<E, R>) eventObjectProcessors.get(eventType);
-        if(processor == null)
+        if (processor == null)
             throw new IllegalArgumentException(String.format(
                     "There are no event object processor present for event type '%s'!",
                     eventType
@@ -318,10 +318,10 @@ public final class ExecutionController {
     }
 
     public @NotNull List<CommandReport> processCommandsKeepSequence(@NotNull List<String> commands) {
-        if(commands == null)
+        if (commands == null)
             return null;
 
-        if(commands.isEmpty())
+        if (commands.isEmpty())
             return Collections.emptyList();
 
         AtomicInteger indexer = new AtomicInteger();
@@ -346,7 +346,7 @@ public final class ExecutionController {
     }
 
     private @NotNull FeedbackInterceptor handleExceptionalExecution(@NotNull Throwable cause) {
-        if(cause instanceof CompletionException) {
+        if (cause instanceof CompletionException) {
             cause = cause.getCause();
 
             if (cause instanceof CommandExecutionException) {
@@ -407,7 +407,7 @@ public final class ExecutionController {
     }
 
     private void markAsCollectedIfCartDisabled(@NotNull Payment payment) {
-        if(!isShopCartEnabled())
+        if (!isShopCartEnabled())
             payment.markAsCollected();
     }
 

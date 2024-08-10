@@ -16,7 +16,7 @@ public final class AccessKeyStepFunction extends SetupStepFunction {
     @Override
     public void onStepIn(@NotNull InteractiveSetupSession session) {
         String currentValue = config().getString("key");
-        if(currentValue != null && !currentValue.trim().isEmpty()) {
+        if (currentValue != null && !currentValue.trim().isEmpty()) {
             session.awaitShortAnswer();
             String maskedKey = StringFormatter.maskAccessKey(currentValue);
             sendMessage(session, "setup.interactive.access-key.already-specified", "%access_key%", maskedKey);
@@ -48,12 +48,12 @@ public final class AccessKeyStepFunction extends SetupStepFunction {
 
     @Override
     public boolean validateInput(@NotNull InteractiveSetupSession session, @NotNull String rawInput) {
-        if(rawInput == null || rawInput.length() != EasyPaymentsPlugin.ACCESS_KEY_LENGTH) {
+        if (rawInput == null || rawInput.length() != EasyPaymentsPlugin.ACCESS_KEY_LENGTH) {
             sendMessage(session, "setup.failed.wrong-key-length");
             return false;
         }
 
-        if(!EasyPaymentsPlugin.ACCESS_KEY_REGEX.matcher(rawInput.toLowerCase()).matches()) {
+        if (!EasyPaymentsPlugin.ACCESS_KEY_REGEX.matcher(rawInput.toLowerCase()).matches()) {
             sendMessage(session, "setup.failed.wrong-key-regex");
             return false;
         }

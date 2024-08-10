@@ -47,12 +47,12 @@ public final class CommandBrowse extends CommandExecutor {
     public void executeCommand(@NotNull CommandSender sender, @NotNull List<String> args) throws ExecutionException {
         validateExecution(sender, args);
 
-        if(!args.isEmpty() && sender.hasPermission(BROWSE_OTHERS_PERMISSION)) {
+        if (!args.isEmpty() && sender.hasPermission(BROWSE_OTHERS_PERMISSION)) {
             showCartContent(sender, args.get(0), !isPlayer(sender) || !sender.getName().equals(args.get(0)));
             return;
         }
 
-        if(!isPlayer(sender))
+        if (!isPlayer(sender))
             throwWrongSyntax();
 
         showCartContent(sender, sender.getName(), false);
@@ -62,17 +62,17 @@ public final class CommandBrowse extends CommandExecutor {
     public @Nullable List<String> provideTabCompletions(@NotNull CommandSender sender, @NotNull List<String> args) throws ExecutionException {
         validateExecution(sender, args);
 
-        if(args.size() != 1)
+        if (args.size() != 1)
             return null;
 
         String arg = args.get(0).toLowerCase();
-        if(sender.hasPermission(BROWSE_OTHERS_PERMISSION)) {
+        if (sender.hasPermission(BROWSE_OTHERS_PERMISSION)) {
             return Arrays.stream(plugin.getServer().getOfflinePlayers())
                     .map(OfflinePlayer::getName)
                     .distinct()
                     .filter(n -> n.toLowerCase().startsWith(arg))
                     .collect(Collectors.toList());
-        } else if(isPlayer(sender) && sender.getName().toLowerCase().startsWith(arg)) {
+        } else if (isPlayer(sender) && sender.getName().toLowerCase().startsWith(arg)) {
             return Collections.singletonList(sender.getName());
         }
 
@@ -84,8 +84,8 @@ public final class CommandBrowse extends CommandExecutor {
         CompletableFuture<ShopCart> shopCartFuture = new CompletableFuture<>();
 
         Optional<ShopCart> cachedCart = shopCartStorage.getCached(playerName);
-        if(!browsingOthers) {
-            if(cachedCart.isPresent()) {
+        if (!browsingOthers) {
+            if (cachedCart.isPresent()) {
                 shopCartFuture.complete(cachedCart.get());
             } else {
                 plugin.getLogger().warning(String.format("%s's shop cart still isn't cached!", playerName));
@@ -94,7 +94,7 @@ public final class CommandBrowse extends CommandExecutor {
             }
 
         } else {
-            if(cachedCart.isPresent()) {
+            if (cachedCart.isPresent()) {
                 shopCartFuture.complete(cachedCart.get());
             } else {
                 shopCartStorage.getAndCache(playerName).thenAccept(shopCartFuture::complete);
@@ -103,7 +103,7 @@ public final class CommandBrowse extends CommandExecutor {
 
         shopCartFuture.thenAccept(shopCart -> {
             Collection<Payment> cartContent = shopCart != null ? shopCart.getContent() : null;
-            if(cartContent == null || cartContent.isEmpty()) {
+            if (cartContent == null || cartContent.isEmpty()) {
                 messages.getAndSend(sender, messagesRoot + ".failed.no-purchases", "%player%", playerName);
                 return;
             }

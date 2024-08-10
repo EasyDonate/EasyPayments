@@ -31,7 +31,7 @@ public final class CommandPreProcessListener implements Listener {
         String message = event.getMessage();
         Player player = event.getPlayer();
 
-        if(setupProvider.handleChatMessage(player, message))
+        if (setupProvider.handleChatMessage(player, message))
             event.setCancelled(true);
     }
 
@@ -40,7 +40,7 @@ public final class CommandPreProcessListener implements Listener {
         String message = event.getCommand();
         CommandSender sender = event.getSender();
 
-        if(setupProvider.handleChatMessage(sender, message)) {
+        if (setupProvider.handleChatMessage(sender, message)) {
             event.setCommand(null);
             Reflection.invokeVoidMethod(setCancelled, event, true);
         }

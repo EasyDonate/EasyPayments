@@ -24,7 +24,7 @@ public final class HelpMessageLine {
     }
 
     void formatAsMessageLine(@NotNull Permissible receiver, @NotNull String lineFormat, @NotNull List<String> content) {
-        if(command == null || !hasPermissionToSee(receiver))
+        if (command == null || !hasPermissionToSee(receiver))
             return;
 
         StringBuilder commandLine = new StringBuilder(command);
@@ -63,7 +63,7 @@ public final class HelpMessageLine {
     }
 
     public @NotNull HelpMessageLine withArguments(@NotNull String... arguments) {
-        for(String argument : arguments)
+        for (String argument : arguments)
             withArgument(argument);
         return this;
     }
@@ -78,7 +78,7 @@ public final class HelpMessageLine {
     }
 
     public @NotNull HelpMessageLine withArgumentsFrom(@NotNull String... keys) {
-        for(String key : keys)
+        for (String key : keys)
             withArgumentFrom(key);
         return this;
     }

@@ -32,10 +32,10 @@ public abstract class EventObjectProcessor<E extends EventObject, R extends Even
     }
 
     public @NotNull R processPluginEvents(@NotNull E eventObject, @NotNull R eventReportObject) {
-        if(eventObject == null || eventReportObject == null)
+        if (eventObject == null || eventReportObject == null)
             return eventReportObject;
 
-        if(eventObject.hasPluginEvents()) {
+        if (eventObject.hasPluginEvents()) {
             // add support for multiple plugins processing when that will be needed
             // parallel processing may be?
             eventObject.getPluginEvents().stream()
@@ -50,11 +50,11 @@ public abstract class EventObjectProcessor<E extends EventObject, R extends Even
     @SuppressWarnings("unchecked")
     private <P extends PluginEvent> @Nullable PluginEventReport processPluginEvent(@NotNull PluginEvent pluginEvent) {
         PluginEventType pluginType = pluginEvent.getPluginType();
-        if(pluginType.isUnknown())
+        if (pluginType.isUnknown())
             return null;
 
         PluginEventProcessor<P> processor = (PluginEventProcessor<P>) pluginEventProcessors.get(pluginType);
-        if(processor == null)
+        if (processor == null)
             return null;
 
         try {

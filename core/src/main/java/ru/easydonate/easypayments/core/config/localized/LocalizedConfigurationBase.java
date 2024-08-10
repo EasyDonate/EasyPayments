@@ -27,9 +27,9 @@ public abstract class LocalizedConfigurationBase extends TemplateConfigurationBa
     @Override
     public @NotNull LocaleEnum resolveLocale() {
         String langValue = config.getString(getConfigLangKey());
-        if(langValue != null) {
+        if (langValue != null) {
             LocaleEnum locale = LocaleEnum.getByTag(langValue);
-            if(locale != null) {
+            if (locale != null) {
                 return locale;
             }
         }

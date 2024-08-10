@@ -25,7 +25,7 @@ public final class ConsoleSetupSession extends AbstractSetupSession {
 
     @Override
     public void sendMessage(@NotNull String message) {
-        if(message != null && !message.isEmpty())
+        if (message != null && !message.isEmpty())
             Bukkit.getConsoleSender().sendMessage(message.split("\n"));
     }
 

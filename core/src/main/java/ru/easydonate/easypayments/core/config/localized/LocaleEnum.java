@@ -24,9 +24,9 @@ public enum LocaleEnum {
     }
 
     public static @Nullable LocaleEnum getByTag(@Nullable String languageTag) {
-        if(languageTag != null && !languageTag.isEmpty())
-            for(LocaleEnum locale : values())
-                if(locale.getLanguageTag().equalsIgnoreCase(languageTag))
+        if (languageTag != null && !languageTag.isEmpty())
+            for (LocaleEnum locale : values())
+                if (locale.getLanguageTag().equalsIgnoreCase(languageTag))
                     return locale;
 
         return null;
