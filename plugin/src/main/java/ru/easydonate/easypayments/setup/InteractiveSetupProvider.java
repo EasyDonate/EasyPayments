@@ -4,12 +4,12 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
-import ru.easydonate.easypayments.config.Configuration;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.Configuration;
+import ru.easydonate.easypayments.core.config.localized.Messages;
+import ru.easydonate.easypayments.core.formatting.StringFormatter;
 import ru.easydonate.easypayments.exception.UnsupportedCallerException;
 import ru.easydonate.easypayments.setup.session.InteractiveSetupSession;
 import ru.easydonate.easypayments.setup.step.function.*;
-import ru.easydonate.easypayments.utility.StringMasker;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -83,19 +83,26 @@ public final class InteractiveSetupProvider {
             currentStepOut(session);
             InteractiveSetupStep step = session.nextStep();
 
-            if(step.isFinished()) {
+            if (step.isFinished()) {
                 sessions.remove(session.asBukkitSender());
+                List<Runnable> pendingFeedback = new ArrayList<>();
 
                 session.getAccessKey().ifPresent(key -> {
-                    config.updateExistingFile(EasyPaymentsPlugin.CONFIG_ACCESS_KEY_REGEX, key);
-                    String maskedKey = StringMasker.maskAccessKey(key);
-                    messages.getAndSend(session::sendMessage, "setup.success.access-key", "%access_key%", maskedKey);
+                    config.getOverrides().put(EasyPaymentsPlugin.CONFIG_KEY_ACCESS_KEY, key);
+                    String maskedKey = StringFormatter.maskAccessKey(key);
+                    pendingFeedback.add(() -> messages.getAndSend(session::sendMessage, "setup.success.access-key", "%access_key%", maskedKey));
                 });
 
                 session.getServerId().ifPresent(serverId -> {
-                    config.updateExistingFile(EasyPaymentsPlugin.CONFIG_SERVER_ID_REGEX, serverId);
-                    messages.getAndSend(session::sendMessage, "setup.success.server-id", "%server_id%", serverId);
+                    config.getOverrides().put(EasyPaymentsPlugin.CONFIG_KEY_SERVER_ID, serverId);
+                    pendingFeedback.add(() -> messages.getAndSend(session::sendMessage, "setup.success.server-id", "%server_id%", serverId));
                 });
+
+                if (!pendingFeedback.isEmpty()) {
+                    config.reload();
+                    pendingFeedback.forEach(Runnable::run);
+                    pendingFeedback.clear();
+                }
 
                 CompletableFuture.runAsync(() -> {
                     try {

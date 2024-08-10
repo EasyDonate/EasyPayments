@@ -2,10 +2,10 @@ package ru.easydonate.easypayments.setup.step.function;
 
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
+import ru.easydonate.easypayments.core.formatting.StringFormatter;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 import ru.easydonate.easypayments.setup.ShortAnswer;
 import ru.easydonate.easypayments.setup.session.InteractiveSetupSession;
-import ru.easydonate.easypayments.utility.StringMasker;
 
 public final class AccessKeyStepFunction extends SetupStepFunction {
 
@@ -18,7 +18,7 @@ public final class AccessKeyStepFunction extends SetupStepFunction {
         String currentValue = config().getString("key");
         if(currentValue != null && !currentValue.trim().isEmpty()) {
             session.awaitShortAnswer();
-            String maskedKey = StringMasker.maskAccessKey(currentValue);
+            String maskedKey = StringFormatter.maskAccessKey(currentValue);
             sendMessage(session, "setup.interactive.access-key.already-specified", "%access_key%", maskedKey);
             return;
         }

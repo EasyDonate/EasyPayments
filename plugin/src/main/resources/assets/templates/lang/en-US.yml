@@ -1,0 +1,178 @@
+#
+#  Localization file for the EasyPayments v.${project.version}
+#  Current language: English (USA)
+#
+#  © EasyDonate ${copyright_years} - All rights reserved
+#
+
+error:
+  unavailable-feature: _value_
+  unknown-command: _value_
+  wrong-syntax: _value_
+  no-permissions: _value_
+  only-for-players: _value_
+  unsupported-caller: _value_
+
+cart-get:
+  failed:
+    cart-unavailable: _value_
+    no-purchases: _value_
+
+  header: _value_
+  body: _value_
+  footer: _value_
+
+  no-value-stub: _value_
+
+cart-browse:
+  yourself:
+    failed:
+      cart-unavailable: _value_
+      no-purchases: _value_
+
+    header: _value_
+    body: _value_
+    footer: _value_
+
+    no-value-stub: _value_
+
+  other:
+    failed:
+      cart-unavailable: _value_
+      no-purchases: _value_
+
+    header: _value_
+    body: _value_
+    footer: _value_
+
+    no-value-stub: _value_
+
+cart-clear:
+  yourself:
+    failed:
+      cart-unavailable: _value_
+      no-purchases: _value_
+    success: _value_
+
+  other:
+    failed:
+      cart-unavailable: _value_
+      no-purchases: _value_
+    success: _value_
+
+cart-transfer:
+  failed:
+    bad-payment-id: _value_
+    payment-not-found: _value_
+    payment-not-owned: _value_
+    no-purchases: _value_
+    purchases-already-collected: _value_
+    target-cart-not-found: _value_
+  success: _value_
+
+setup:
+  failed:
+    wrong-key-length: _value_
+    wrong-key-regex: _value_
+    wrong-server-id: _value_
+    wrong-short-answer: _value_
+  interactive:
+    start: _value_
+    access-key:
+      already-specified: _value_
+      used-current-value: _value_
+      enter-new-value: _value_
+      enter-value-again: _value_
+    server-id:
+      already-specified: _value_
+      used-current-value: _value_
+      enter-new-value: _value_
+      enter-value-again: _value_
+    finish: _value_
+  exit: _value_
+  success:
+    access-key: _value_
+    server-id: _value_
+  tips:
+    access-key: _value_
+    server-id: _value_
+
+status:
+  message: _value_
+
+  status:
+    working: _value_
+    unconfigured: _value_
+
+  storage:
+    available: _value_
+    unavailable: _value_
+
+  no-value-stub: _value_
+
+migrate:
+  failed:
+    storage-unavailable: _value_
+    unknown-target: _value_
+    same-target: _value_
+    invalid-credentials: _value_
+    driver-load-failed: _value_
+    connection-failed: _value_
+    unexpected-error: _value_
+  starting: _value_
+  success: _value_
+
+reload:
+  failed:
+    some-error-occurred: _value_
+  success: _value_
+
+cart-notification: _value_
+
+update-notification: _value_
+
+help:
+  header: _value_
+  body: _value_
+  footer: _value_
+
+  # Color codes are supported here (use '&' character)
+  descriptions:
+    help: _value_
+    cart-get: _value_
+    cart-browse: _value_
+    cart-clear: _value_
+    cart-transfer: _value_
+    status: _value_
+    setup: _value_
+    setup-access-key: _value_
+    setup-server-id: _value_
+    migrate: _value_
+    reload: _value_
+
+  # Example: /shopcart browse [player]
+  #          [player] is an argument
+  arguments:
+    player: _value_
+    access-key: _value_
+    server-id: _value_
+    database-type: _value_
+    source: _value_
+    payment-id: _value_
+    target: _value_
+
+# The relative/estimated time formatting configuration
+# (?) Example: 7h. 37m. ago
+relative-time-format:
+  # The delimiter between two time units
+  # (?) Example: '7h, 37m'    ', ' is a delimiter
+  delimiter: _value_
+
+  # The time unit formats customization
+  # (?) The '%d' will be replaced with the real time unit value
+  # (?) You can just remove any parameter to hide related time unit
+  time-units:
+    seconds: _value_
+    minutes: _value_
+    hours: _value_
+    days: _value_

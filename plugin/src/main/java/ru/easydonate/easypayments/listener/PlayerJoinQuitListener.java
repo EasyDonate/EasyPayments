@@ -9,7 +9,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.shopcart.ShopCart;
@@ -65,7 +65,7 @@ public final class PlayerJoinQuitListener implements Listener {
         if(!player.hasPermission("easypayments.notify.cart"))
             return;
 
-        if(shopCart == null || !shopCart.hasContent())
+        if(shopCart == null || shopCart.isEmpty())
             return;
 
         messages.getAndSend(player, "cart-notification");

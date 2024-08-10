@@ -7,7 +7,7 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 
 import java.util.ArrayList;
 import java.util.Arrays;

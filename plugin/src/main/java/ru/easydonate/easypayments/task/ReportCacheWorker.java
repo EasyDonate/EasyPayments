@@ -9,13 +9,13 @@ import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
-import ru.easydonate.easypayments.easydonate4j.EventType;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReport;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReports;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.CommandReport;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.NewPaymentReport;
+import ru.easydonate.easypayments.core.easydonate4j.EventType;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReport;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReports;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.CommandReport;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.NewPaymentReport;
 import ru.easydonate.easypayments.execution.ExecutionController;
-import ru.easydonate.easypayments.utility.ThrowableToolbox;
+import ru.easydonate.easypayments.core.util.ThrowableCauseFinder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
                 warning(ex.getMessage());
             }
         } catch (HttpRequestException | HttpResponseException ex) {
-            Throwable lastCause = ThrowableToolbox.findLastCause(ex);
+            Throwable lastCause = ThrowableCauseFinder.findLastCause(ex);
 
             // ignore HTTP 403 (access denied)
             if(lastCause instanceof IOException && lastCause.getMessage().contains("Server returned HTTP response code: 403")) {

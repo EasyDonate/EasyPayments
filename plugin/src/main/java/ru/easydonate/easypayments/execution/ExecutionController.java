@@ -10,34 +10,34 @@ import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
 import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easydonate4j.exception.JsonSerializationException;
-import ru.easydonate.easypayments.Constants;
+import ru.easydonate.easypayments.core.Constants;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
-import ru.easydonate.easypayments.config.Configuration;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.Configuration;
+import ru.easydonate.easypayments.core.config.localized.Messages;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.*;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
-import ru.easydonate.easypayments.easydonate4j.EventType;
-import ru.easydonate.easypayments.easydonate4j.extension.client.EasyPaymentsClient;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventReportObject;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReport;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReports;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.*;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventObject;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventUpdate;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventUpdates;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.NewPaymentEvent;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.NewRewardEvent;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.NewWithdrawEvent;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.RepeatPaymentEvent;
+import ru.easydonate.easypayments.core.easydonate4j.EventType;
+import ru.easydonate.easypayments.core.easydonate4j.extension.client.EasyPaymentsClient;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventReportObject;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReport;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReports;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventObject;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventUpdate;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventUpdates;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.NewPaymentEvent;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.NewRewardEvent;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.NewWithdrawEvent;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.RepeatPaymentEvent;
 import ru.easydonate.easypayments.exception.CommandExecutionException;
-import ru.easydonate.easypayments.execution.interceptor.FeedbackInterceptor;
-import ru.easydonate.easypayments.execution.interceptor.InterceptorFactory;
+import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
+import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
 import ru.easydonate.easypayments.execution.processor.object.*;
 import ru.easydonate.easypayments.execution.processor.update.EventUpdateProcessor;
 import ru.easydonate.easypayments.execution.processor.update.SimplePaymentEventProcessor;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
-import ru.easydonate.easypayments.utility.ThreadLocker;
+import ru.easydonate.easypayments.core.util.ThreadLocker;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -118,7 +118,7 @@ public final class ExecutionController {
     }
 
     public int getFeedbackAwaitTimeMillis() {
-        return config.getLimitedInt("feedback-await-time", Constants.MIN_FEEDBACK_AWAIT_TIME, Constants.MAX_FEEDBACK_AWAIT_TIME, Constants.DEFAULT_FEEDBACK_AWAIT_TIME);
+        return config.getIntWithBounds("feedback-await-time", Constants.MIN_FEEDBACK_AWAIT_TIME, Constants.MAX_FEEDBACK_AWAIT_TIME, Constants.DEFAULT_FEEDBACK_AWAIT_TIME);
     }
 
     public boolean isShopCartEnabled() {

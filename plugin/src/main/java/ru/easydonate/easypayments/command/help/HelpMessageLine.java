@@ -1,20 +1,21 @@
 package ru.easydonate.easypayments.command.help;
 
+import lombok.var;
 import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.NotNull;
-import ru.easydonate.easypayments.config.AbstractConfiguration;
-import ru.easydonate.easypayments.utility.StringSupplier;
+import ru.easydonate.easypayments.core.formatting.StringFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public final class HelpMessageLine {
 
     private final HelpMessageFactory parentFactory;
-    private final List<StringSupplier> arguments;
+    private final List<Supplier<String>> arguments;
 
     private String command;
-    private StringSupplier description;
+    private Supplier<String> description;
     private String permission;
 
     HelpMessageLine(@NotNull HelpMessageFactory parentFactory) {
@@ -27,11 +28,11 @@ public final class HelpMessageLine {
             return;
 
         StringBuilder commandLine = new StringBuilder(command);
-        if(!arguments.isEmpty())
-            for(StringSupplier argument : arguments)
+        if (!arguments.isEmpty())
+            for (var argument : arguments)
                 commandLine.append(' ').append(argument.get());
 
-        content.add(AbstractConfiguration.format(lineFormat,
+        content.add(StringFormatter.format(lineFormat,
                 "%command%", commandLine.toString(),
                 "%description%", getNonNullDescription().get()
         ));
@@ -48,7 +49,7 @@ public final class HelpMessageLine {
     public @NotNull HelpMessageLine withCommand(@NotNull String command, boolean useAsDefaultKey) {
         this.command = command;
 
-        if(useAsDefaultKey) {
+        if (useAsDefaultKey) {
             withDescriptionFrom(command);
             withPermission(command);
         }
@@ -57,7 +58,7 @@ public final class HelpMessageLine {
     }
 
     public @NotNull HelpMessageLine withArgument(@NotNull String argument) {
-        arguments.add(StringSupplier.constant(argument));
+        arguments.add(() -> argument);
         return this;
     }
 
@@ -68,8 +69,8 @@ public final class HelpMessageLine {
     }
 
     public @NotNull HelpMessageLine withArgumentFrom(@NotNull String key) {
-        StringSupplier argument = key.startsWith("$")
-                ? StringSupplier.messageKey(parentFactory.getMessages(), key.substring(1))
+        Supplier<String> argument = key.startsWith("$")
+                ? () -> parentFactory.getMessages().get(key.substring(1))
                 : parentFactory.getArgument(key);
 
         arguments.add(argument);
@@ -83,7 +84,7 @@ public final class HelpMessageLine {
     }
 
     public @NotNull HelpMessageLine withDescription(@NotNull String description) {
-        this.description = StringSupplier.constant(description);
+        this.description = () -> description;
         return this;
     }
 
@@ -92,7 +93,7 @@ public final class HelpMessageLine {
     }
 
     public @NotNull HelpMessageLine withDescriptionFrom(@NotNull String key, boolean useDefaultFormat) {
-        this.description = useDefaultFormat ? parentFactory.getDescription(key) : StringSupplier.constant(key);
+        this.description = useDefaultFormat ? parentFactory.getDescription(key) : () -> parentFactory.getMessages().get(key);
         return this;
     }
 
@@ -113,8 +114,8 @@ public final class HelpMessageLine {
         return !hasPermission() || permissible.hasPermission(permission);
     }
 
-    private @NotNull StringSupplier getNonNullDescription() {
-        return description != null ? description : StringSupplier.constant(command);
+    private @NotNull Supplier<String> getNonNullDescription() {
+        return description != null ? description : () -> command;
     }
 
 }

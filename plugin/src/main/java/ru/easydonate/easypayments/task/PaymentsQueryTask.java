@@ -9,11 +9,11 @@ import ru.easydonate.easydonate4j.exception.HttpRequestException;
 import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easydonate4j.exception.JsonSerializationException;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventUpdateReports;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventUpdates;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReports;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventUpdates;
 import ru.easydonate.easypayments.execution.ExecutionController;
-import ru.easydonate.easypayments.utility.ThreadLocker;
-import ru.easydonate.easypayments.utility.ThrowableToolbox;
+import ru.easydonate.easypayments.core.util.ThreadLocker;
+import ru.easydonate.easypayments.core.util.ThrowableCauseFinder;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -158,7 +158,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 warning("[Query Task]: %s", ex.getMessage());
             }
         } catch (HttpRequestException | HttpResponseException ex) {
-            Throwable lastCause = ThrowableToolbox.findLastCause(ex);
+            Throwable lastCause = ThrowableCauseFinder.findLastCause(ex);
 
             if(lastCause instanceof SocketTimeoutException) {
                 // ignore the timeout exception

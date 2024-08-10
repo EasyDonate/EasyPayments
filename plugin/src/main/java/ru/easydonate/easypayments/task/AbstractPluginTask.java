@@ -32,7 +32,7 @@ public abstract class AbstractPluginTask implements PluginTask, Runnable {
 
     @Override
     public boolean isWorking() {
-        return bukkitTask != null && !plugin.getVersionedFeaturesProvider().isTaskCancelled(bukkitTask);
+        return bukkitTask != null && !plugin.getPlatformProvider().isTaskCancelled(bukkitTask);
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.easydonate.easypayments.config.Configuration;
+import ru.easydonate.easypayments.core.config.Configuration;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;

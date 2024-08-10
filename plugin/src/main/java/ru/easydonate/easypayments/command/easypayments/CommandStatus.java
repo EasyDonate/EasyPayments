@@ -9,8 +9,8 @@ import ru.easydonate.easypayments.command.annotation.CommandAliases;
 import ru.easydonate.easypayments.command.annotation.Permission;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
-import ru.easydonate.easypayments.config.Messages;
-import ru.easydonate.easypayments.utility.StringMasker;
+import ru.easydonate.easypayments.core.config.localized.Messages;
+import ru.easydonate.easypayments.core.formatting.StringFormatter;
 
 import java.util.List;
 
@@ -36,7 +36,7 @@ public final class CommandStatus extends CommandExecutor {
         boolean isPluginEnabled = EasyPaymentsPlugin.isPluginEnabled();
         boolean isStorageAvailable = EasyPaymentsPlugin.isStorageAvailable();
 
-        String accessKey = StringMasker.maskAccessKey(plugin.getAccessKey());
+        String accessKey = StringFormatter.maskAccessKey(plugin.getAccessKey());
         int serverId = plugin.getServerId();
         int permissionLevel = plugin.getPermissionLevel();
 

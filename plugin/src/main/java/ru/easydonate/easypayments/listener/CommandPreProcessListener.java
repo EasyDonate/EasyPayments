@@ -10,7 +10,7 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
-import ru.easydonate.easypayments.utility.Reflection;
+import ru.easydonate.easypayments.core.util.Reflection;
 
 import java.lang.reflect.Method;
 

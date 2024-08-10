@@ -1,8 +1,8 @@
-name: ${plugin.name}
+name: ${project.name}
 main: ru.easydonate.easypayments.EasyPaymentsPlugin
-version: ${plugin.version}
+version: ${project.version}
 authors: [SoKnight, DontFollow]
-description: ${plugin.description}
+description: ${project.description}
 libraries:
 - org.postgresql:postgresql:42.3.3
 - com.h2database:h2:2.1.210
@@ -26,57 +26,57 @@ permissions:
 
   # /easypayments help
   easypayments.command.help:
-    description: Gives access to see the commands manual
+    description: Grants access to see the commands manual
     default: true
 
   # /shopcart get
   easypayments.command.cart.get:
-    description: Gives access to receive all purchases from the shop cart
+    description: Grants access to receive all purchases from the shop cart
     default: true
 
   # /shopcart browse
   easypayments.command.cart.browse:
-    description: Gives access to browse own shop cart
+    description: Grants access to browse own shop cart
     default: true
 
   # /shopcart browse <player>
   easypayments.command.cart.browse.other:
-    description: Gives access to browse other player's shop cart
+    description: Grants access to browse other player's shop cart
     default: op
 
   # /shopcart clear
   easypayments.command.cart.clear:
-    description: Gives access to clear own shop cart
+    description: Grants access to clear own shop cart
     default: op
 
   # /shopcart clear <player>
   easypayments.command.cart.clear.other:
-    description: Gives access to clear other player's shop cart
+    description: Grants access to clear other player's shop cart
     default: op
 
   # /shopcart transfer <source> <payment-id> <target>
   easypayments.command.cart.transfer:
-    description: Gives access to transfer payment related purchases from source shop cart to the target
+    description: Grants access to transfer payment related purchases from source shop cart to the target
     default: op
 
   # /easypayments status
   easypayments.command.status:
-    description: Gives access to see the plugin status info
+    description: Grants access to see the plugin status info
     default: op
 
   # /easypayments setup
   easypayments.command.setup:
-    description: Gives access to configure the plugin
+    description: Grants access to configure the plugin
     default: op
 
   # /easypayments migrate <into>
   easypayments.command.migrate:
-    description: Gives access to migrate plugin data from current database to another
+    description: Grants access to migrate plugin data from current database to another
     default: op
 
   # /easypayments reload
   easypayments.command.reload:
-    description: Gives access to reload plugin configurations
+    description: Grants access to reload plugin configurations
     default: op
 
   # +---------------------+

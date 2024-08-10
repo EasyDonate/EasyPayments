@@ -10,7 +10,7 @@ import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
 import ru.easydonate.easypayments.command.help.HelpMessage;
 import ru.easydonate.easypayments.command.help.HelpMessageFactory;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 
 import java.util.List;
 

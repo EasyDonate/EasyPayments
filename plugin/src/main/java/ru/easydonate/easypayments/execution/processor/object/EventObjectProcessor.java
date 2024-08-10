@@ -2,13 +2,13 @@ package ru.easydonate.easypayments.execution.processor.object;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.easydonate.easypayments.easydonate4j.PluginEventType;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.EventReportObject;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.plugin.PluginEventReport;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.EventObject;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.plugin.PluginEvent;
-import ru.easydonate.easypayments.exception.PluginEventProcessingException;
-import ru.easydonate.easypayments.exception.StructureValidationException;
+import ru.easydonate.easypayments.core.easydonate4j.PluginEventType;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventReportObject;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.plugin.PluginEventReport;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventObject;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.plugin.PluginEvent;
+import ru.easydonate.easypayments.core.exception.PluginEventProcessingException;
+import ru.easydonate.easypayments.core.exception.StructureValidationException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

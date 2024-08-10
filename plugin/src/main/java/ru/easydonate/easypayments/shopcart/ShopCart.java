@@ -39,8 +39,8 @@ public final class ShopCart {
                 .collect(Collectors.toList());
     }
 
-    public boolean hasContent() {
-        return !getContent().isEmpty();
+    public boolean isEmpty() {
+        return getContent().isEmpty();
     }
 
     @Override

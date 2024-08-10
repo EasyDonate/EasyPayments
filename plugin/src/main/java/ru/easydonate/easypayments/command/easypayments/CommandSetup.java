@@ -10,8 +10,8 @@ import ru.easydonate.easypayments.command.easypayments.setup.CommandAccessKey;
 import ru.easydonate.easypayments.command.easypayments.setup.CommandServerId;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
-import ru.easydonate.easypayments.config.Configuration;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.Configuration;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.exception.UnsupportedCallerException;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 

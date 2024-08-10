@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 
 import java.util.LinkedHashMap;
 import java.util.List;

@@ -8,7 +8,7 @@ import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import ru.easydonate.easypayments.config.Configuration;
+import ru.easydonate.easypayments.core.config.Configuration;
 import ru.easydonate.easypayments.database.credentials.DatabaseCredentials;
 import ru.easydonate.easypayments.database.credentials.DatabaseCredentialsParser;
 import ru.easydonate.easypayments.exception.CredentialsParseException;
@@ -16,6 +16,7 @@ import ru.easydonate.easypayments.exception.DriverLoadException;
 import ru.easydonate.easypayments.exception.DriverNotFoundException;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -90,6 +91,12 @@ public final class Database {
 
     public @NotNull Database registerTable(@NotNull Class<?> tableClass) {
         registeredTables.add(tableClass);
+        return this;
+    }
+
+    public @NotNull Database registerTables(@NotNull Class<?>... tableClasses) {
+        if (tableClasses != null && tableClasses.length != 0)
+            registeredTables.addAll(Arrays.asList(tableClasses));
         return this;
     }
 

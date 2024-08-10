@@ -3,7 +3,7 @@ package ru.easydonate.easypayments.exception;
 import lombok.Getter;
 import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
-import ru.easydonate.easypayments.execution.interceptor.FeedbackInterceptor;
+import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
 @Getter
 public final class CommandExecutionException extends RuntimeException {

@@ -11,9 +11,9 @@ import ru.easydonate.easypayments.command.CommandExecutor;
 import ru.easydonate.easypayments.command.annotation.*;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.database.model.Payment;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.NewPaymentReport;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.NewPaymentReport;
 import ru.easydonate.easypayments.shopcart.ShopCart;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 
@@ -103,7 +103,7 @@ public final class CommandClear extends CommandExecutor {
         }
 
         shopCartFuture.thenAccept(shopCart -> {
-            if (shopCart == null || !shopCart.hasContent()) {
+            if (shopCart == null || shopCart.isEmpty()) {
                 messages.getAndSend(sender, messagesRoot + ".failed.no-purchases", "%player%", playerName);
                 return;
             }

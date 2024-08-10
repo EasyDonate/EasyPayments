@@ -1,0 +1,28 @@
+key: ''
+server-id: 0
+database:
+  type: sqlite
+  mysql:
+    host: localhost
+    port: 3306
+    database: easypayments
+    username: admin
+    password: easypayments
+    params: ['autoReconnect=true', 'useSSL=false']
+  postgresql:
+    host: localhost
+    port: 5432
+    database: easypayments
+    username: admin
+    password: easypayments
+    params: ['autoReconnect=true', 'useSSL=false']
+  h2:
+    file: database
+  sqlite:
+    file: database.db
+lang: ru-ru
+identify-by-uuid: false
+use-shop-cart: false
+feedback-await-time: 3000
+permission-level: 4
+execution-thread-pool-size: -1

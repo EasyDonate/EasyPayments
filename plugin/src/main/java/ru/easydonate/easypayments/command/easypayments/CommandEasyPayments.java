@@ -7,8 +7,8 @@ import ru.easydonate.easypayments.command.CommandDispatcher;
 import ru.easydonate.easypayments.command.annotation.Command;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
-import ru.easydonate.easypayments.config.Configuration;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.Configuration;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 
 import java.util.ArrayList;

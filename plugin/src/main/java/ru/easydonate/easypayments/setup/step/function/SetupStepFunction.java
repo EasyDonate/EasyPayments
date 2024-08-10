@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.easydonate.easypayments.config.Configuration;
+import ru.easydonate.easypayments.core.config.Configuration;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 import ru.easydonate.easypayments.setup.ShortAnswer;
 import ru.easydonate.easypayments.setup.session.InteractiveSetupSession;

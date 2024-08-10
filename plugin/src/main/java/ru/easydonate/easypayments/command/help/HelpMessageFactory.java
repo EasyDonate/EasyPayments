@@ -1,11 +1,11 @@
 package ru.easydonate.easypayments.command.help;
 
 import org.jetbrains.annotations.NotNull;
-import ru.easydonate.easypayments.config.Messages;
-import ru.easydonate.easypayments.utility.StringSupplier;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public final class HelpMessageFactory {
 
@@ -16,9 +16,9 @@ public final class HelpMessageFactory {
     private String descriptionKeyFormat;
     private String permissionFormat;
 
-    private StringSupplier headerStub;
-    private StringSupplier lineFormat;
-    private StringSupplier footerStub;
+    private Supplier<String> headerStub;
+    private Supplier<String> lineFormat;
+    private Supplier<String> footerStub;
 
     private HelpMessageFactory(@NotNull Messages messages) {
         this.messages = messages;
@@ -63,32 +63,32 @@ public final class HelpMessageFactory {
     }
 
     public @NotNull HelpMessageFactory withHeader(@NotNull String header) {
-        this.headerStub = StringSupplier.constant(header);
+        this.headerStub = () -> header;
         return this;
     }
 
     public @NotNull HelpMessageFactory withHeaderFrom(@NotNull String key) {
-        this.headerStub = StringSupplier.messageKey(messages, key);
+        this.headerStub = () -> messages.get(key);
         return this;
     }
 
     public @NotNull HelpMessageFactory withLineFormat(@NotNull String lineFormat) {
-        this.lineFormat = StringSupplier.constant(lineFormat);
+        this.lineFormat = () -> lineFormat;
         return this;
     }
 
     public @NotNull HelpMessageFactory withLineFormatFrom(@NotNull String key) {
-        this.lineFormat = StringSupplier.messageKey(messages, key);
+        this.lineFormat = () -> messages.get(key);
         return this;
     }
 
     public @NotNull HelpMessageFactory withFooter(@NotNull String footer) {
-        this.footerStub = StringSupplier.constant(footer);
+        this.footerStub = () -> footer;
         return this;
     }
 
     public @NotNull HelpMessageFactory withFooterFrom(@NotNull String key) {
-        this.footerStub = StringSupplier.messageKey(messages, key);
+        this.footerStub = () -> messages.get(key);
         return this;
     }
 
@@ -96,12 +96,12 @@ public final class HelpMessageFactory {
         return messages;
     }
 
-    @NotNull StringSupplier getArgument(@NotNull String key) {
+    @NotNull Supplier<String> getArgument(@NotNull String key) {
         String path = argumentKeyFormat != null ? String.format(argumentKeyFormat, key) : key;
         return () -> messages.getOrDefault(path, path);
     }
 
-    @NotNull StringSupplier getDescription(@NotNull String key) {
+    @NotNull Supplier<String> getDescription(@NotNull String key) {
         String path = descriptionKeyFormat != null ? String.format(descriptionKeyFormat, key) : key;
         return () -> messages.getOrDefault(path, path);
     }

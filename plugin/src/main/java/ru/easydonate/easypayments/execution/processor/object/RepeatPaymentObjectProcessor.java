@@ -1,10 +1,10 @@
 package ru.easydonate.easypayments.execution.processor.object;
 
 import org.jetbrains.annotations.NotNull;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.RepeatPaymentReport;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.PurchasedProduct;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.RepeatPaymentEvent;
-import ru.easydonate.easypayments.exception.StructureValidationException;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.RepeatPaymentReport;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.PurchasedProduct;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.RepeatPaymentEvent;
+import ru.easydonate.easypayments.core.exception.StructureValidationException;
 import ru.easydonate.easypayments.execution.ExecutionController;
 
 import java.util.List;

@@ -1,8 +1,8 @@
 package ru.easydonate.easypayments.execution.processor.object;
 
 import org.jetbrains.annotations.NotNull;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.plugin.PluginEventReport;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.plugin.PluginEvent;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.plugin.PluginEventReport;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.plugin.PluginEvent;
 
 @FunctionalInterface
 public interface PluginEventProcessor<P extends PluginEvent> {

@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     api(libs.jetbrainsAnnotations)
-    api(libs.spigotApi) { exclude(module = "gson" )}
+    compileOnlyApi(libs.spigotApi) { exclude(module = "gson" )}
 
     api(libs.easydonate4jApi)
     api(libs.easydonate4jHttpClientService)

@@ -6,17 +6,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.NotNull;
-import ru.easydonate.easypayments.utility.StringSupplier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Builder(access = AccessLevel.PACKAGE, builderClassName = "Builder", buildMethodName = "create", setterPrefix = "with")
 public final class HelpMessage {
 
-    private final StringSupplier headerStub;
-    private final StringSupplier lineFormat;
-    private final StringSupplier footerStub;
+    private final Supplier<String> headerStub;
+    private final Supplier<String> lineFormat;
+    private final Supplier<String> footerStub;
 
     private final List<HelpMessageLine> lines;
 

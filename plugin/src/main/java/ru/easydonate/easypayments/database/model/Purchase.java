@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.database.persister.JsonArrayPersister;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.CommandReport;
-import ru.easydonate.easypayments.easydonate4j.longpoll.data.model.object.PurchasedProduct;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.CommandReport;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.PurchasedProduct;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -7,8 +7,8 @@ import ru.easydonate.easypayments.command.CommandExecutor;
 import ru.easydonate.easypayments.command.annotation.*;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
-import ru.easydonate.easypayments.config.Configuration;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.Configuration;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 
 import java.util.List;
 
@@ -32,11 +32,13 @@ public final class CommandServerId extends CommandExecutor {
 
         try {
             int serverId = Integer.parseInt(args.get(0));
-            if(serverId > 0) {
-                config.updateExistingFile(EasyPaymentsPlugin.CONFIG_SERVER_ID_REGEX, serverId);
+            if (serverId > 0) {
+                config.getOverrides().put(EasyPaymentsPlugin.CONFIG_KEY_SERVER_ID, serverId);
+                config.reload();
+
                 messages.getAndSend(sender, "setup.success.server-id", "%server_id%", serverId);
 
-                if(config.getString("key", "").isEmpty())
+                if (config.getString("key", "").isEmpty())
                     messages.getAndSend(sender, "setup.tips.access-key");
 
                 return;

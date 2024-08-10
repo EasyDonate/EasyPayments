@@ -6,14 +6,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import ru.easydonate.easypayments.crypto.MD5Checksum;
+import ru.easydonate.easypayments.core.dependency.DependencyLoader;
+import ru.easydonate.easypayments.core.dependency.PluginDependencyLoader;
+import ru.easydonate.easypayments.core.util.ChecksumSupplier;
 import ru.easydonate.easypayments.database.DatabaseType;
-import ru.easydonate.easypayments.dependency.DependencyLoader;
-import ru.easydonate.easypayments.dependency.PluginDependencyLoader;
 import ru.easydonate.easypayments.exception.DriverLoadException;
 import ru.easydonate.easypayments.exception.DriverNotFoundException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -21,6 +20,7 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,7 +75,7 @@ public abstract class AbstractDatabaseCredentials implements DatabaseCredentials
         boolean loaded;
 
         try {
-            File driverFile = downloadDriver(plugin);
+            Path driverFile = downloadDriver(plugin);
             loaded = dependencyLoader.load(driverFile);
 
             if(loaded) {
@@ -94,38 +94,39 @@ public abstract class AbstractDatabaseCredentials implements DatabaseCredentials
             throw new DriverLoadException("Couldn't download the " + databaseType.getName() + " JDBC Driver!", databaseType);
     }
 
-    protected @NotNull File downloadDriver(@NotNull Plugin plugin) throws IOException, DriverLoadException {
-        File driverFolder = new File(plugin.getDataFolder(), "driver");
-        driverFolder.mkdirs();
+    protected @NotNull Path downloadDriver(@NotNull Plugin plugin) throws IOException, DriverLoadException {
+        Path driverDir = plugin.getDataFolder().toPath().resolve("driver");
+        if (!Files.isDirectory(driverDir))
+            Files.createDirectories(driverDir);
 
         DatabaseType databaseType = getDatabaseType();
         String driverDownloadURL = getDriverDownloadURL();
         String driverOutputFile = getDriverOutputFile();
 
-        File destination = new File(driverFolder, driverOutputFile);
-        if(destination.exists()) {
-            if(!verifyMD5Hashsum(destination))
+        Path destPath = driverDir.resolve(driverOutputFile);
+        if (Files.isRegularFile(destPath)) {
+            if (!verifyMD5Hashsum(destPath))
                 throw new DriverLoadException("Failed to verify MD5 checksum! Please, try again.", databaseType);
 
-            return destination;
+            return destPath;
         } else {
-            destination.delete();
+            Files.delete(destPath);
         }
 
         InputStream externalResource = new URL(driverDownloadURL).openConnection().getInputStream();
-        if(externalResource == null)
+        if (externalResource == null)
             throw new DriverLoadException("External driver resource was not found!", databaseType);
 
         plugin.getLogger().info("Downloading " + databaseType.getName() + " JDBC driver...");
         plugin.getLogger().info("URL: " + driverDownloadURL);
 
-        Files.copy(externalResource, destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        return destination;
+        Files.copy(externalResource, destPath, StandardCopyOption.REPLACE_EXISTING);
+        return destPath;
     }
 
-    private boolean verifyMD5Hashsum(@NotNull File downloadedFile) {
+    private boolean verifyMD5Hashsum(@NotNull Path downloadedFile) {
         try {
-            String checksum = MD5Checksum.getMD5Checksum(downloadedFile);
+            String checksum = ChecksumSupplier.getChecksumAsString(downloadedFile);
             return checksum.equalsIgnoreCase(getDriverFileChecksum());
         } catch (Exception ignored) {
             return false;

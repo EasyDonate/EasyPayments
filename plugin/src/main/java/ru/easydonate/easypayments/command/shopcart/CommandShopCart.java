@@ -7,7 +7,7 @@ import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.command.CommandDispatcher;
 import ru.easydonate.easypayments.command.annotation.Command;
 import ru.easydonate.easypayments.command.exception.InitializationException;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 
 @Command("shopcart")

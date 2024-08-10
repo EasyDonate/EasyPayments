@@ -1,0 +1,197 @@
+error:
+  unavailable-feature: |
+    &cДанный функционал пока недоступен!
+    &7Возможно, плагин ещё не настроен или запущен с ошибкой.
+  unknown-command: |
+    &cТакая команды не существует!
+    &7Используйте /ep help для получения помощи.
+  wrong-syntax: |
+    &cНеверный синтаксис!
+    &7Возможно, вы имели в виду %correct_syntax%?
+  no-permissions: '&cНедостаточно прав!'
+  only-for-players: '&cЭта команда доступна только игрокам!'
+  unsupported-caller: '&cЭта команда не может быть выполнена от имени данной сущности!'
+cart-get:
+  failed:
+    cart-unavailable: '&cЧто-то пошло не так. Попробуйте снова через несколько секунд!'
+    no-purchases: '&cВаша корзина пуста!'
+  header: '&6-=- &7История покупок &6-=-'
+  body: '&7• &b%name% &fx &b%amount% &7(%time_ago% назад)'
+  footer: ' '
+  no-value-stub: '&c<н/д>'
+cart-browse:
+  yourself:
+    failed:
+      cart-unavailable: '&cЧто-то пошло не так. Попробуйте снова через несколько секунд!'
+      no-purchases: '&cВаша корзина пуста!'
+    header: '&6-=- &7Корзина &6-=-'
+    body: '&7• &b%name% &fx &b%amount% &7(%time_ago% назад)'
+    footer: ' '
+    no-value-stub: '&c<н/д>'
+  other:
+    failed:
+      cart-unavailable: '&cЧто-то пошло не так. Попробуйте снова через несколько секунд!'
+      no-purchases: '&cКорзина %player% пуста!'
+    header: '&6-=- &7Корзина %player% &6-=-'
+    body: '&7• &b%name% &fx &b%amount% &7(%time_ago% назад)'
+    footer: ' '
+    no-value-stub: '&c<н/д>'
+cart-clear:
+  yourself:
+    failed:
+      cart-unavailable: '&cЧто-то пошло не так. Попробуйте снова через несколько секунд!'
+      no-purchases: '&cВаша корзина пуста!'
+    success: '&aВаша корзина успешно очищена.'
+  other:
+    failed:
+      cart-unavailable: '&cЧто-то пошло не так. Попробуйте снова через несколько секунд!'
+      no-purchases: '&cКорзина %player% пуста!'
+    success: '&aКорзина &2%player% &aуспешно очищена.'
+cart-transfer:
+  failed:
+    bad-payment-id: '&cУкажите положительное число в качестве идентификатора платежа!'
+    payment-not-found: '&cПлатёж #%payment_id% не существует!'
+    payment-not-owned: '&cПокупки платежа #%payment_id% не принадлежат корзине %source%!'
+    no-purchases: '&cПлатёж #%payment_id% не содержит покупок!'
+    purchases-already-collected: '&cПокупки платежа #%payment_id% уже выданы игроку!'
+    target-cart-not-found: '&cКорзина %target% не существует! Возможно, этот игрок никогда не был на сервере.'
+  success: '&aВсе покупки платежа &2#%payment_id% &aперемещены из корзины &2%source% &aв корзину &2%target%&a.'
+setup:
+  failed:
+    wrong-key-length: '&cКлюч магазина должен состоять ровно из 32 символов!'
+    wrong-key-regex: "&cКлюч магазина должен содержать только символы от 'a' до 'f' и цифры от 0 до 9!"
+    wrong-server-id: '&cЗначение ID сервера должно быть целым числом больше 0!'
+    wrong-short-answer: '&7Отправьте &aда &7или &cнет &7в ответ на вопрос.'
+  interactive:
+    start: |
+      &fВы запустили режим быстрой настройки!
+      &7В случае, если нужно будет что-то ввести, 
+      &7отправляйте это в чат, как обычное сообщение.
+      &cЧтобы выйти, напишите в чат 'exit' в любое время.
+      &r 
+    access-key:
+      already-specified: |
+        &fВаш текущий ключ магазина: &b%access_key%
+        &7Вы действительно хотите изменить его?
+        &7Отправьте &aда &7или &cнет...
+      used-current-value: '&aПонял, оставляю как есть.'
+      enter-new-value: '&7Укажите новый ключ магазина. Его можно найти в настройках магазина панели управления EasyDonate...'
+      enter-value-again: '&7Попробуйте отправить правильный ключ магазина снова...'
+    server-id:
+      already-specified: |
+        &fВаш текущий ID привязанного сервера: &b#%server_id%
+        &7Вы действительно хотите изменить его?
+        &7Отправьте &aда &7или &cнет...
+      used-current-value: '&aПонял, оставляю как есть.'
+      enter-new-value: '&7Укажите новый ID сервера. Его можно найти в настройках магазина, во вкладке "Серверы" панели управления EasyDonate...'
+      enter-value-again: '&7Попробуйте отправить правильный ID сервера снова...'
+    finish: |
+      &r 
+      &aНастройка плагина завершена!
+      &7Выдача товаров начнётся через несколько секунд.
+  exit: '&aРежим быстрой настройки выключен!'
+  success:
+    access-key: '&aУстановлен ключ магазина: &2%access_key%'
+    server-id: '&aУстановлен ID привязанного сервера: &2#%server_id%'
+  tips:
+    access-key: |
+      &7Вы ещё не установили ключ своего магазина!
+      &7Установить: &o/ep setup access-key <ключ>
+    server-id: |
+      &7Вы ещё не установили ID привязанного сервера!
+      &7Установить: &o/ep setup server-id <#ID>
+status:
+  message: |
+    &6-=- &7Информация об EasyPayments &6-=-
+    &7• &fВерсия ПО: &b%plugin_version%
+    &7• &fСостояние: &r%plugin_status%
+    &7• &fХранилище: &r%storage_status%
+    &7• &fКлюч магазина: &b%access_key%
+    &7• &fПодключен к серверу: &b%server_id%
+    &7• &fУровень разрешений: &b%permission_level%
+    &7Made with &4♥ &7by EasyDonate
+  status:
+    working: '&aРаботает'
+    unconfigured: '&cНе настроен'
+  storage:
+    available: '&aДоступно'
+    unavailable: '&cНедоступно'
+  no-value-stub: '&c<н/д>'
+migrate:
+  failed:
+    storage-unavailable: |
+      &cХранилище недоступно в данный момент!
+      &7Убедитесь, что плагин настроен корректно.
+    unknown-target: |
+      &cНеизвестный тип базы данных!
+      &7Доступные значения: sqlite, h2, mysql, postgresql
+    same-target: |
+      &cНет смысла переносить данные из базы в неё же саму!
+      &7Укажите любой другой источник.
+    invalid-credentials: '&cИнформация для подключения к базе данных указана неверно.'
+    driver-load-failed: '&cДрайвер для выбранной базы данных недоступен.'
+    connection-failed: |
+      &cНе удалось подключиться к базе данных:
+      &c%message%
+    unexpected-error: |
+      &cПри перемещении данных произошла неизвестная ошибка:
+      &c%message%
+  starting: '&7Начинаю перенос данных из &b%from% &7в &b%to%&7...'
+  success: |
+    &aМиграция из &2%from% &aв &2%to% &aзавершена!
+    &7Результаты:
+    &7• &fПокупатели: &b%customers_amount%
+    &7• &fПлатежи: &b%payments_amount%
+    &7• &fПокупки: &b%purchases_amount%
+reload:
+  failed:
+    some-error-occurred: |
+      &cПри перезагрузке плагина произошла ошибка!
+      &c%error_message%
+      &7Нужна помощь? Вы можете изучить документацию здесь:
+      &7%troubleshooting_page_url%
+  success: '&aEasyPayments был успешно перезагружен.'
+cart-notification: |-
+  &r 
+  &r &eПривет! &7У тебя есть кое-какие товары в корзине
+  &r &7Используй команду &a/cart get&7, чтобы забрать их.
+  &r &7Ты также можешь посмотреть содержимое своей
+  &r &7корзины при помощи команды &b/cart browse&7.
+  &r
+update-notification: |-
+  &r 
+  &r &rДоступна новая версия &eEasyPayments&r!
+  &r &rТекущая версия: &b%current_version%&r, новая: &a%available_version%
+  &r &rЗагрузить: &6%download_url%
+  &r
+help:
+  header: '&6-=- &7Помощь по EasyPayments &6-=-'
+  body: ' &f• &b/%command% &a&l- &7%description% '
+  footer: ' '
+  descriptions:
+    help: 'Показать эту страницу'
+    cart-get: 'Забрать товары из корзины'
+    cart-browse: 'Показать содержимое корзины'
+    cart-clear: 'Очистить корзину'
+    cart-transfer: 'Перенести покупки платежа'
+    status: 'Показать состояние плагина'
+    setup: 'Режим быстрой настройки'
+    setup-access-key: 'Установить ключ магазина'
+    setup-server-id: 'Установить ID сервера'
+    migrate: 'Миграция данных между БД'
+    reload: 'Перезагрузить плагин'
+  arguments:
+    player: '[игрок]'
+    access-key: '<ключ>'
+    server-id: '<#ID>'
+    database-type: '<куда>'
+    source: '<от кого>'
+    payment-id: '<ID платежа>'
+    target: '<кому>'
+relative-time-format:
+  delimiter: ' '
+  time-units:
+    seconds: '%d сек.'
+    minutes: '%d мин.'
+    hours: '%d ч.'
+    days: '%d д.'

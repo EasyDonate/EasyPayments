@@ -9,7 +9,7 @@ import ru.easydonate.easypayments.command.CommandExecutor;
 import ru.easydonate.easypayments.command.annotation.*;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.shopcart.ShopCart;

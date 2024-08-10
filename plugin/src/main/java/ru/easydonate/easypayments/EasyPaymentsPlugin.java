@@ -8,35 +8,40 @@ import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.command.easypayments.CommandEasyPayments;
 import ru.easydonate.easypayments.command.exception.InitializationException;
 import ru.easydonate.easypayments.command.shopcart.CommandShopCart;
-import ru.easydonate.easypayments.config.AbstractConfiguration;
-import ru.easydonate.easypayments.config.Configuration;
-import ru.easydonate.easypayments.config.Messages;
+import ru.easydonate.easypayments.core.Constants;
+import ru.easydonate.easypayments.core.config.Configuration;
+import ru.easydonate.easypayments.core.config.localized.Messages;
+import ru.easydonate.easypayments.core.config.template.TemplateConfiguration;
+import ru.easydonate.easypayments.core.exception.ConfigurationValidationException;
 import ru.easydonate.easypayments.database.Database;
 import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.database.persister.LocalDateTimePersister;
-import ru.easydonate.easypayments.easydonate4j.extension.client.EasyPaymentsClient;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.VersionResponse;
+import ru.easydonate.easypayments.core.easydonate4j.extension.client.EasyPaymentsClient;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.VersionResponse;
 import ru.easydonate.easypayments.exception.*;
 import ru.easydonate.easypayments.execution.ExecutionController;
-import ru.easydonate.easypayments.execution.interceptor.InterceptorFactory;
-import ru.easydonate.easypayments.formatting.RelativeTimeFormatter;
+import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
+import ru.easydonate.easypayments.core.formatting.RelativeTimeFormatter;
 import ru.easydonate.easypayments.listener.CommandPreProcessListener;
 import ru.easydonate.easypayments.listener.PlayerJoinQuitListener;
-import ru.easydonate.easypayments.nms.UnsupportedVersionException;
-import ru.easydonate.easypayments.nms.provider.AbstractVersionedFeaturesProvider;
-import ru.easydonate.easypayments.nms.provider.VersionedFeaturesProvider;
+import ru.easydonate.easypayments.core.platform.UnsupportedVersionException;
+import ru.easydonate.easypayments.core.platform.provider.PlatformProviderBase;
+import ru.easydonate.easypayments.core.platform.provider.PlatformProvider;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 import ru.easydonate.easypayments.task.PaymentsQueryTask;
 import ru.easydonate.easypayments.task.PluginTask;
 import ru.easydonate.easypayments.task.ReportCacheWorker;
 
+import java.util.Calendar;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
+
+import static ru.easydonate.easypayments.core.formatting.StringFormatter.colorize;
 
 public class EasyPaymentsPlugin extends JavaPlugin {
 
@@ -46,8 +51,8 @@ public class EasyPaymentsPlugin extends JavaPlugin {
 
     public static final int ACCESS_KEY_LENGTH = 32;
     public static final Pattern ACCESS_KEY_REGEX = Pattern.compile("[a-f\\d]{32}");
-    public static final Pattern CONFIG_ACCESS_KEY_REGEX = Pattern.compile("^'?\"?key\"?'?:\\s*'?\"?([\\w\\d]*)\"?'?");
-    public static final Pattern CONFIG_SERVER_ID_REGEX = Pattern.compile("^'?\"?server-id\"?'?:\\s*(\\d*)");
+    public static final String CONFIG_KEY_ACCESS_KEY = "key";
+    public static final String CONFIG_KEY_SERVER_ID = "server-id";
 
     private static EasyPaymentsPlugin instance;
 
@@ -57,7 +62,7 @@ public class EasyPaymentsPlugin extends JavaPlugin {
     private boolean pluginEnabled;
 
     private DatabaseManager databaseManager;
-    private VersionedFeaturesProvider versionedFeaturesProvider;
+    private PlatformProvider platformProvider;
 
     private EasyPaymentsClient easyPaymentsClient;
     private InteractiveSetupProvider setupProvider;
@@ -79,7 +84,8 @@ public class EasyPaymentsPlugin extends JavaPlugin {
     }
 
     public EasyPaymentsPlugin() {
-        this.config = new Configuration(this, "config.yml").withValidator(this::validateConfiguration);
+        this.config = new TemplateConfiguration(this, "config.yml");
+        this.config.setValidator(this::validateConfiguration);
         this.messages = new Messages(this, config);
         this.userAgent = String.format(USER_AGENT_FORMAT, getDescription().getVersion());
         this.pluginEnabled = true;
@@ -89,8 +95,8 @@ public class EasyPaymentsPlugin extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        // resolving the NMS implementation
-        if(!resolveNMSImplementation())
+        // resolving the platform implementation
+        if (!resolvePlatformImplementation())
             return;
 
         try {
@@ -129,13 +135,13 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         // event listeners initialization
         registerListeners();
 
-        if(pluginEnabled()) {
+        if (pluginEnabled()) {
             // starting tasks
             launchTasks();
 
             info(" ");
             info(" &eEasyPayments &ris an official payment processing implementation.");
-            info(" &6© EasyDonate 2020-2024 &r- All rights reserved.");
+            info(String.format(" &6© EasyDonate 2020-%d &r- All rights reserved.", Calendar.getInstance().get(Calendar.YEAR)));
             info(" ");
         }
 
@@ -157,12 +163,12 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         closeStorage();
     }
 
-    public @NotNull VersionedFeaturesProvider getVersionedFeaturesProvider() {
-        return versionedFeaturesProvider;
+    public @NotNull PlatformProvider getPlatformProvider() {
+        return platformProvider;
     }
 
     public @NotNull DatabaseManager getStorage() {
-        if(!isPluginEnabled() || databaseManager == null)
+        if (!isPluginEnabled() || databaseManager == null)
             throw new PluginUnavailableException();
 
         return databaseManager;
@@ -224,7 +230,7 @@ public class EasyPaymentsPlugin extends JavaPlugin {
 
         messages.reload();
 
-        if(exception != null)
+        if (exception != null)
             throw exception;
     }
 
@@ -234,9 +240,7 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         try {
             // database initialization
             Database database = new Database(this, config)
-                    .registerTable(Customer.class)
-                    .registerTable(Payment.class)
-                    .registerTable(Purchase.class)
+                    .registerTables(Customer.class, Payment.class, Purchase.class)
                     .registerPersister(LocalDateTimePersister.getSingleton())
                     .complete();
 
@@ -256,57 +260,57 @@ public class EasyPaymentsPlugin extends JavaPlugin {
     }
 
     private synchronized void closeStorage() {
-        if(databaseManager != null)
+        if (databaseManager != null)
             databaseManager.shutdown();
     }
 
     private synchronized void loadExecutionController() {
         // execution controller initialization
-        InterceptorFactory interceptorFactory = versionedFeaturesProvider.getInterceptorFactory();
+        InterceptorFactory interceptorFactory = platformProvider.getInterceptorFactory();
         this.executionController = new ExecutionController(this, config, messages, easyPaymentsClient, shopCartStorage, interceptorFactory);
     }
 
     private synchronized void shutdownExecutionController() {
-        if(executionController != null)
+        if (executionController != null)
             executionController.shutdown();
     }
 
     private synchronized void validateConfiguration(@NotNull Configuration config) throws ConfigurationValidationException {
         // validating the shop key
         this.accessKey = config.getString("key");
-        if(accessKey == null || accessKey.isEmpty())
+        if (accessKey == null || accessKey.isEmpty())
             throw new ConfigurationValidationException("Please, specify your unique shop key in the config.yml!");
 
         // validating the shop key format
         this.accessKey = accessKey.toLowerCase();
-        if(accessKey.length() != ACCESS_KEY_LENGTH || !ACCESS_KEY_REGEX.matcher(accessKey).matches())
+        if (accessKey.length() != ACCESS_KEY_LENGTH || !ACCESS_KEY_REGEX.matcher(accessKey).matches())
             throw new ConfigurationValidationException("Please, specify a VALID shop key (32 hex chars) in the config.yml!");
 
         // validating the server ID
         this.serverId = config.getInt("server-id", 0);
-        if(serverId < 1)
+        if (serverId < 1)
             throw new ConfigurationValidationException("Please, specify your valid server ID in the config.yml!");
 
         // changing the permission level
         this.permissionLevel = config.getInt("permission-level", 4);
-        if(permissionLevel < 0)
+        if (permissionLevel < 0)
             permissionLevel = 0;
 
-        // updating permission level in existing versioned features provider instance
-        if(versionedFeaturesProvider != null)
-            ((AbstractVersionedFeaturesProvider) versionedFeaturesProvider).updateInterceptorFactory(COMMAND_EXECUTOR_NAME, permissionLevel);
+        // updating permission level in existing platform provider instance
+        if (platformProvider != null)
+            ((PlatformProviderBase) platformProvider).updateInterceptorFactory(COMMAND_EXECUTOR_NAME, permissionLevel);
     }
 
-    private boolean resolveNMSImplementation() {
+    private boolean resolvePlatformImplementation() {
         try {
-            this.versionedFeaturesProvider = VersionedFeaturesProvider.builder(this)
+            this.platformProvider = PlatformProvider.builder(this)
                     .withExecutorName(COMMAND_EXECUTOR_NAME)
                     .withPermissionLevel(permissionLevel)
                     .create();
 
             return true;
         } catch (UnsupportedVersionException ex) {
-            error("Couldn't find a NMS implementation for your server version!");
+            error("Couldn't find a platform implementation for your server software version!");
             error("Currently supported versions is all from %s to %s.", Constants.MIN_SUPPORTED_VERSION_X, Constants.MAX_SUPPORTED_VERSION_X);
             getServer().getPluginManager().disablePlugin(this);
             return false;
@@ -318,7 +322,7 @@ public class EasyPaymentsPlugin extends JavaPlugin {
     }
 
     private void shutdownApiClient() {
-        if(easyPaymentsClient != null)
+        if (easyPaymentsClient != null)
             easyPaymentsClient.getLongPollClient().shutdown();
     }
 
@@ -344,21 +348,21 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         CompletableFuture<Void> paymentsQueryTaskFuture = null;
         CompletableFuture<Void> reportCacheWorkerFuture = null;
 
-        if(paymentsQueryTask != null)
+        if (paymentsQueryTask != null)
             paymentsQueryTaskFuture = paymentsQueryTask.shutdownAsync();
 
-        if(reportCacheWorker != null)
+        if (reportCacheWorker != null)
             reportCacheWorkerFuture = reportCacheWorker.shutdownAsync();
 
-        if(paymentsQueryTaskFuture != null || reportCacheWorkerFuture != null) {
+        if (paymentsQueryTaskFuture != null || reportCacheWorkerFuture != null) {
             getLogger().info("Closing internal tasks...");
 
-            if(paymentsQueryTaskFuture != null) {
+            if (paymentsQueryTaskFuture != null) {
                 paymentsQueryTaskFuture.join();
                 this.paymentsQueryTask = null;
             }
 
-            if(reportCacheWorkerFuture != null) {
+            if (reportCacheWorkerFuture != null) {
                 reportCacheWorkerFuture.join();
                 this.reportCacheWorker = null;
             }
@@ -370,14 +374,10 @@ public class EasyPaymentsPlugin extends JavaPlugin {
     }
 
     private void reportException(@NotNull Throwable ex, @Nullable String message, @Nullable Object... args) {
-        if(message != null)
+        if (message != null)
             error(message, args);
 
-        if(ex instanceof ConfigurationValidationException)
-            error(ex.getMessage());
-        else
-            error(ex.toString());
-
+        error(ex instanceof ConfigurationValidationException ? ex.getMessage() : ex.toString());
         error("Need a help? You can learn the documentation here:");
         error("> %s", TROUBLESHOOTING_PAGE_URL);
     }
@@ -391,14 +391,14 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         String currentVersion = getDescription().getVersion();
         try {
             VersionResponse response = easyPaymentsClient.checkForUpdates(currentVersion);
-            if(response != null) {
+            if (response != null) {
                 String downloadUrl = response.getDownloadUrl();
                 String version = response.getVersion();
-                if(downloadUrl != null && version != null) {
+                if (downloadUrl != null && version != null) {
                     this.versionResponse = response;
 
                     info(" ");
-                    info(" &cHey! &rA new version of &eEasyPayments &ravailable!");
+                    info(" &rA new version of &eEasyPayments &ravailable!");
                     info(" &rYour version: &b%s&r, available version: &a%s", currentVersion, version);
                     info(" &rDownload: &6%s", downloadUrl);
                     info(" ");
@@ -408,11 +408,11 @@ public class EasyPaymentsPlugin extends JavaPlugin {
     }
 
     private void info(@NotNull String message, @Nullable Object... args) {
-        getLogger().info(AbstractConfiguration.colorize(String.format(message, args)));
+        getLogger().info(colorize(String.format(message, args)));
     }
 
     private void error(@NotNull String message, @Nullable Object... args) {
-        getLogger().severe(AbstractConfiguration.colorize(String.format(message, args)));
+        getLogger().severe(colorize(String.format(message, args)));
     }
 
     private boolean pluginEnabled() {
@@ -439,20 +439,26 @@ public class EasyPaymentsPlugin extends JavaPlugin {
         return isPluginEnabled() && instance.databaseManager != null;
     }
 
+    // --- TODO will be replaced with an own standalone logging system
+
+    @Deprecated
     public static boolean isDebugEnabled() {
-        return instance.config.getBoolean("logging.debug", false);
+        return false;
     }
 
+    @Deprecated
     public static boolean logQueryTaskErrors() {
-        return instance.config.getBoolean("logging.query-task-errors", false);
+        return false;
     }
 
+    @Deprecated
     public static boolean logCacheWorkerWarnings() {
-        return instance.config.getBoolean("logging.cache-worker-warnings", false);
+        return false;
     }
 
+    @Deprecated
     public static boolean logCacheWorkerErrors() {
-        return instance.config.getBoolean("logging.cache-worker-errors", false);
+        return false;
     }
 
 }

@@ -2,8 +2,8 @@ package ru.easydonate.easypayments.execution;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.easydonate.easypayments.easydonate4j.extension.data.model.object.CommandReport;
-import ru.easydonate.easypayments.execution.interceptor.FeedbackInterceptor;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.CommandReport;
+import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
 import java.util.Objects;
 
