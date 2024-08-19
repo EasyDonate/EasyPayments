@@ -1,6 +1,7 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
+        maven("https://repo.papermc.io/repository/maven-public/")
     }
 }
 
@@ -11,9 +12,9 @@ plugins {
 rootProject.name = "EasyPayments"
 
 // --- project modules
-
-// platform-independent logic
 include(":core")
-
-// complete plugin JAR
+include(":internals:spigot-nms:v1")
+include(":internals:spigot-nms:v2")
+include(":internals:spigot-nms:v3")
+include(":internals:spigot-nms:v4")
 include(":plugin")

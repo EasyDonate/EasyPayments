@@ -59,7 +59,7 @@
 Если при запуске плагина Вы видите `stack-trace`, содержащий строку вида:
 ```
 Caused by: java.lang.IncompatibleClassChangeError: class 
-ru.easydonate.easypayments.nms.provider.v1_16_R3.interceptor.InterceptedCommandListenerWrapper 
+ru.easydonate.easypayments.platform.spigot.nms.v1_16_R3.interceptor.InterceptedCommandListenerWrapper 
 cannot inherit from final class net.minecraft.server.v1_16_R3.CommandListenerWrapper
 ```
 То используемое Вами серверное ядро было модифицировано с небольшим недочётом, заключающимся в том,

@@ -1,9 +1,10 @@
+import easypayments.gradle.model.Platform
 import java.util.*
 
 plugins {
     java
     id("easypayments")
-    id("com.github.johnrengelman.shadow")
+    id("io.github.goooler.shadow")
 }
 
 java {
@@ -18,10 +19,6 @@ repositories {
         }
     }
     maven("https://oss.sonatype.org/content/repositories/snapshots")
-    mavenCentral()
-}
-
-repositories {
     mavenCentral()
 }
 
@@ -50,6 +47,25 @@ tasks.shadowJar {
     relocate("ru.easydonate.easydonate4j", "ru.easydonate.easypayments.libs.easydonate4j")
     relocate("org.intellij", "ru.easydonate.easypayments.libs.intellij")
     relocate("org.jetbrains", "ru.easydonate.easypayments.libs.jetbrains")
+
+    val platform: Platform = rootProject.extra["platform"] as Platform
+    platform.forEachInternal {
+        val nmsSpec = it.nmsSpec()
+        val platformProject = project(":internals:spigot-nms:v${it.schemaVersion}")
+
+        from(platformProject.layout.buildDirectory.get().dir("libs").file("${nmsSpec}.jar"))
+        dependsOn(platformProject.tasks.named(if (it.usesRemappedSpigot) "${nmsSpec}-remapReobfJar" else "${nmsSpec}-remapBaseJar"))
+    }
+
+    doLast {
+        copy {
+            from(destinationDirectory) {
+                include(archiveFileName.get())
+            }
+
+            into(file("/opt/servers/Rolling Spigot/plugins/"))
+        }
+    }
 }
 
 // configure resources filtering

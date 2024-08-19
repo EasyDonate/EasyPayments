@@ -1,0 +1,3 @@
+# Package mappings
+org/bukkit/craftbukkit/v1_19_R1/ org/bukkit/craftbukkit/${nms}/
+ru/easydonate/easypayments/platform/spigot/nms/ ru/easydonate/easypayments/platform/spigot/nms/${nms}/

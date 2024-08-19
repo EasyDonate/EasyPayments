@@ -19,31 +19,13 @@ public interface PlatformProvider {
     @NotNull MinecraftVersion MINECRAFT_VERSION =  MinecraftVersion.getCurrentVersion();
 
     @Nullable String NMS_VERSION = resolveNMSVersion();
-    @NotNull String NMS_IMPL_PATTERN = "%s.v%s.VersionedFeaturesProvider";
+    @NotNull String SPIGOT_NMS_PLATFORM_PATTERN = "ru.easydonate.easypayments.platform.spigot.nms.v%s.PlatformProvider";
 
     static @Nullable String resolveNMSVersion() {
         String packageName = Bukkit.getServer().getClass().getPackage().getName();
-
         Pattern regex = Pattern.compile("org\\.bukkit\\.craftbukkit\\.v(\\w+)");
         Matcher matcher = regex.matcher(packageName);
-        if (matcher.find())
-            return matcher.group(1);
-
-        String version = MINECRAFT_VERSION.getVersion();
-        if (version != null) {
-            switch (version) {
-                case "1.20.5":
-                case "1.20.6":
-                    return "1_20_R4";
-                case "1.21.0":
-                case "1.21.1":
-                case "1.21.2":
-                case "1.21.3":
-                    return "1_21_R1";
-            }
-        }
-
-        return null;
+        return matcher.find() ? matcher.group(1) : null;
     }
 
     static @NotNull PlatformProvider create(@NotNull Plugin plugin, @NotNull String executorName, int permissionLevel) throws UnsupportedVersionException {
@@ -73,8 +55,7 @@ public interface PlatformProvider {
             plugin.getLogger().info(String.format("Detected NMS version: %s (MC %s)", NMS_VERSION, MINECRAFT_VERSION.getVersion()));
 
             try {
-                String currentPackage = PlatformProvider.class.getPackage().getName();
-                return Class.forName(String.format(NMS_IMPL_PATTERN, currentPackage, NMS_VERSION));
+                return Class.forName(String.format(SPIGOT_NMS_PLATFORM_PATTERN, NMS_VERSION));
             } catch (Throwable ignored) {
             }
         } else {

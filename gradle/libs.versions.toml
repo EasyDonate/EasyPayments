@@ -4,7 +4,6 @@ jetbrainsAnnotations = "24.1.0"
 lombok = "1.18.34"
 ormlite = "6.1"
 spigotApi = "1.12.2-R0.1-SNAPSHOT"
-shadowPlugin = "8.1.1"
 
 [libraries]
 easydonate4jApi = { group = "ru.easydonate.easydonate4j", name = "api-v3", version.ref = "easydonate4j" }
@@ -14,6 +13,3 @@ jetbrainsAnnotations = { group = "org.jetbrains", name = "annotations", version.
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 ormliteJdbc = { group = "com.j256.ormlite", name = "ormlite-jdbc", version.ref = "ormlite" }
 spigotApi = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigotApi" }
-
-[plugins]
-shadowPlugin = { id = "com.github.johnrengelman.shadow", version.ref = "shadowPlugin" }

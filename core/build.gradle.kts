@@ -17,13 +17,9 @@ repositories {
     mavenCentral()
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     api(libs.jetbrainsAnnotations)
-    compileOnlyApi(libs.spigotApi) { exclude(module = "gson" )}
+    compileOnlyApi(libs.spigotApi) { exclude(module = "gson") }
 
     api(libs.easydonate4jApi)
     api(libs.easydonate4jHttpClientService)

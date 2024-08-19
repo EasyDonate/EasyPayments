@@ -19,6 +19,7 @@ package ru.easydonate.easypayments.core.platform;
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.jetbrains.annotations.NotNull;
@@ -389,16 +390,11 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion>, Ser
         return new MinecraftVersion(extractVersion(serverVersion));
     }
 
-    private static MinecraftVersion currentVersion;
-
-    public static void setCurrentVersion(MinecraftVersion version) {
-        currentVersion = version;
-    }
+    @Setter private static MinecraftVersion currentVersion;
 
     public static MinecraftVersion getCurrentVersion() {
-        if (currentVersion == null) {
+        if (currentVersion == null)
             currentVersion = fromServerVersion(Bukkit.getVersion());
-        }
 
         return currentVersion;
     }

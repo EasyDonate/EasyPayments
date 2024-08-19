@@ -55,7 +55,7 @@ public final class ExecutionWrapper extends IndexedWrapper<FeedbackInterceptor> 
         return "ExecutionWrapper{" +
                 "command='" + command + '\'' +
                 ", index=" + index +
-                ", interceptor=" + object +
+                ", ru.easydonate.easypayments.internal.nms.interceptor=" + object +
                 '}';
     }
 

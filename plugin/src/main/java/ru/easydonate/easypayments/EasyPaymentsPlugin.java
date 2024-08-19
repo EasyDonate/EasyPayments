@@ -2,6 +2,7 @@ package ru.easydonate.easypayments;
 
 import com.j256.ormlite.logger.Level;
 import com.j256.ormlite.logger.Logger;
+import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -140,8 +141,8 @@ public class EasyPaymentsPlugin extends JavaPlugin {
             launchTasks();
 
             info(" ");
-            info(" &eEasyPayments &ris an official payment processing implementation.");
-            info(String.format(" &6© EasyDonate 2020-%d &r- All rights reserved.", Calendar.getInstance().get(Calendar.YEAR)));
+            info(" " + ChatColor.YELLOW + "EasyPayments " + ChatColor.RESET + "is an official payment processing implementation.");
+            info(String.format(" " + ChatColor.GOLD + "© EasyDonate 2020-%d " + ChatColor.RESET + "- All rights reserved.", Calendar.getInstance().get(Calendar.YEAR)));
             info(" ");
         }
 
@@ -443,22 +444,22 @@ public class EasyPaymentsPlugin extends JavaPlugin {
 
     @Deprecated
     public static boolean isDebugEnabled() {
-        return false;
+        return true;
     }
 
     @Deprecated
     public static boolean logQueryTaskErrors() {
-        return false;
+        return true;
     }
 
     @Deprecated
     public static boolean logCacheWorkerWarnings() {
-        return false;
+        return true;
     }
 
     @Deprecated
     public static boolean logCacheWorkerErrors() {
-        return false;
+        return true;
     }
 
 }

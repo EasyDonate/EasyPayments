@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class EventUpdateDeserializer implements JsonDeserializer {
+public final class EventUpdateDeserializer implements JsonDeserializer<EventUpdate<?>> {
 
     private static final EventUpdateDeserializer SINGLETON = new EventUpdateDeserializer();
 

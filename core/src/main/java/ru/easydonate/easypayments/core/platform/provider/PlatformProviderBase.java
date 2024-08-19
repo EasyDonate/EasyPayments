@@ -40,8 +40,8 @@ public abstract class PlatformProviderBase implements PlatformProvider {
     }
 
     @Override
-    public boolean isTaskCancelled(@Nullable BukkitTask bukkitTask) {
-        return bukkitTask == null || bukkitTask.isCancelled();
+    public boolean isTaskCancelled(@NotNull BukkitTask bukkitTask) {
+        return bukkitTask.isCancelled();
     }
 
     @RequiredArgsConstructor

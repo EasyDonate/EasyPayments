@@ -12,7 +12,7 @@ import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.plugin.P
 import java.lang.reflect.Type;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class PluginEventDeserializer implements JsonDeserializer {
+public final class PluginEventDeserializer implements JsonDeserializer<PluginEvent> {
 
     private static final PluginEventDeserializer SINGLETON = new PluginEventDeserializer();
 
