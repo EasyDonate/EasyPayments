@@ -38,8 +38,6 @@ import ru.easydonate.easypayments.execution.processor.update.EventUpdateProcesso
 import ru.easydonate.easypayments.execution.processor.update.SimplePaymentEventProcessor;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -137,10 +135,8 @@ public final class ExecutionController {
         if (reports == null || reports.isEmpty())
             return;
 
-        if (EasyPaymentsPlugin.isDebugEnabled()) {
-            plugin.getLogger().info("[Debug] Uploading reports:");
-            plugin.getLogger().info(reports.toPrettyString());
-        }
+        plugin.getDebugLogger().debug("[Execution] Uploading reports:");
+        plugin.getDebugLogger().debug(reports.toPrettyString().split("\n"));
 
         if (!easyPaymentsClient.uploadReports(reports)) {
             plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
@@ -149,12 +145,10 @@ public final class ExecutionController {
             return;
         }
 
-        if (EasyPaymentsPlugin.isDebugEnabled()) {
-            plugin.getLogger().info("[Debug] Reports have been uploaded.");
-        }
+        plugin.getDebugLogger().debug("[Execution] Reports have been uploaded");
 
         if (!reports.containsReportWithType(EventType.NEW_PAYMENT)) {
-            plugin.getLogger().info("[Debug] There are no 'new_payment' events, skipping database entries update...");
+            plugin.getDebugLogger().debug("[Execution] There are no 'new_payment' events, skipping database entries update...");
             return;
         }
 
@@ -163,9 +157,7 @@ public final class ExecutionController {
                 .stream()
                 .collect(Collectors.toMap(Payment::getId, p -> p));
 
-        if (EasyPaymentsPlugin.isDebugEnabled()) {
-            plugin.getLogger().info("[Debug] Unreported payments: " + payments);
-        }
+        plugin.getDebugLogger().debug("[Execution] Unreported payments in the database: {0}", payments.keySet());
 
         CompletableFuture<?>[] futures = reports.stream()
                 .map(EventUpdateReport::getReportObjects)
@@ -181,12 +173,12 @@ public final class ExecutionController {
                 .toArray(CompletableFuture<?>[]::new);
 
         CompletableFuture.allOf(futures).join();
+
+        plugin.getDebugLogger().debug("[Execution] Unreported payments have been updated");
     }
 
     public void givePurchasesFromCartAndReport(@NotNull Collection<Payment> payments) throws HttpRequestException, HttpResponseException {
-        if (EasyPaymentsPlugin.isDebugEnabled()) {
-            plugin.getLogger().info("[Debug] Marking payments as collected...");
-        }
+        plugin.getDebugLogger().debug("[Execution] Marking payments as collected...");
 
         payments.stream()
                 .filter(Payment::markAsCollected)
@@ -194,9 +186,7 @@ public final class ExecutionController {
                 .parallel()
                 .forEach(CompletableFuture::join);
 
-        if (EasyPaymentsPlugin.isDebugEnabled()) {
-            plugin.getLogger().info("[Debug] Constructing the event update report...");
-        }
+        plugin.getDebugLogger().debug("[Execution] Constructing the event update report...");
 
         List<NewPaymentReport> eventReports = payments.parallelStream()
                 .map(this::handlePaymentFromCart)
@@ -213,10 +203,8 @@ public final class ExecutionController {
         EventUpdateReport<NewPaymentReport> updateReport = new EventUpdateReport<>(EventType.NEW_PAYMENT, eventReports);
         EventUpdateReports updateReports = new EventUpdateReports(updateReport);
 
-        if (EasyPaymentsPlugin.isDebugEnabled()) {
-            plugin.getLogger().info("[Debug] Uploading cart reports:");
-            plugin.getLogger().info(updateReports.toPrettyString());
-        }
+        plugin.getDebugLogger().debug("[Execution] Uploading cart reports:");
+        plugin.getDebugLogger().debug(updateReports.toPrettyString().split("\n"));
 
         if (!easyPaymentsClient.uploadReports(updateReports)) {
             plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
@@ -225,9 +213,7 @@ public final class ExecutionController {
             return;
         }
 
-        if (EasyPaymentsPlugin.isDebugEnabled()) {
-            plugin.getLogger().info("[Debug] Cart reports have been uploaded.");
-        }
+        plugin.getDebugLogger().debug("[Execution] Cart reports have been uploaded");
     }
 
     private @NotNull NewPaymentReport handlePaymentFromCart(@NotNull Payment payment) {
@@ -258,7 +244,6 @@ public final class ExecutionController {
         plugin.getStorage().savePurchase(purchase).join();
         return commandReports;
     }
-
 
     public @NotNull CompletableFuture<EventUpdateReports> processEventUpdates(@NotNull EventUpdates eventUpdates) {
         return CompletableFuture.supplyAsync(() -> {
@@ -338,6 +323,7 @@ public final class ExecutionController {
                 .filter(Objects::nonNull)
                 .sequential()
                 .map(object -> (ExecutionWrapper) object)
+                .filter(wrapper -> wrapper.getObject() != null)
                 .sorted()
                 .map(ExecutionWrapper::createReport)
                 .filter(Objects::nonNull)
@@ -367,25 +353,31 @@ public final class ExecutionController {
                     cause = bukkitException.getCause();
                     stackTracePrintRequired = true;
 
-                    plugin.getLogger().severe(bukkitMessage);
+                    plugin.getDebugLogger().error(bukkitMessage);
                     executor.getFeedbackMessages().add(bukkitMessage);
                 }
 
-                if ((stackTracePrintRequired || EasyPaymentsPlugin.isDebugEnabled()) && cause != null) {
-                    StringWriter stringWriter = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(stringWriter);
-                    cause.printStackTrace(printWriter);
-
-                    String stackTrace = stringWriter.toString();
-                    if (!stackTrace.isEmpty())
-                        Arrays.stream(stackTrace.split("\r\n")).forEach(plugin.getLogger()::severe);
+                if (stackTracePrintRequired && cause != null) {
+                    plugin.getDebugLogger().error(cause);
                 }
 
                 return executor;
             }
+        } else if (cause instanceof CancellationException || cause instanceof RejectedExecutionException) {
+            return null; // ignore these exceptions
         }
 
-        throw new IllegalStateException("An unexpected exception has been thrown!", cause);
+        plugin.getLogger().severe("An error occurred while processing a purchase issue command!");
+        plugin.getLogger().severe("Tip: check EasyPayments logs for additional information");
+
+        if (cause != null) {
+            plugin.getDebugLogger().error("An unexpected exception has been thrown");
+            plugin.getDebugLogger().error(cause);
+        } else {
+            plugin.getDebugLogger().error("An unexpected exception has been thrown (no cause provided)");
+        }
+
+        return null;
     }
 
     private @NotNull CompletableFuture<FeedbackInterceptor> executeCommand(
@@ -398,11 +390,6 @@ public final class ExecutionController {
         } catch (Throwable throwable) {
             throw new CommandExecutionException(command, interceptor, throwable);
         }
-    }
-
-    private @NotNull FeedbackInterceptor awaitForFeedback(@NotNull FeedbackInterceptor interceptor) {
-        ThreadLocker.lockUninterruptive(getFeedbackAwaitTimeMillis());
-        return interceptor;
     }
 
     private void markAsCollectedIfCartDisabled(@NotNull Payment payment) {

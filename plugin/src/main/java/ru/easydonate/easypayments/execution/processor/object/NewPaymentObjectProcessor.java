@@ -4,10 +4,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.easydonate.easypayments.database.DatabaseManager;
-import ru.easydonate.easypayments.database.model.Customer;
-import ru.easydonate.easypayments.database.model.Payment;
-import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.core.easydonate4j.PluginEventType;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.CommandReport;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.NewPaymentReport;
@@ -17,6 +13,9 @@ import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.N
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.PurchasedProduct;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.plugin.PurchaseNotificationsPluginEvent;
 import ru.easydonate.easypayments.core.exception.StructureValidationException;
+import ru.easydonate.easypayments.database.DatabaseManager;
+import ru.easydonate.easypayments.database.model.Customer;
+import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.execution.ExecutionController;
 import ru.easydonate.easypayments.execution.IndexedWrapper;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
@@ -28,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPaymentEvent, NewPaymentReport> {
+
+    private static final CompletableFuture<Void> COMPLETED_FUTURE = CompletableFuture.completedFuture(null);
 
     private final ExecutionController controller;
     private final ShopCartStorage shopCartStorage;
@@ -67,15 +68,15 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
         Payment payment = customer.createPayment(paymentId, controller.getServerId());
         databaseManager.savePayment(payment).join();
 
+        // pre-save purchases in the database
+        products.stream()
+                .map(payment::createPurchase)
+                .map(databaseManager::savePurchase)
+                .parallel()
+                .forEach(CompletableFuture::join);
+
         AtomicInteger indexer = new AtomicInteger();
         if (useCart) {
-            // add purchases to shop cart
-            products.stream()
-                    .map(payment::createPurchase)
-                    .map(databaseManager::savePurchase)
-                    .parallel()
-                    .forEach(CompletableFuture::join);
-
             // send a notification
             Player onlinePlayer = controller.getPlugin().getServer().getPlayer(customerName);
             if (onlinePlayer != null && onlinePlayer.isOnline()) {
@@ -112,9 +113,13 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
         List<CommandReport> reports = controller.processCommandsKeepSequence(commands);
         DatabaseManager databaseManager = controller.getPlugin().getStorage();
 
-        Purchase purchase = payment.createPurchase(product.getObject(), reports);
-        databaseManager.savePurchase(purchase).join();
-        controller.refreshPayment(payment);
+        databaseManager.getPurchaseByProductId(product.getObject().getId()).thenCompose(purchase -> {
+            if (purchase != null && purchase.collect(reports)) {
+                return databaseManager.savePurchase(purchase).thenRun(() -> controller.refreshPayment(payment));
+            } else {
+                return COMPLETED_FUTURE;
+            }
+        }).join();
 
         return new IndexedWrapper<>(product.getIndex(), reports);
     }

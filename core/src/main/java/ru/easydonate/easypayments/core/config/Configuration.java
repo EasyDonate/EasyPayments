@@ -11,6 +11,8 @@ import java.util.function.Supplier;
 
 public interface Configuration {
 
+    String getName();
+
     ConfigurationValidator getValidator();
 
     Map<String, Object> getOverrides();

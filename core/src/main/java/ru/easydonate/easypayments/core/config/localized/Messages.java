@@ -3,9 +3,9 @@ package ru.easydonate.easypayments.core.config.localized;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.config.Configuration;
 import ru.easydonate.easypayments.core.formatting.StringFormatter;
 
@@ -17,8 +17,13 @@ public final class Messages extends LocalizedConfigurationBase {
     public static final String LANG_KEY = "lang";
     public static final String UNDEFINED_MESSAGE_FORMAT = ChatColor.RED + "Undefined message '%s'";
 
-    public Messages(@NotNull Plugin plugin, @NotNull Configuration config) {
+    public Messages(@NotNull EasyPayments plugin, @NotNull Configuration config) {
         super(plugin, config);
+    }
+
+    @Override
+    public String getName() {
+        return getResourcePath();
     }
 
     @Override

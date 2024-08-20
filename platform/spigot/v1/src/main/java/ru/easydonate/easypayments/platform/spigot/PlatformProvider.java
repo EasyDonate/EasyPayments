@@ -1,9 +1,9 @@
 package ru.easydonate.easypayments.platform.spigot;
 
 import org.bukkit.craftbukkit.v1_8_R1.scheduler.CraftTask;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
 import ru.easydonate.easypayments.core.platform.provider.PlatformProviderBase;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
@@ -18,7 +18,7 @@ public final class PlatformProvider extends PlatformProviderBase {
     private static final Method getPeriod = Reflection.getDeclaredMethod(CraftTask.class, "getPeriod");
 
     public PlatformProvider(
-            @NotNull Plugin plugin,
+            @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
             @NotNull String executorName,
             int permissionLevel

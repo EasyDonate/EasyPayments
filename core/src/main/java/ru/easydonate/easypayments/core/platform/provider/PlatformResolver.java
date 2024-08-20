@@ -5,8 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import ru.easydonate.easypayments.core.EasyPayments;
+import ru.easydonate.easypayments.core.logging.DebugLogger;
 import ru.easydonate.easypayments.core.platform.MinecraftVersion;
 import ru.easydonate.easypayments.core.platform.UnsupportedPlatformException;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
@@ -14,7 +15,6 @@ import ru.easydonate.easypayments.core.platform.scheduler.bukkit.BukkitPlatformS
 import ru.easydonate.easypayments.core.util.Reflection;
 
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,15 +32,17 @@ public final class PlatformResolver {
     private static final String PAPER_UNIVERSAL_PLATFORM_CLASS = "paper.universal.PlatformProvider";
     private static final String SPIGOT_INTERNALS_PLATFORM_CLASS = "spigot.v%s.PlatformProvider";
 
-    private final Plugin plugin;
+    private final EasyPayments plugin;
+    private final DebugLogger debugLogger;
     private final EnvironmentLookupResult lookupResult;
 
-    public PlatformResolver(@NotNull Plugin plugin) throws UnsupportedPlatformException {
+    public PlatformResolver(@NotNull EasyPayments plugin, @NotNull DebugLogger debugLogger) throws UnsupportedPlatformException {
         this.plugin = plugin;
-        this.lookupResult = lookupEnvironment(plugin.getLogger());
+        this.debugLogger = debugLogger;
+        this.lookupResult = lookupEnvironment(debugLogger);
     }
 
-    public PlatformProvider resolve(String username, int permissionLevel) throws UnsupportedPlatformException {
+    public PlatformProvider resolve(@NotNull String username, int permissionLevel) throws UnsupportedPlatformException {
         String platformClassName = "ru.easydonate.easypayments.platform." + resolvePlatformClassName(lookupResult);
         Class<?> platformClass;
 
@@ -55,13 +57,13 @@ public final class PlatformResolver {
         try {
             // Paper platforms
             return (PlatformProvider) platformClass
-                    .getConstructor(Plugin.class, PlatformScheduler.class, String.class, int.class, boolean.class)
+                    .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, int.class, boolean.class)
                     .newInstance(plugin, scheduler, username, permissionLevel, lookupResult.isFoliaDetected());
         } catch (Throwable ignored) {
             try {
                 // Spigot platform
                 return (PlatformProvider) platformClass
-                        .getConstructor(Plugin.class, PlatformScheduler.class, String.class, int.class)
+                        .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, int.class)
                         .newInstance(plugin, scheduler, username, permissionLevel);
             } catch (Throwable ex) {
                 throw new UnsupportedPlatformException("couldn't create platform implementation instance", ex);
@@ -82,7 +84,7 @@ public final class PlatformResolver {
         return new BukkitPlatformScheduler(plugin.getServer());
     }
 
-    private static String resolvePlatformClassName(EnvironmentLookupResult lookupResult) throws UnsupportedPlatformException {
+    private static String resolvePlatformClassName(@NotNull EnvironmentLookupResult lookupResult) throws UnsupportedPlatformException {
         if (lookupResult.isFoliaDetected()) {
             if (!lookupResult.isNativeInterceptorSupported() || !lookupResult.isUnrelocatedInternalsDetected())
                 throw new UnsupportedPlatformException("unsupported Folia build detected");
@@ -105,20 +107,20 @@ public final class PlatformResolver {
         throw new UnsupportedPlatformException();
     }
 
-    private static EnvironmentLookupResult lookupEnvironment(@NotNull Logger logger) throws UnsupportedPlatformException {
+    private static EnvironmentLookupResult lookupEnvironment(@NotNull DebugLogger logger) throws UnsupportedPlatformException {
         String craftBukkitPackage = Bukkit.getServer().getClass().getPackage().getName();
         boolean foliaDetected = detectFolia();
         boolean nativeInterceptorSupported = detectNativeInterceptorSupport();
 
         if ("org.bukkit.craftbukkit".equals(craftBukkitPackage)) {
-            logger.info(String.format("Detected unrelocated internals (MC %s)", MINECRAFT_VERSION.getVersion()));
+            logger.info("[Platform] Detected unrelocated internals (MC {0})", MINECRAFT_VERSION.getVersion());
             return new EnvironmentLookupResult(null, true, foliaDetected, nativeInterceptorSupported);
         }
 
         Matcher matcher = CRAFTBUKKIT_PACKAGE_PATTERN.matcher(craftBukkitPackage);
         if (matcher.find()) {
             String internalsVersion = matcher.group(1);
-            logger.info(String.format("Detected internals version: %s (MC %s)", internalsVersion, MINECRAFT_VERSION.getVersion()));
+            logger.info("[Platform] Detected internals version: {0} (MC {1})", internalsVersion, MINECRAFT_VERSION.getVersion());
             return new EnvironmentLookupResult(internalsVersion, false, foliaDetected, nativeInterceptorSupported);
         }
 

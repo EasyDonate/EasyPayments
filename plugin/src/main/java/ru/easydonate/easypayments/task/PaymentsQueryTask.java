@@ -105,9 +105,8 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                     return null;
 
                 // bad response time delay
-                if (EasyPaymentsPlugin.logQueryTaskErrors() && EasyPaymentsPlugin.isDebugEnabled()) {
-                    warning("[Debug] Bad response received from the API Server, just waiting for 60 seconds...");
-                }
+                warning("[PaymentsQuery] Bad response received from the API Server, waiting for 60 seconds...");
+                plugin.getDebugLogger().warn("[PaymentsQuery] Bad response received from the API Server, waiting for 60 seconds...");
 
                 ThreadLocker.lockUninterruptive(60L, TimeUnit.SECONDS);
                 return null;
@@ -116,10 +115,8 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             if (updates == null || updates.isEmpty())
                 return;
 
-            if (EasyPaymentsPlugin.isDebugEnabled()) {
-                plugin.getLogger().info("[Debug] LongPoll API updates:");
-                plugin.getLogger().info(updates.toPrettyString());
-            }
+            plugin.getDebugLogger().debug("[PaymentsQuery] LongPoll API updates received:");
+            plugin.getDebugLogger().debug(updates.toPrettyString().split("\n"));
 
             // do that synchronously to prevent any conflicts with other tasks
             DATABASE_QUERIES_LOCK.lock();
@@ -134,17 +131,13 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             }
         } catch (ApiResponseFailureException ex) {
             // redirect API errors to warning channel
-            if (EasyPaymentsPlugin.logQueryTaskErrors() && EasyPaymentsPlugin.isDebugEnabled()) {
-                warning("[Query Task]: %s", ex.getMessage());
-            }
+            warning("[PaymentsQuery] Response from API: %s", ex.getMessage());
+            plugin.getDebugLogger().warn("[PaymentsQuery] Response from API: {0}", ex.getMessage());
         } catch (HttpRequestException | HttpResponseException ex) {
             // redirect any other errors to error channel
-            if (EasyPaymentsPlugin.logQueryTaskErrors()) {
-                error("[Query Task]: %s", ex.getMessage());
-                if (EasyPaymentsPlugin.isDebugEnabled()) {
-                    ex.printStackTrace();
-                }
-            }
+            error("[PaymentsQuery] %s", ex.getMessage());
+            plugin.getDebugLogger().error("[PaymentsQuery] {0}", ex.getMessage());
+            plugin.getDebugLogger().error(ex);
         } catch (RejectedExecutionException | IllegalStateException ignored) {
             // ignore zip file closed and async task termination exceptions
         }
@@ -155,9 +148,8 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             return executionController.getEasyPaymentsClient().getLongPollClient().getUpdatesListSync();
         } catch (ApiResponseFailureException ex) {
             // redirect API errors to warning channel
-            if (EasyPaymentsPlugin.logQueryTaskErrors() && EasyPaymentsPlugin.isDebugEnabled()) {
-                warning("[Query Task]: %s", ex.getMessage());
-            }
+            warning("[PaymentsQuery] Response from API: %s", ex.getMessage());
+            plugin.getDebugLogger().warn("[PaymentsQuery] Response from API: {0}", ex.getMessage());
         } catch (HttpRequestException | HttpResponseException ex) {
             Throwable lastCause = ThrowableCauseFinder.findLastCause(ex);
 
@@ -169,7 +161,9 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 // handle unknown endpoint response
                 String endpointUrl = lastCause.getMessage();
                 if (endpointUrl != null && !endpointUrl.isEmpty()) {
-                    error("The EasyPayments' endpoint '%s' isn't available now, will try to connect later...", endpointUrl);
+                    error("[PaymentsQuery] The EasyPayments endpoint '%s' isn't available now, I'll try to connect later...", endpointUrl);
+                    plugin.getDebugLogger().error("[PaymentsQuery] The EasyPayments endpoint '{0}' isn't available now", endpointUrl);
+                    plugin.getDebugLogger().error(lastCause);
                     throw new BadResponseException(404);
                 }
 
@@ -185,11 +179,13 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                             case 403:
                                 // ignore HTTP 403 (access denied)
                                 error("Access denied! Please, make sure that you are using a latest version!");
+                                plugin.getDebugLogger().error("[PaymentsQuery] Unsupported EasyPayments version (403)");
                                 break;
                             case 502:
                                 // ignore HTTP 502 (ddos protection)
                                 error("The EasyPayments LongPoll API endpoint isn't available now, will try to connect later...");
                                 error("It may be caused by the work of the DDoS-attack protection of this service :(");
+                                plugin.getDebugLogger().error("[PaymentsQuery] EasyDonate API is unavailable (502)");
                                 break;
                             default:
                                 break;
@@ -203,12 +199,9 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             }
 
             // redirect any other errors to error channel
-            if (EasyPaymentsPlugin.logQueryTaskErrors()) {
-                error("[Query Task]: %s", ex.getMessage());
-                if (EasyPaymentsPlugin.isDebugEnabled()) {
-                    ex.printStackTrace();
-                }
-            }
+            error("[PaymentsQuery] %s", ex.getMessage());
+            plugin.getDebugLogger().error("[PaymentsQuery] {0}", ex.getMessage());
+            plugin.getDebugLogger().error(ex);
         }
 
         return null;

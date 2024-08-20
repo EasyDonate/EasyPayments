@@ -4,8 +4,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.config.ConfigurationBase;
 import ru.easydonate.easypayments.core.exception.ConfigurationValidationException;
 import ru.easydonate.easypayments.core.util.FileBackupMaker;
@@ -25,11 +25,11 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
 
     public static final String VALUE_PLACEHOLDER = "_value_";
 
-    protected final Plugin plugin;
+    protected final EasyPayments plugin;
 
     protected FileConfiguration bukkitConfig;
 
-    public TemplateConfigurationBase(@NotNull Plugin plugin) {
+    public TemplateConfigurationBase(@NotNull EasyPayments plugin) {
         this.plugin = plugin;
         this.bukkitConfig = new YamlConfiguration();
     }
@@ -46,6 +46,7 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
     @Override
     public synchronized boolean reload() throws ConfigurationValidationException {
         String resourcePath = getResourcePath();
+        plugin.getDebugLogger().debug("Loading configuration '{0}'...", resourcePath);
 
         List<String> template = loadTemplate(resourcePath);
         if (template == null)
@@ -63,11 +64,9 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
             try {
                 existing = loadConfigurationAsMap(Files.newBufferedReader(outputFile, StandardCharsets.UTF_8));
             } catch (IOException ex) {
-                plugin.getLogger().severe(String.format(
-                        "Couldn't read existing configuration in '%s': %s",
-                        outputFile,
-                        ex.getMessage()
-                ));
+                plugin.getLogger().severe(String.format("Couldn't read existing configuration in '%s': %s", outputFile, ex.getMessage()));
+                plugin.getDebugLogger().error("Couldn't read existing configuration in '{0}'", outputFile);
+                plugin.getDebugLogger().error(ex);
                 return false;
             }
         }
@@ -77,15 +76,17 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
 
         if (hasOverrides || isConfigurationOutdated(defaults, existing)) {
             if (outputFileExists && !hasOverrides) {
-                plugin.getLogger().info(String.format("Configuration '%s' is outdated! Performing update...", resourcePath));
+                plugin.getDebugLogger().info("Configuration '{0}' is outdated! Performing update...", resourcePath);
 
                 try {
                     Path backupFilePath = FileBackupMaker.createFileBackup(outputFile);
                     if (backupFilePath != null) {
-                        plugin.getLogger().info("Configuration backup has been saved to: " + backupFilePath);
+                        plugin.getDebugLogger().info("Configuration backup has been saved to: {0}", backupFilePath);
                     }
                 } catch (IOException ex) {
                     plugin.getLogger().severe("Couldn't create a backup file: " + ex.getMessage());
+                    plugin.getDebugLogger().error("Couldn't create a backup file");
+                    plugin.getDebugLogger().error(ex);
                     return false;
                 }
             }
@@ -97,11 +98,9 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
             try {
                 new TemplateWriter(outputFile, template, dataValues).write();
             } catch (IOException ex) {
-                plugin.getLogger().severe(String.format(
-                        "Couldn't save generated configuration as '%s': %s",
-                        outputFile,
-                        ex.getMessage()
-                ));
+                plugin.getLogger().severe(String.format("Couldn't save generated configuration as '%s': %s", outputFile, ex.getMessage()));
+                plugin.getDebugLogger().error("Couldn't save generated configuration as '{0}'", outputFile);
+                plugin.getDebugLogger().error(ex);
                 return false;
             }
         }
@@ -110,11 +109,14 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
             this.bukkitConfig.load(Files.newBufferedReader(outputFile, StandardCharsets.UTF_8));
         } catch (IOException | InvalidConfigurationException ex) {
             plugin.getLogger().severe("Couldn't load configuration: " + ex.getMessage());
+            plugin.getDebugLogger().error("Couldn't load configuration");
+            plugin.getDebugLogger().error(ex);
             return false;
         }
 
         resetOverrides();
         validate();
+        plugin.getDebugLogger().info("Loaded configuration '{0}'", resourcePath);
         return true;
     }
 
@@ -123,11 +125,9 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
             InputStreamReader inputStreamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
             return loadConfigurationAsMap(inputStreamReader);
         } catch (IOException ex) {
-            plugin.getLogger().severe(String.format(
-                    "Couldn't load defaults resource for configuration '%s': %s",
-                    resourcePath,
-                    ex.getMessage()
-            ));
+            plugin.getLogger().severe(String.format("Couldn't load defaults resource for configuration '%s': %s", resourcePath, ex.getMessage()));
+            plugin.getDebugLogger().error("Couldn't load defaults resource for configuration '{0}'", resourcePath);
+            plugin.getDebugLogger().error(ex);
         }
         return null;
     }
@@ -138,11 +138,9 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             return bufferedReader.lines().collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException ex) {
-            plugin.getLogger().severe(String.format(
-                    "Couldn't load template resource for configuration '%s': %s",
-                    resourcePath,
-                    ex.getMessage()
-            ));
+            plugin.getLogger().severe(String.format("Couldn't load template resource for configuration '%s': %s", resourcePath, ex.getMessage()));
+            plugin.getDebugLogger().error("Couldn't load template resource for configuration '{0}'", resourcePath);
+            plugin.getDebugLogger().error(ex);
         }
         return null;
     }

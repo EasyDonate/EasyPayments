@@ -162,6 +162,13 @@ public final class DatabaseManager {
         return supplyAsync(() -> purchasesDao.queryForId(purchaseId));
     }
 
+    public @NotNull CompletableFuture<Purchase> getPurchaseByProductId(int productId) {
+        return supplyAsync(() -> purchasesDao.queryBuilder().where()
+                .eq(Purchase.COLUMN_PRODUCT_ID, productId)
+                .queryForFirst()
+        );
+    }
+
     public @NotNull CompletableFuture<Void> savePurchase(@NotNull Purchase purchase) {
         return runAsync(() -> purchasesDao.createOrUpdate(purchase));
     }

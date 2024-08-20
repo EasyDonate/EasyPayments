@@ -86,26 +86,23 @@ public final class ReportCacheWorker extends AbstractPluginTask {
                     .forEach(CompletableFuture::join);
         } catch (ApiResponseFailureException ex) {
             // redirect API errors to warning channel
-            if (EasyPaymentsPlugin.logCacheWorkerWarnings() && EasyPaymentsPlugin.isDebugEnabled()) {
-                warning(ex.getMessage());
-            }
+            warning("[ReportCache] Response from API: %s", ex.getMessage());
+            plugin.getDebugLogger().warn("[ReportCache] Response from API: {0}", ex.getMessage());
         } catch (HttpRequestException | HttpResponseException ex) {
             Throwable lastCause = ThrowableCauseFinder.findLastCause(ex);
 
             // ignore HTTP 403 (access denied)
             if (lastCause instanceof IOException && lastCause.getMessage().contains("Server returned HTTP response code: 403")) {
                 error("Access denied! Please, make sure that you are using a latest version!");
+                plugin.getDebugLogger().error("[ReportCache] Unsupported EasyPayments version (403)");
                 updateActivityState();
                 return;
             }
 
             // redirect any other errors to error channel
-            if (EasyPaymentsPlugin.logCacheWorkerErrors()) {
-                error(ex.getMessage());
-                if (EasyPaymentsPlugin.isDebugEnabled()) {
-                    ex.printStackTrace();
-                }
-            }
+            error("[ReportCache] %s", ex.getMessage());
+            plugin.getDebugLogger().error("[ReportCache] {0}", ex.getMessage());
+            plugin.getDebugLogger().error(ex);
         }
 
         updateActivityState();

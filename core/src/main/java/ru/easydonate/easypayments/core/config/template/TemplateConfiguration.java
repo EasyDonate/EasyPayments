@@ -1,8 +1,8 @@
 package ru.easydonate.easypayments.core.config.template;
 
 import lombok.Getter;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import ru.easydonate.easypayments.core.EasyPayments;
 
 import java.nio.file.Path;
 
@@ -11,9 +11,14 @@ public class TemplateConfiguration extends TemplateConfigurationBase {
 
     private final String fileName;
 
-    public TemplateConfiguration(@NotNull Plugin plugin, @NotNull String fileName) {
+    public TemplateConfiguration(@NotNull EasyPayments plugin, @NotNull String fileName) {
         super(plugin);
         this.fileName = fileName;
+    }
+
+    @Override
+    public String getName() {
+        return fileName;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package ru.easydonate.easypayments.core.config.localized;
 
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.config.Configuration;
 import ru.easydonate.easypayments.core.config.template.TemplateConfigurationBase;
 import ru.easydonate.easypayments.core.exception.ConfigurationValidationException;
@@ -11,7 +11,7 @@ public abstract class LocalizedConfigurationBase extends TemplateConfigurationBa
     private final Configuration config;
     private LocaleEnum usedLocale;
 
-    public LocalizedConfigurationBase(Plugin plugin, Configuration config) {
+    public LocalizedConfigurationBase(EasyPayments plugin, Configuration config) {
         super(plugin);
         this.config = config;
         this.usedLocale = LocaleEnum.getSystemDefault();
@@ -34,7 +34,8 @@ public abstract class LocalizedConfigurationBase extends TemplateConfigurationBa
             }
         }
 
-        plugin.getLogger().severe("Bad locale tag is specified in the config, switching back to system default...");
+        plugin.getLogger().warning("Bad locale tag is specified in the config, switching to system default...");
+        plugin.getDebugLogger().warn("Bad locale tag is specified in the config, switching to system default...");
         return LocaleEnum.getSystemDefault();
     }
 

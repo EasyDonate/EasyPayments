@@ -108,17 +108,16 @@ public final class CommandMigrate extends CommandExecutor {
                 );
             } catch (Exception ex) {
                 messages.getAndSend(sender, "migrate.failed.unexpected-error", "%message%", ex);
-                if (EasyPaymentsPlugin.isDebugEnabled()) {
-                    ex.printStackTrace();
-                }
+                plugin.getDebugLogger().error("[Migration] Unexpected error");
+                plugin.getDebugLogger().error(ex);
             }
         } catch (CredentialsParseException ex) {
             messages.getAndSend(sender, "migrate.failed.invalid-credentials");
+            plugin.getDebugLogger().error("[Migration] Credentials error");
         } catch (DriverNotFoundException | DriverLoadException ex) {
             messages.getAndSend(sender, "migrate.failed.driver-load-failed");
-            if (EasyPaymentsPlugin.isDebugEnabled()) {
-                ex.printStackTrace();
-            }
+            plugin.getDebugLogger().error("[Migration] Driver error");
+            plugin.getDebugLogger().error(ex);
         } catch (SQLException ex) {
             Throwable cause = ex;
             while(cause != null) {
@@ -130,9 +129,8 @@ public final class CommandMigrate extends CommandExecutor {
             }
 
             messages.getAndSend(sender, "migrate.failed.connection-failed", "%message%", ex);
-            if (EasyPaymentsPlugin.isDebugEnabled()) {
-                ex.printStackTrace();
-            }
+            plugin.getDebugLogger().error("[Migration] SQL error");
+            plugin.getDebugLogger().error(ex);
         }
     }
 
