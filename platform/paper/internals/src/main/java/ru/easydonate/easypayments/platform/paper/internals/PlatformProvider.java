@@ -1,7 +1,6 @@
 package ru.easydonate.easypayments.platform.paper.internals;
 
 import lombok.Getter;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
