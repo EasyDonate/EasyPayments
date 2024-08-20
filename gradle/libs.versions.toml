@@ -1,8 +1,11 @@
 [versions]
 easydonate4j = "2.0.6"
+foliaDevBundle = "1.20.2-R0.1-SNAPSHOT"
 jetbrainsAnnotations = "24.1.0"
 lombok = "1.18.34"
 ormlite = "6.1"
+paperApi = "1.18.1-R0.1-SNAPSHOT"
+paperDevBundle = "1.20.6-R0.1-SNAPSHOT"
 spigotApi = "1.12.2-R0.1-SNAPSHOT"
 
 [libraries]
@@ -12,4 +15,5 @@ easydonate4jJsonSerializationService = { group = "ru.easydonate.easydonate4j", n
 jetbrainsAnnotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrainsAnnotations" }
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 ormliteJdbc = { group = "com.j256.ormlite", name = "ormlite-jdbc", version.ref = "ormlite" }
+paperApi = { group = "io.papermc.paper", name = "paper-api", version.ref = "paperApi" }
 spigotApi = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigotApi" }

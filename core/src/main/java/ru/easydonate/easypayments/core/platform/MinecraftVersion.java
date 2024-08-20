@@ -46,9 +46,19 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion>, Ser
     private static final Pattern VERSION_PATTERN = Pattern.compile(".*\\(.*MC.\\s*([a-zA-z0-9\\-.]+).*");
 
     /**
-     * Version 1.19.3 - introducing feature preview
+     * Version 1.21 - the tricky trials update
      */
-    public static final MinecraftVersion FEATURE_PREVIEW_UPDATE = new MinecraftVersion("1.19.3");
+    public static final MinecraftVersion TRICKY_TRIALS_UPDATE = new MinecraftVersion("1.21");
+
+    /**
+     * Version 1.20.2 - the minimal version for Folia support
+     */
+    public static final MinecraftVersion FOLIA_SUPPORTED_UPDATE = new MinecraftVersion("1.20.2");
+
+    /**
+     * Version 1.20 - the trails and tales update
+     */
+    public static final MinecraftVersion TRAILS_TALES_UPDATE = new MinecraftVersion("1.20");
 
     /**
      * Version 1.19 - the wild update
@@ -64,11 +74,6 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion>, Ser
      * Version 1.17 - caves and cliffs part 1
      */
     public static final MinecraftVersion CAVES_CLIFFS_1 = new MinecraftVersion("1.17");
-
-    /**
-     * Version 1.16.2 - breaking change to the nether update
-     */
-    public static final MinecraftVersion NETHER_UPDATE_2 = new MinecraftVersion("1.16.2");
 
     /**
      * Version 1.16.0 - the nether update
@@ -114,31 +119,6 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion>, Ser
      * Version 1.8 - the "bountiful" update.
      */
     public static final MinecraftVersion BOUNTIFUL_UPDATE = new MinecraftVersion("1.8");
-
-    /**
-     * Version 1.7.8 - the update that changed the skin format (and distribution - R.I.P. player disguise)
-     */
-    public static final MinecraftVersion SKIN_UPDATE = new MinecraftVersion("1.7.8");
-
-    /**
-     * Version 1.7.2 - the update that changed the world.
-     */
-    public static final MinecraftVersion WORLD_UPDATE = new MinecraftVersion("1.7.2");
-
-    /**
-     * Version 1.6.1 - the horse update.
-     */
-    public static final MinecraftVersion HORSE_UPDATE = new MinecraftVersion("1.6.1");
-
-    /**
-     * Version 1.5.0 - the redstone update.
-     */
-    public static final MinecraftVersion REDSTONE_UPDATE = new MinecraftVersion("1.5.0");
-
-    /**
-     * Version 1.4.2 - the scary update (Wither Boss).
-     */
-    public static final MinecraftVersion SCARY_UPDATE = new MinecraftVersion("1.4.2");
 
     private final int major;
     private final int minor;
@@ -189,7 +169,7 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion>, Ser
                 snapshot = new SnapshotVersion(section[0]);
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
-                MinecraftVersion latest = new MinecraftVersion(Constants.MAX_SUPPORTED_VERSION, false);
+                MinecraftVersion latest = new MinecraftVersion(Constants.MINECRAFT_LAST_KNOWN_VERSION, false);
                 boolean newer = snapshot.getSnapshotDate().compareTo(format.parse(Constants.MINECRAFT_LAST_RELEASE_DATE)) > 0;
 
                 numbers[0] = latest.getMajor();

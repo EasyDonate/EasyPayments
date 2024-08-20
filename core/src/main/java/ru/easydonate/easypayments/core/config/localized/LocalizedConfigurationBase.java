@@ -14,7 +14,7 @@ public abstract class LocalizedConfigurationBase extends TemplateConfigurationBa
     public LocalizedConfigurationBase(Plugin plugin, Configuration config) {
         super(plugin);
         this.config = config;
-        this.usedLocale = resolveLocale();
+        this.usedLocale = LocaleEnum.getSystemDefault();
     }
 
     protected abstract @NotNull String getConfigLangKey();

@@ -2,10 +2,10 @@ package ru.easydonate.easypayments.task;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
+import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
+import ru.easydonate.easypayments.core.platform.scheduler.PlatformTask;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
@@ -18,7 +18,7 @@ public abstract class AbstractPluginTask implements PluginTask, Runnable {
 
     protected final EasyPaymentsPlugin plugin;
     protected final long delay;
-    protected BukkitTask bukkitTask;
+    protected PlatformTask asyncTask;
     protected boolean active = true;
 
     protected long getPeriod() {
@@ -32,17 +32,17 @@ public abstract class AbstractPluginTask implements PluginTask, Runnable {
 
     @Override
     public boolean isWorking() {
-        return bukkitTask != null && !plugin.getPlatformProvider().isTaskCancelled(bukkitTask);
+        return asyncTask != null && !asyncTask.isCancelled(plugin.getPlatformProvider());
     }
 
     @Override
     public void start() {
-        BukkitScheduler scheduler = plugin.getServer().getScheduler();
+        PlatformScheduler asyncScheduler = plugin.getPlatformProvider().getScheduler();
         long period = getPeriod();
 
-        this.bukkitTask = period >= 0L
-                ? scheduler.runTaskTimerAsynchronously(plugin, this, delay, period)
-                : scheduler.runTaskLaterAsynchronously(plugin, this, delay);
+        this.asyncTask = period >= 0L
+                ? asyncScheduler.runAsyncAtFixedRate(plugin, this, delay, period)
+                : asyncScheduler.runAsyncDelayed(plugin, this, delay);
     }
 
     @Override
@@ -51,14 +51,15 @@ public abstract class AbstractPluginTask implements PluginTask, Runnable {
         start();
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public void shutdown() {
-        if (bukkitTask == null)
+        if (asyncTask == null)
             return;
 
-        this.bukkitTask.cancel();
-        while(isWorking() && isActive()) {}
-        this.bukkitTask = null;
+        this.asyncTask.cancel();
+        while (isWorking() && isActive()) {}
+        this.asyncTask = null;
     }
 
     @Override

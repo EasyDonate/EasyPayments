@@ -104,8 +104,6 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
                 ));
                 return false;
             }
-        } else {
-            plugin.getLogger().info(String.format("Configuration '%s' is up-to-date.", resourcePath));
         }
 
         try {

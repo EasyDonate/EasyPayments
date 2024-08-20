@@ -49,6 +49,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
     @Override
     public void start() {
         this.workingThread = new Thread(this, THREAD_NAME);
+        this.workingThread.setDaemon(true);
         this.workingThread.start();
     }
 

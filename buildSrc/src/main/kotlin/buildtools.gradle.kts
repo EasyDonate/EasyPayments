@@ -6,7 +6,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 plugins {
-    java
+    `java-base`
 }
 
 val platform: Platform by extra(declarePlatformImplementations())
@@ -95,5 +95,5 @@ fun declarePlatformImplementations(): Platform {
         .add("1.20.2", 2)
         .add("1.20.4", 3)
         .add("1.20.6", 4)
-        .add("1.21", 1)
+        .add("1.21.1", 1)
 }

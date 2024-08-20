@@ -2,7 +2,6 @@ package ru.easydonate.easypayments;
 
 import com.j256.ormlite.logger.Level;
 import com.j256.ormlite.logger.Logger;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,24 +12,25 @@ import ru.easydonate.easypayments.core.Constants;
 import ru.easydonate.easypayments.core.config.Configuration;
 import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.core.config.template.TemplateConfiguration;
+import ru.easydonate.easypayments.core.easydonate4j.extension.client.EasyPaymentsClient;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.VersionResponse;
 import ru.easydonate.easypayments.core.exception.ConfigurationValidationException;
+import ru.easydonate.easypayments.core.formatting.RelativeTimeFormatter;
+import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
+import ru.easydonate.easypayments.core.platform.UnsupportedPlatformException;
+import ru.easydonate.easypayments.core.platform.provider.PlatformProvider;
+import ru.easydonate.easypayments.core.platform.provider.PlatformProviderBase;
+import ru.easydonate.easypayments.core.platform.provider.PlatformResolver;
 import ru.easydonate.easypayments.database.Database;
 import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.database.persister.LocalDateTimePersister;
-import ru.easydonate.easypayments.core.easydonate4j.extension.client.EasyPaymentsClient;
-import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.VersionResponse;
 import ru.easydonate.easypayments.exception.*;
 import ru.easydonate.easypayments.execution.ExecutionController;
-import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
-import ru.easydonate.easypayments.core.formatting.RelativeTimeFormatter;
 import ru.easydonate.easypayments.listener.CommandPreProcessListener;
 import ru.easydonate.easypayments.listener.PlayerJoinQuitListener;
-import ru.easydonate.easypayments.core.platform.UnsupportedVersionException;
-import ru.easydonate.easypayments.core.platform.provider.PlatformProviderBase;
-import ru.easydonate.easypayments.core.platform.provider.PlatformProvider;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 import ru.easydonate.easypayments.task.PaymentsQueryTask;
@@ -42,7 +42,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
-import static ru.easydonate.easypayments.core.formatting.StringFormatter.colorize;
+import static ru.easydonate.easypayments.core.util.AnsiColorizer.colorize;
 
 public class EasyPaymentsPlugin extends JavaPlugin {
 
@@ -141,12 +141,12 @@ public class EasyPaymentsPlugin extends JavaPlugin {
             launchTasks();
 
             info(" ");
-            info(" " + ChatColor.YELLOW + "EasyPayments " + ChatColor.RESET + "is an official payment processing implementation.");
-            info(String.format(" " + ChatColor.GOLD + "© EasyDonate 2020-%d " + ChatColor.RESET + "- All rights reserved.", Calendar.getInstance().get(Calendar.YEAR)));
+            info(" &eEasyPayments &ris an official payment processing implementation.");
+            info(" &6© EasyDonate 2020-%d &r- All rights reserved.", Calendar.getInstance().get(Calendar.YEAR));
             info(" ");
         }
 
-        getServer().getScheduler().runTaskAsynchronously(this, this::checkForUpdates);
+        platformProvider.getScheduler().runAsyncNow(this, this::checkForUpdates);
     }
 
     @Override
@@ -304,15 +304,23 @@ public class EasyPaymentsPlugin extends JavaPlugin {
 
     private boolean resolvePlatformImplementation() {
         try {
-            this.platformProvider = PlatformProvider.builder(this)
-                    .withExecutorName(COMMAND_EXECUTOR_NAME)
-                    .withPermissionLevel(permissionLevel)
-                    .create();
-
+            PlatformResolver platformResolver = new PlatformResolver(this);
+            this.platformProvider = platformResolver.resolve(COMMAND_EXECUTOR_NAME, permissionLevel);
+            info("Using platform implementation: &b%s", platformProvider.getName());
             return true;
-        } catch (UnsupportedVersionException ex) {
-            error("Couldn't find a platform implementation for your server software version!");
-            error("Currently supported versions is all from %s to %s.", Constants.MIN_SUPPORTED_VERSION_X, Constants.MAX_SUPPORTED_VERSION_X);
+        } catch (UnsupportedPlatformException ex) {
+            error("Couldn't find a platform implementation for your server software!");
+
+            if (ex.getMessage() != null)
+                error("Failure reason: '%s'", ex.getMessage());
+
+            error("----------------------------------------------------------------------");
+            error("Currently, EasyPayments plugin is compatible with:");
+            error("- Spigot: %s - %s", Constants.MIN_SUPPORTED_SPIGOT, Constants.MAX_SUPPORTED_SPIGOT);
+            error("- Paper: %s or newer", Constants.MIN_SUPPORTED_PAPER);
+            error("- Folia: %s or newer", Constants.MIN_SUPPORTED_FOLIA);
+            error("Proper plugin working on unlisted software isn't guaranteed.");
+
             getServer().getPluginManager().disablePlugin(this);
             return false;
         }

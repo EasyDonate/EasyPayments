@@ -6,10 +6,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.core.config.localized.Messages;
+import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
 import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.shopcart.ShopCart;
@@ -18,7 +18,7 @@ import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 public final class PlayerJoinQuitListener implements Listener {
 
     private final EasyPaymentsPlugin plugin;
-    private final BukkitScheduler scheduler;
+    private final PlatformScheduler scheduler;
 
     private final Messages messages;
     private final ShopCartStorage shopCartStorage;
@@ -29,7 +29,7 @@ public final class PlayerJoinQuitListener implements Listener {
             @NotNull ShopCartStorage shopCartStorage
     ) {
         this.plugin = plugin;
-        this.scheduler = plugin.getServer().getScheduler();
+        this.scheduler = plugin.getPlatformProvider().getScheduler();
 
         this.messages = messages;
         this.shopCartStorage = shopCartStorage;
@@ -43,7 +43,7 @@ public final class PlayerJoinQuitListener implements Listener {
             return;
 
         Player player = event.getPlayer();
-        scheduler.runTaskAsynchronously(plugin, () -> {
+        scheduler.runAsyncNow(plugin, () -> {
             updateCustomerOwnership(player);
             notifyAboutVersionUpdate(player);
             shopCartStorage.loadAndCache(player)

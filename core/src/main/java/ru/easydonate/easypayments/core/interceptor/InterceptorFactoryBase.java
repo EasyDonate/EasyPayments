@@ -15,7 +15,7 @@ public abstract class InterceptorFactoryBase implements InterceptorFactory {
 
     @Override
     public @NotNull CompletableFuture<FeedbackInterceptor> createFeedbackInterceptorAsync() {
-        return CompletableFuture.supplyAsync(this::createFeedbackInterceptor, provider.getBukkitSyncExecutor());
+        return CompletableFuture.supplyAsync(this::createFeedbackInterceptor, provider.getSyncExecutor());
     }
 
 }

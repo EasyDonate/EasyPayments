@@ -33,39 +33,41 @@ dependencies {
 
 // configure JAR assembly
 tasks.jar {
-    // TODO manifest
+    manifest {
+        attributes(mapOf(
+            "paperweight-mappings-namespace" to "mojang+yarn"
+        ))
+    }
 }
 
 // configure shading
 tasks.shadowJar {
+    archiveBaseName = rootProject.name
     archiveClassifier = null
+    archiveVersion = rootProject.version.toString()
     destinationDirectory = rootProject.layout.buildDirectory
     includeEmptyDirs = false
+    exclude("META-INF/maven/**", "META-INF/versions/**")
+
+    listOf("folia", "paper:internals", "paper:universal").map { project(":platform:${it}") }.forEach {
+        from(it.tasks.jar.get().archiveFile)
+        dependsOn(it.tasks.jar)
+    }
+
+    val platform: Platform = rootProject.extra["platform"] as Platform
+    platform.forEachInternal {
+        val nmsSpec = it.nmsSpec()
+        val spigotPlatformProject = project(":platform:spigot:v${it.schemaVersion}")
+
+        from(spigotPlatformProject.layout.buildDirectory.get().dir("libs").file("${nmsSpec}.jar"))
+        dependsOn(spigotPlatformProject.tasks.named(if (it.usesRemappedSpigot) "${nmsSpec}-remapReobfJar" else "${nmsSpec}-remapBaseJar"))
+    }
 
     relocate("com.google.gson", "ru.easydonate.easypayments.libs.gson")
     relocate("com.j256.ormlite", "ru.easydonate.easypayments.libs.ormlite")
     relocate("ru.easydonate.easydonate4j", "ru.easydonate.easypayments.libs.easydonate4j")
     relocate("org.intellij", "ru.easydonate.easypayments.libs.intellij")
     relocate("org.jetbrains", "ru.easydonate.easypayments.libs.jetbrains")
-
-    val platform: Platform = rootProject.extra["platform"] as Platform
-    platform.forEachInternal {
-        val nmsSpec = it.nmsSpec()
-        val platformProject = project(":internals:spigot-nms:v${it.schemaVersion}")
-
-        from(platformProject.layout.buildDirectory.get().dir("libs").file("${nmsSpec}.jar"))
-        dependsOn(platformProject.tasks.named(if (it.usesRemappedSpigot) "${nmsSpec}-remapReobfJar" else "${nmsSpec}-remapBaseJar"))
-    }
-
-    doLast {
-        copy {
-            from(destinationDirectory) {
-                include(archiveFileName.get())
-            }
-
-            into(file("/opt/servers/Rolling Spigot/plugins/"))
-        }
-    }
 }
 
 // configure resources filtering
