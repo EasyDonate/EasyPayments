@@ -67,26 +67,27 @@ setup:
       &fYou have entered to the fast setup mode!
       &7Send your answers to further questions directly 
       &7to the game chat like a simple chat message.
-      &cYou can exit by sending 'exit' phrase anytime.
-      &r 
+      &cYou can exit by sending 'exit' word anytime.
     access-key:
       already-specified: |
+        &r
         &fYour current access key is: &b%access_key%
         &7Do you actually want to change that?
         &7Send &aYES &7or &cNO &7to continue...
-      used-current-value: '&aOkay, using the current access key.'
+      used-current-value: '&aOK, using the current access key.'
       enter-new-value: '&7Send a new access key to the game chat...'
       enter-value-again: '&7Please, try to enter a valid access key again...'
     server-id:
       already-specified: |
+        &r
         &fYour current server ID is: &b#%server_id%
         &7Do you actually want to change that?
         &7Send &aYES &7or &cNO &7to continue...
-      used-current-value: '&aOkay, using the current server ID.'
+      used-current-value: '&aOK, using the current server ID.'
       enter-new-value: '&7Send a new server ID to the game chat...'
       enter-value-again: '&7Please, try to enter a valid server ID again...'
     finish: |
-      &r 
+      &r
       &aThe plugin setup has been completed!
       &7Payments processing will start soon.
   exit: '&aThe fast setup mode has been disabled!'
@@ -151,19 +152,19 @@ reload:
       &7Need a help? You can learn the documentation here:
       &7%troubleshooting_page_url%
   success: '&aEasyPayments has been reloaded.'
-cart-notification: |-
+cart-notification: |
   &r 
   &r &eHey! &7You have some uncollected items in your cart!
   &r &7You can use the &a/cart get &7command to collect that.
   &r &7You also can browse the shop cart content by using
   &r &7the &b/cart browse &7command in the game chat.
-  &r
-update-notification: |-
+  &r &r
+update-notification: |
   &r 
   &r &rA new version of &eEasyPayments &ris available!
   &r &rCurrent version: &b%current_version%&r, available version: &a%available_version%
   &r &rDownload: &6%download_url%
-  &r
+  &r &r
 help:
   header: '&6-=- &7Help for EasyPayments &6-=-'
   body: ' &f• &b/%command% &a&l- &7%description% '
