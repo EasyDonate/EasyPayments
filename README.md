@@ -101,7 +101,7 @@ cannot inherit from final class net.minecraft.server.v1_16_R3.CommandListenerWra
 Используйте исполняемые файлы _gradlew_ для вызова этой задачи:
 ```bash
 # Windows
-.\gradlew.bat setupSpigotJars
+gradlew.bat setupSpigotJars
 
 # Linux или Mac OS
 ./gradlew setupSpigotJars
@@ -119,7 +119,7 @@ cannot inherit from final class net.minecraft.server.v1_16_R3.CommandListenerWra
 3. Запустите сборку плагина:
    ```bash
    # Windows
-   .\gradlew.bat clean build
+   gradlew.bat clean build
 
    # Linux или Mac OS
    ./gradlew clean build
