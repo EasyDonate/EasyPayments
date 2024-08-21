@@ -26,19 +26,49 @@ public final class DebugLogger {
     private static final char LEVEL_WARN = 'W';
     private static final char LEVEL_ERROR = 'E';
 
-    private final Path pluginDir;
     private final Path logsDir;
     private final Path logFile;
     private volatile boolean working;
 
     public DebugLogger(Plugin plugin) {
-        this.pluginDir = plugin.getDataFolder().toPath();
-        this.logsDir = pluginDir.resolve("logs");
+        this.logsDir = plugin.getDataFolder().toPath().resolve("logs");
         this.logFile = findFreeFileName(logsDir);
         this.working = true;
 
         compressLogFiles();
         DebugEnvironmentLookup.writeEnvironmentInfo(plugin, this);
+    }
+
+    public void cleanLogsDir(int timeToLife) {
+        if (timeToLife < 0 || !Files.isDirectory(logsDir))
+            return;
+
+        LocalDate minFileNameDate = LocalDate.now(ZoneOffset.UTC).minusDays(timeToLife);
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(logsDir, "debug-*.log.gz")) {
+            for (Path path : dirStream) {
+                try {
+                    if (!Files.isRegularFile(path))
+                        continue;
+
+                    String fileName = path.getFileName().toString();
+                    int lastHyphenIndex = fileName.lastIndexOf('-');
+                    if (lastHyphenIndex == -1)
+                        continue;
+
+                    String rawFileNameDate = fileName.substring(6, lastHyphenIndex);
+                    if (rawFileNameDate.length() != 10) // yyyy-MM-dd
+                        continue;
+
+                    LocalDate fileNameDate = LocalDate.parse(rawFileNameDate, DateTimeFormatter.ISO_LOCAL_DATE);
+                    if (!fileNameDate.isBefore(minFileNameDate))
+                        continue;
+
+                    Files.deleteIfExists(path);
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (IOException ignored) {
+        }
     }
 
     public void compressLogFiles() {
@@ -197,16 +227,31 @@ public final class DebugLogger {
 
     private static Path findFreeFileName(Path directory) {
         String timestamp = DateTimeFormatter.ISO_LOCAL_DATE.format(LocalDate.now(ZoneOffset.UTC));
-        String baseName = String.format("debug-%s-%%d.log", timestamp);
+        String baseName = "debug-" + timestamp;
 
-        Path result;
         int logNumber = 1;
+        if (Files.isDirectory(directory)) {
+            try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory, baseName + "-*.{log,log.gz}")) {
+                for (Path path : dirStream) {
+                    if (!Files.isRegularFile(path))
+                        continue;
 
-        do {
-            result = directory.resolve(String.format(baseName, logNumber++));
-        } while (Files.exists(result) || Files.exists(directory.resolve(result.getFileName() + ".gz")));
+                    String fileName = path.getFileName().toString();
+                    int dotIndex = fileName.indexOf(".");
 
-        return result;
+                    try {
+                        int logFileNumber = Integer.parseInt(fileName.substring(17, dotIndex)); // debug-yyyy-MM-dd-HERE.log(.gz)
+                        if (logFileNumber >= logNumber) {
+                            logNumber = logFileNumber + 1;
+                        }
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            } catch (IOException ignored) {
+            }
+        }
+
+        return directory.resolve(baseName + "-" + logNumber + ".log");
     }
 
 }

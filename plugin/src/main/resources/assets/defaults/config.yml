@@ -25,4 +25,5 @@ identify-by-uuid: false
 use-shop-cart: false
 feedback-await-time: 3000
 permission-level: 4
+log-file-time-to-life: 7
 execution-thread-pool-size: -1

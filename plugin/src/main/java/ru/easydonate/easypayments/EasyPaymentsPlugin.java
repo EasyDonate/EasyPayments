@@ -331,12 +331,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         debugLogger.debug("[Validation] Validation passed");
 
-        // fixing the permission level
-        this.permissionLevel = config.getInt("permission-level", 4);
-        if (permissionLevel < 0) {
-            debugLogger.debug("Fixing permission level: '{0}' -> '0'", permissionLevel);
-            permissionLevel = 0;
-        }
+        // update permission level of any further command executors
+        this.permissionLevel = config.getIntWithBounds("permission-level", 0, 4, 4);
 
         // updating permission level in existing platform provider instance
         if (platformProvider != null) {
@@ -344,8 +340,13 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
             ((PlatformProviderBase) platformProvider).updateInterceptorFactory(COMMAND_EXECUTOR_NAME, permissionLevel);
         }
 
+        // show shop cart status in logs
         boolean shopCartEnabled = config.getBoolean("use-shop-cart", Constants.DEFAULT_SHOP_CART_STATUS);
-        debugLogger.debug("Shop cart enabled = {0}", shopCartEnabled);
+        debugLogger.debug("Shop cart status: {0}", (shopCartEnabled ? "ON" : "OFF"));
+
+        // clean old log files
+        int logFileTTL = config.getInt("log-file-time-to-life");
+        debugLogger.cleanLogsDir(logFileTTL);
     }
 
     private boolean resolvePlatformImplementation() {
