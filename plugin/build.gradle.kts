@@ -35,7 +35,10 @@ dependencies {
 tasks.jar {
     manifest {
         attributes(mapOf(
-            "paperweight-mappings-namespace" to "mojang+yarn"
+            "paperweight-mappings-namespace" to "mojang+yarn",
+            "Organization-Name" to "EasyDonate",
+            "Organization-Website" to "https://easydonate.ru/",
+            "Source-Code" to "https://github.com/EasyDonate/EasyPayments/"
         ))
     }
 }
