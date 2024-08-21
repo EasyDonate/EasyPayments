@@ -6,9 +6,9 @@ import com.j256.ormlite.support.ConnectionSource;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.config.Configuration;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Payment;
@@ -21,11 +21,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 public final class DatabaseManager {
 
-    private final Logger logger;
+    private final EasyPayments plugin;
     private final Configuration config;
     private final Database database;
 
@@ -36,8 +35,8 @@ public final class DatabaseManager {
     @Getter(AccessLevel.PRIVATE) private final Dao<Payment, Integer> paymentsDao;
     @Getter(AccessLevel.PRIVATE) private final Dao<Purchase, Integer> purchasesDao;
 
-    public DatabaseManager(@NotNull Plugin plugin, @NotNull Configuration config, @NotNull Database database) throws SQLException {
-        this.logger = plugin.getLogger();
+    public DatabaseManager(@NotNull EasyPayments plugin, @NotNull Configuration config, @NotNull Database database) throws SQLException {
+        this.plugin = plugin;
         this.config = config;
         this.database = database;
 
@@ -162,13 +161,6 @@ public final class DatabaseManager {
         return supplyAsync(() -> purchasesDao.queryForId(purchaseId));
     }
 
-    public @NotNull CompletableFuture<Purchase> getPurchaseByProductId(int productId) {
-        return supplyAsync(() -> purchasesDao.queryBuilder().where()
-                .eq(Purchase.COLUMN_PRODUCT_ID, productId)
-                .queryForFirst()
-        );
-    }
-
     public @NotNull CompletableFuture<Void> savePurchase(@NotNull Purchase purchase) {
         return runAsync(() -> purchasesDao.createOrUpdate(purchase));
     }
@@ -196,12 +188,9 @@ public final class DatabaseManager {
     }
 
     private void handleThrowable(@NotNull Throwable throwable) {
-        logger.severe("An error has occurred when this plugin tried to handle an SQL statement!");
-        Throwable cause = throwable;
-        while(cause != null) {
-            logger.severe(cause.toString());
-            cause = cause.getCause();
-        }
+        plugin.getLogger().severe("An error has occurred when this plugin tried to handle an SQL statement!");
+        plugin.getDebugLogger().error("An error has occurred when this plugin tried to handle an SQL statement!");
+        plugin.getDebugLogger().error(throwable);
     }
 
     public boolean isUuidIdentificationEnabled() {

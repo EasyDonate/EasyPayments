@@ -13,10 +13,21 @@ public class ThreadLocker {
     }
 
     public void lockUninterruptive(long timeInMillis) {
+        doUninterruptive(() -> Thread.sleep(timeInMillis));
+    }
+
+    public void doUninterruptive(Action action) {
         try {
-            Thread.sleep(timeInMillis);
+            action.perform();
         } catch (InterruptedException ignored) {
         }
+    }
+
+    @FunctionalInterface
+    public interface Action {
+
+        void perform() throws InterruptedException;
+
     }
 
 }

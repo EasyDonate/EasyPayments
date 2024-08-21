@@ -63,7 +63,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     private final Configuration config;
     private final Messages messages;
     private final String userAgent;
-    private boolean pluginEnabled;
+    private volatile boolean pluginEnabled;
 
     private DatabaseManager databaseManager;
     private PlatformProvider platformProvider;
@@ -221,27 +221,26 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         return permissionLevel;
     }
 
-    public void reload() throws ConfigurationValidationException, StorageLoadException {
-        synchronized (this) {
-            debugLogger.info("--- STATE: RELOADING ---");
-            this.pluginEnabled = false;
+    public synchronized void reload() throws ConfigurationValidationException, StorageLoadException {
+        debugLogger.info("--- STATE: RELOADING ---");
 
-            // shutting down
-            closeTasks();
-            shutdownExecutionController();
-            shutdownApiClient();
-            closeStorage();
+        // shutting down
+        closeTasks();
+        shutdownExecutionController();
+        shutdownApiClient();
+        closeStorage();
 
-            // loading all again
-            loadConfigurations();
-            loadStorage();
-            initializeApiClient();
-            loadExecutionController();
-            launchTasks();
+        changeEnabledState(false);
 
-            this.pluginEnabled = true;
-            debugLogger.info("--- STATE: RELOADED ---");
-        }
+        // loading all again
+        loadConfigurations();
+        loadStorage();
+        initializeApiClient();
+        loadExecutionController();
+        launchTasks();
+
+        changeEnabledState(true);
+        debugLogger.info("--- STATE: RELOADED ---");
     }
 
     private synchronized void loadConfigurations() throws ConfigurationValidationException {
@@ -492,15 +491,11 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     }
 
     private boolean pluginEnabled() {
-        synchronized (this) {
-            return pluginEnabled;
-        }
+        return pluginEnabled;
     }
 
     private void changeEnabledState(boolean value) {
-        synchronized (this) {
-            this.pluginEnabled = value;
-        }
+        this.pluginEnabled = value;
     }
 
     public static @NotNull String getVersion() {

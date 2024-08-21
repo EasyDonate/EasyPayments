@@ -32,6 +32,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
     private final ExecutionController executionController;
     private final ExecutorService longPollExecutorService;
 
+    private volatile boolean working;
     private Thread workingThread;
     private CompletableFuture<EventUpdates> longPollQueryTask;
 
@@ -43,11 +44,12 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
 
     @Override
     public boolean isWorking() {
-        return workingThread != null && !workingThread.isInterrupted() && workingThread.isAlive();
+        return working && workingThread != null && !workingThread.isInterrupted() && workingThread.isAlive();
     }
 
     @Override
     public void start() {
+        this.working = true;
         this.workingThread = new Thread(this, THREAD_NAME);
         this.workingThread.setDaemon(true);
         this.workingThread.start();
@@ -58,7 +60,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
         if (workingThread == null)
             return;
 
-        this.workingThread.interrupt();
+        this.working = false;
 
         try {
             if (longPollQueryTask != null)
@@ -70,6 +72,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             plugin.getLogger().severe(ex.getMessage());
         }
 
+        ThreadLocker.doUninterruptive(() -> workingThread.join());
         this.workingThread = null;
     }
 
@@ -77,13 +80,14 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
     public void run() {
         ThreadLocker.lockUninterruptive(delay * 50L);
 
-        while(isWorking()) {
+        while (isWorking()) {
             try {
                 doQuery();
             } catch (RejectedExecutionException | CancellationException ignored) {
             } catch (Throwable ex) {
                 plugin.getLogger().severe("An unexpected error was occurred!");
-                ex.printStackTrace();
+                plugin.getDebugLogger().error("An unexpected error was occurred!");
+                plugin.getDebugLogger().error(ex);
             }
 
             if (isWorking()) {
@@ -104,9 +108,21 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 if (throwable instanceof CancellationException || throwable instanceof RejectedExecutionException)
                     return null;
 
+                if (throwable instanceof CompletionException)
+                    throwable = throwable.getCause();
+
                 // bad response time delay
-                warning("[PaymentsQuery] Bad response received from the API Server, waiting for 60 seconds...");
-                plugin.getDebugLogger().warn("[PaymentsQuery] Bad response received from the API Server, waiting for 60 seconds...");
+                if (throwable instanceof BadResponseException) {
+                    BadResponseException cast = (BadResponseException) throwable;
+                    warning(String.format("[PaymentsQuery] Bad response (%d) received from the API Server, waiting for 60 seconds...", cast.getHttpCode()));
+                    plugin.getDebugLogger().warn("[PaymentsQuery] Bad response ({0}) received from the API Server, waiting for 60 seconds...", cast.getHttpCode());
+                } else {
+                    warning("[PaymentsQuery] Bad response received from the API Server, waiting for 60 seconds...");
+                    plugin.getDebugLogger().warn("[PaymentsQuery] Bad response received from the API Server, waiting for 60 seconds...");
+
+                    if (throwable != null)
+                        plugin.getDebugLogger().warn(throwable);
+                }
 
                 ThreadLocker.lockUninterruptive(60L, TimeUnit.SECONDS);
                 return null;
@@ -122,10 +138,8 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             DATABASE_QUERIES_LOCK.lock();
 
             try {
-                if (isWorking()) {
-                    EventUpdateReports reports = executionController.processEventUpdates(updates).join();
-                    executionController.uploadReports(reports);
-                }
+                EventUpdateReports reports = executionController.processEventUpdates(updates).join();
+                executionController.uploadReports(reports);
             } finally {
                 DATABASE_QUERIES_LOCK.unlock();
             }
@@ -152,11 +166,9 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             plugin.getDebugLogger().warn("[PaymentsQuery] Response from API: {0}", ex.getMessage());
         } catch (HttpRequestException | HttpResponseException ex) {
             Throwable lastCause = ThrowableCauseFinder.findLastCause(ex);
-
             if (lastCause instanceof SocketTimeoutException) {
                 // ignore the timeout exception
                 return null;
-
             } else if (lastCause instanceof FileNotFoundException) {
                 // handle unknown endpoint response
                 String endpointUrl = lastCause.getMessage();
@@ -166,7 +178,6 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                     plugin.getDebugLogger().error(lastCause);
                     throw new BadResponseException(404);
                 }
-
             } else if (lastCause instanceof IOException) {
                 // handle some HTTP response codes
                 try {

@@ -16,12 +16,14 @@ import ru.easydonate.easypayments.core.exception.StructureValidationException;
 import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Payment;
+import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.execution.ExecutionController;
 import ru.easydonate.easypayments.execution.IndexedWrapper;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -69,11 +71,11 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
         databaseManager.savePayment(payment).join();
 
         // pre-save purchases in the database
-        products.stream()
+        Map<Integer, Integer> productIdsMapping = products.stream()
                 .map(payment::createPurchase)
-                .map(databaseManager::savePurchase)
                 .parallel()
-                .forEach(CompletableFuture::join);
+                .peek(purchase -> databaseManager.savePurchase(purchase).join())
+                .collect(Collectors.toMap(Purchase::getProductId, Purchase::getId));
 
         AtomicInteger indexer = new AtomicInteger();
         if (useCart) {
@@ -89,7 +91,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
                     .collect(Collectors.toList());
 
             List<IndexedWrapper<List<CommandReport>>> executionResults = indexedWrappers.parallelStream()
-                    .map(product -> executeCommandsAndSavePurchase(payment, product))
+                    .map(product -> executeCommandsAndSavePurchase(payment, product, productIdsMapping))
                     .collect(Collectors.toList());
 
             executionResults.stream()
@@ -105,21 +107,28 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
 
     private @NotNull IndexedWrapper<List<CommandReport>> executeCommandsAndSavePurchase(
             @NotNull Payment payment,
-            @NotNull IndexedWrapper<PurchasedProduct> product
+            @NotNull IndexedWrapper<PurchasedProduct> product,
+            @NotNull Map<Integer, Integer> productIdsMapping
     ) {
         AtomicInteger indexer = new AtomicInteger();
 
         List<String> commands = product.getObject().getCommands();
         List<CommandReport> reports = controller.processCommandsKeepSequence(commands);
-        DatabaseManager databaseManager = controller.getPlugin().getStorage();
 
-        databaseManager.getPurchaseByProductId(product.getObject().getId()).thenCompose(purchase -> {
-            if (purchase != null && purchase.collect(reports)) {
-                return databaseManager.savePurchase(purchase).thenRun(() -> controller.refreshPayment(payment));
-            } else {
-                return COMPLETED_FUTURE;
-            }
-        }).join();
+        Integer purchaseId = productIdsMapping.get(product.getObject().getId());
+        if (purchaseId != null) {
+            DatabaseManager databaseManager = controller.getPlugin().getStorage();
+            databaseManager.getPurchase(purchaseId).thenCompose(purchase -> {
+                if (purchase != null && purchase.collect(reports)) {
+                    return databaseManager.savePurchase(purchase).thenRun(() -> controller.refreshPayment(payment));
+                } else {
+                    return COMPLETED_FUTURE;
+                }
+            }).join();
+        } else {
+            controller.getPlugin().getDebugLogger().error("Couldn't find storage purchase ID for product #{0}", product.getObject().getId());
+            controller.getPlugin().getDebugLogger().error("Product IDs mapping: {0}", productIdsMapping);
+        }
 
         return new IndexedWrapper<>(product.getIndex(), reports);
     }
