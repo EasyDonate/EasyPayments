@@ -19,6 +19,10 @@ public interface Configuration {
 
     void setValidator(@Nullable ConfigurationValidator validator);
 
+    default void registerKeyAliases(@NotNull String key, String... aliases) {
+        throw new UnsupportedOperationException("This configuration doesn't support key aliases!");
+    }
+
     boolean reload() throws ConfigurationValidationException;
 
     @Nullable ConfigurationSection getSection(@NotNull String path);
@@ -48,6 +52,8 @@ public interface Configuration {
     int getIntWithBounds(@NotNull String path, int min, int max);
 
     int getIntWithBounds(@NotNull String path, int min, int max, int def);
+
+    @NotNull List<Integer> getIntList(@NotNull String path);
 
     double getDouble(@NotNull String path);
 

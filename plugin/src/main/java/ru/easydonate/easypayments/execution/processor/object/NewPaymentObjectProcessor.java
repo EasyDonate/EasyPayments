@@ -58,7 +58,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
         int paymentId = eventObject.getPaymentId();
         String customerName = eventObject.getCustomer();
         OfflinePlayer customerPlayer = eventObject.getOfflinePlayer();
-        boolean useCart = controller.isShopCartEnabled();
+        boolean useCart = controller.shopCartConfig().isEnabled();
 
         NewPaymentReport report = new NewPaymentReport(paymentId, useCart, customerName);
         List<PurchasedProduct> products = eventObject.getProducts();

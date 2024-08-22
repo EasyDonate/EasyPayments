@@ -36,6 +36,7 @@ import ru.easydonate.easypayments.exception.CommandExecutionException;
 import ru.easydonate.easypayments.execution.processor.object.*;
 import ru.easydonate.easypayments.execution.processor.update.EventUpdateProcessor;
 import ru.easydonate.easypayments.execution.processor.update.SimplePaymentEventProcessor;
+import ru.easydonate.easypayments.shopcart.ShopCartConfig;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 
 import java.util.*;
@@ -114,12 +115,12 @@ public final class ExecutionController {
         return config.getInt("server-id", 0);
     }
 
-    public int getFeedbackAwaitTimeMillis() {
-        return config.getIntWithBounds("feedback-await-time", Constants.MIN_FEEDBACK_AWAIT_TIME, Constants.MAX_FEEDBACK_AWAIT_TIME, Constants.DEFAULT_FEEDBACK_AWAIT_TIME);
+    public @NotNull ShopCartConfig shopCartConfig() {
+        return plugin.getShopCartConfig();
     }
 
-    public boolean isShopCartEnabled() {
-        return config.getBoolean("use-shop-cart", Constants.DEFAULT_SHOP_CART_STATUS);
+    public int getFeedbackAwaitTimeMillis() {
+        return config.getIntWithBounds("feedback-await-time", Constants.MIN_FEEDBACK_AWAIT_TIME, Constants.MAX_FEEDBACK_AWAIT_TIME, Constants.DEFAULT_FEEDBACK_AWAIT_TIME);
     }
 
     public void refreshCustomer(@NotNull Customer customer) {
@@ -393,8 +394,9 @@ public final class ExecutionController {
     }
 
     private void markAsCollectedIfCartDisabled(@NotNull Payment payment) {
-        if (!isShopCartEnabled())
+        if (!shopCartConfig().isEnabled()) {
             payment.markAsCollected();
+        }
     }
 
     private static final class ExecutionControllerThreadFactory implements ThreadFactory {

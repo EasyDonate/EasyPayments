@@ -34,6 +34,7 @@ import ru.easydonate.easypayments.execution.ExecutionController;
 import ru.easydonate.easypayments.listener.CommandPreProcessListener;
 import ru.easydonate.easypayments.listener.PlayerJoinQuitListener;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
+import ru.easydonate.easypayments.shopcart.ShopCartConfig;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 import ru.easydonate.easypayments.task.PaymentsQueryTask;
 import ru.easydonate.easypayments.task.PluginTask;
@@ -62,6 +63,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     private final DebugLogger debugLogger;
     private final Configuration config;
     private final Messages messages;
+    private final ShopCartConfig shopCartConfig;
     private final String userAgent;
     private volatile boolean pluginEnabled;
 
@@ -91,7 +93,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         this.debugLogger = new DebugLogger(this);
         this.config = new TemplateConfiguration(this, "config.yml");
         this.config.setValidator(this::validateConfiguration);
+        this.config.registerKeyAliases("shop-cart.enabled", "use-shop-cart");
         this.messages = new Messages(this, config);
+        this.shopCartConfig = new ShopCartConfig(config);
         this.userAgent = String.format(USER_AGENT_FORMAT, getDescription().getVersion());
         this.pluginEnabled = true;
     }
@@ -221,6 +225,10 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         return permissionLevel;
     }
 
+    public @NotNull ShopCartConfig getShopCartConfig() {
+        return shopCartConfig;
+    }
+
     public synchronized void reload() throws ConfigurationValidationException, StorageLoadException {
         debugLogger.info("--- STATE: RELOADING ---");
 
@@ -254,6 +262,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         }
 
         messages.reload();
+        shopCartConfig.reload();
 
         if (exception != null)
             throw exception;

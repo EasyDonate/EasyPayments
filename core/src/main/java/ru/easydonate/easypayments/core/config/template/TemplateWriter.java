@@ -21,6 +21,7 @@ public final class TemplateWriter {
     private final Path outputFile;
     private final List<String> template;
     private final Map<String, Object> data;
+    private final Map<String, String[]> keyAliases;
 
     public void write() throws IOException {
         if (!Files.isDirectory(outputFile.getParent()))
@@ -136,6 +137,18 @@ public final class TemplateWriter {
     }
 
     private Object resolveConfigValue(String key) {
+        if (keyAliases != null && !keyAliases.isEmpty()) {
+            String[] aliases = keyAliases.get(key);
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    Object value = data.get(alias);
+                    if (value != null) {
+                        return value;
+                    }
+                }
+            }
+        }
+
         Object value = data.get(key);
         return value == null ? "" : value;
     }
