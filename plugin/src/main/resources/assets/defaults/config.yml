@@ -22,8 +22,8 @@ database:
     file: database.db
 lang: ru-ru
 shop-cart:
-  enabled: false
-  auto-issue-on-join: false
+  enabled: true
+  auto-issue-when-online: true
   filtering:
     blacklist: []
     use-as-whitelist: false

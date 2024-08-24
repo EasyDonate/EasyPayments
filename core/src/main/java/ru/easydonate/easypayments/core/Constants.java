@@ -18,6 +18,7 @@ public final class Constants {
     public static final int MIN_FEEDBACK_AWAIT_TIME = 1000;
     public static final int MAX_FEEDBACK_AWAIT_TIME = 5000;
 
-    public static final boolean DEFAULT_SHOP_CART_STATUS = false;
+    public static final boolean DEFAULT_SHOP_CART_STATUS = true;
+    public static final boolean DEFAULT_AUTO_ISSUE_STATUS = true;
 
 }
