@@ -7,13 +7,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
+import ru.easydonate.easydonate4j.exception.HttpRequestException;
+import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
 import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Customer;
+import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.shopcart.ShopCart;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
+
+import java.util.Collection;
 
 public final class PlayerJoinQuitListener implements Listener {
 
@@ -47,7 +52,7 @@ public final class PlayerJoinQuitListener implements Listener {
             updateCustomerOwnership(player);
             notifyAboutVersionUpdate(player);
             shopCartStorage.loadAndCache(player)
-                    .thenAccept(shopCart -> notifyAboutCartContent(player, shopCart))
+                    .thenAccept(shopCart -> issueOrNotifyAboutCartContent(player, shopCart))
                     .join();
         });
     }
@@ -59,6 +64,29 @@ public final class PlayerJoinQuitListener implements Listener {
 
         Player player = event.getPlayer();
         shopCartStorage.unloadCached(player.getName());
+    }
+
+    private void issueOrNotifyAboutCartContent(@NotNull Player player, @NotNull ShopCart shopCart) {
+        if (plugin.getShopCartConfig().shouldIssueWhenOnline()) {
+            Collection<Payment> payments = shopCart.getContent();
+            if (payments == null || payments.isEmpty())
+                return;
+
+            try {
+                plugin.getDebugLogger().info("Issuing purchases to {0}, because auto-issue is enabled...", player.getName());
+                plugin.getIssuancePerformService().issuePurchasesAndReport(payments);
+            } catch (HttpRequestException | HttpResponseException ex) {
+                plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
+                plugin.getLogger().severe("Please, contact with the platform support:");
+                plugin.getLogger().severe(EasyPaymentsPlugin.SUPPORT_URL);
+                plugin.getDebugLogger().error(ex);
+            } catch (Throwable ex) {
+                plugin.getDebugLogger().error("An unexpected error was occured!");
+                plugin.getDebugLogger().error(ex);
+            }
+        } else {
+            notifyAboutCartContent(player, shopCart);
+        }
     }
 
     private void notifyAboutCartContent(@NotNull Player player, @NotNull ShopCart shopCart) {

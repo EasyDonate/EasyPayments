@@ -1,4 +1,4 @@
-package ru.easydonate.easypayments.execution.processor.update;
+package ru.easydonate.easypayments.service.processor.update;
 
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.easydonate4j.EventType;
@@ -7,17 +7,17 @@ import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUp
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventObject;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventUpdate;
 import ru.easydonate.easypayments.core.exception.StructureValidationException;
-import ru.easydonate.easypayments.execution.ExecutionController;
+import ru.easydonate.easypayments.service.LongPollEventDispatcher;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class SimplePaymentEventProcessor<E extends EventObject, R extends EventReportObject> implements EventUpdateProcessor<E, R> {
 
-    private final ExecutionController controller;
+    private final LongPollEventDispatcher dispatcher;
 
-    public SimplePaymentEventProcessor(@NotNull ExecutionController controller) {
-        this.controller = controller;
+    public SimplePaymentEventProcessor(@NotNull LongPollEventDispatcher dispatcher) {
+        this.dispatcher = dispatcher;
     }
 
     @SuppressWarnings("unchecked")
@@ -32,7 +32,7 @@ public final class SimplePaymentEventProcessor<E extends EventObject, R extends 
         EventUpdateReport<R> report = eventUpdate.createReport();
 
         eventObjects.parallelStream()
-                .map(object -> controller.processEventObject(eventType, object))
+                .map(object -> dispatcher.processEventObject(eventType, object))
                 .map(CompletableFuture::join)
                 .map(object -> (R) object)
                 .forEach(report::addObject);

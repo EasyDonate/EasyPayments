@@ -2,6 +2,7 @@ package ru.easydonate.easypayments;
 
 import com.j256.ormlite.logger.Level;
 import com.j256.ormlite.logger.Logger;
+import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +31,11 @@ import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.database.persister.LocalDateTimePersister;
 import ru.easydonate.easypayments.exception.*;
-import ru.easydonate.easypayments.execution.ExecutionController;
+import ru.easydonate.easypayments.service.LongPollEventDispatcher;
+import ru.easydonate.easypayments.service.IssuancePerformService;
+import ru.easydonate.easypayments.service.IssuanceReportService;
+import ru.easydonate.easypayments.service.PersistanceService;
+import ru.easydonate.easypayments.service.execution.ExecutionService;
 import ru.easydonate.easypayments.listener.CommandPreProcessListener;
 import ru.easydonate.easypayments.listener.PlayerJoinQuitListener;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
@@ -51,6 +56,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     public static final String COMMAND_EXECUTOR_NAME = "@EasyPayments";
     public static final String TROUBLESHOOTING_PAGE_URL = "https://easypayments.easydonate.ru";
+    public static final String SUPPORT_URL = "https://vk.me/easydonate";
     public static final String USER_AGENT_FORMAT = "EasyPayments %s";
 
     public static final int ACCESS_KEY_LENGTH = 32;
@@ -60,29 +66,43 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     private static EasyPaymentsPlugin instance;
 
+    @Getter
     private final DebugLogger debugLogger;
-    private final Configuration config;
-    private final Messages messages;
-    private final ShopCartConfig shopCartConfig;
     private final String userAgent;
     private volatile boolean pluginEnabled;
 
-    private DatabaseManager databaseManager;
-    private PlatformProvider platformProvider;
+    private final Configuration config;
+    @Getter
+    private final Messages messages;
+    @Getter
+    private final ShopCartConfig shopCartConfig;
 
+    private DatabaseManager databaseManager;
+    @Getter
+    private PersistanceService persistanceService;
+
+    @Getter
+    private PlatformProvider platformProvider;
     private EasyPaymentsClient easyPaymentsClient;
     private InteractiveSetupProvider setupProvider;
+    @Getter
     private ShopCartStorage shopCartStorage;
-    private ExecutionController executionController;
+
+    @Getter private ExecutionService executionService;
+    @Getter private LongPollEventDispatcher lpEventDispatcher;
+    @Getter private IssuanceReportService issuanceReportService;
+    @Getter private IssuancePerformService issuancePerformService;
+
+    @Getter
     private RelativeTimeFormatter relativeTimeFormatter;
     private VersionResponse versionResponse;
 
     private PluginTask paymentsQueryTask;
     private PluginTask reportCacheWorker;
 
-    private String accessKey;
-    private int serverId;
-    private int permissionLevel;
+    @Getter private String accessKey;
+    @Getter private int serverId;
+    @Getter private int permissionLevel;
 
     static {
         // Disable useless ORMLite logging
@@ -91,13 +111,14 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     public EasyPaymentsPlugin() {
         this.debugLogger = new DebugLogger(this);
-        this.config = new TemplateConfiguration(this, "config.yml");
-        this.config.setValidator(this::validateConfiguration);
-        this.config.registerKeyAliases("shop-cart.enabled", "use-shop-cart");
-        this.messages = new Messages(this, config);
-        this.shopCartConfig = new ShopCartConfig(config);
         this.userAgent = String.format(USER_AGENT_FORMAT, getDescription().getVersion());
         this.pluginEnabled = true;
+
+        this.config = new TemplateConfiguration(this, "config.yml");
+        this.config.registerKeyAliases("shop-cart.enabled", "use-shop-cart");
+        this.config.setValidator(this::validateConfiguration);
+        this.messages = new Messages(this, config);
+        this.shopCartConfig = new ShopCartConfig(config, debugLogger);
     }
 
     @Override
@@ -142,8 +163,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         // relative time formatter initialization
         this.relativeTimeFormatter = new RelativeTimeFormatter(messages);
 
-        // execution controller initialization
-        loadExecutionController();
+        // services initialization
+        loadServices();
 
         // commands executors initialization
         registerCommands();
@@ -172,8 +193,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         // closing internal tasks
         closeTasks();
 
-        // shutting down execution controller
-        shutdownExecutionController();
+        // shutting down services
+        shutdownServices();
 
         // shutting down the API client
         shutdownApiClient();
@@ -185,56 +206,12 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         debugLogger.shutdown();
     }
 
-    public @NotNull PlatformProvider getPlatformProvider() {
-        return platformProvider;
-    }
-
-    @Override
-    public @NotNull DebugLogger getDebugLogger() {
-        return debugLogger;
-    }
-
-    public @NotNull DatabaseManager getStorage() {
-        if (!isPluginEnabled() || databaseManager == null)
-            throw new PluginUnavailableException();
-
-        return databaseManager;
-    }
-
-    public @NotNull ExecutionController getExecutionController() {
-        return executionController;
-    }
-
-    public @NotNull RelativeTimeFormatter getRelativeTimeFormatter() {
-        return relativeTimeFormatter;
-    }
-
-    public @NotNull Optional<VersionResponse> getVersionResponse() {
-        return Optional.ofNullable(versionResponse);
-    }
-
-    public @Nullable String getAccessKey() {
-        return accessKey;
-    }
-
-    public int getServerId() {
-        return serverId;
-    }
-
-    public int getPermissionLevel() {
-        return permissionLevel;
-    }
-
-    public @NotNull ShopCartConfig getShopCartConfig() {
-        return shopCartConfig;
-    }
-
     public synchronized void reload() throws ConfigurationValidationException, StorageLoadException {
         debugLogger.info("--- STATE: RELOADING ---");
 
         // shutting down
         closeTasks();
-        shutdownExecutionController();
+        shutdownServices();
         shutdownApiClient();
         closeStorage();
 
@@ -244,7 +221,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         loadConfigurations();
         loadStorage();
         initializeApiClient();
-        loadExecutionController();
+        loadServices();
         launchTasks();
 
         changeEnabledState(true);
@@ -280,6 +257,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
                     .complete();
 
             this.databaseManager = new DatabaseManager(this, config, database);
+            this.persistanceService = new PersistanceService(this, databaseManager);
         } catch (CredentialsParseException ex) {
             reportException(ex, "Couldn't parse a database connection credentials:");
             throw new StorageLoadException(ex);
@@ -300,16 +278,30 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         }
     }
 
-    private synchronized void loadExecutionController() {
-        debugLogger.debug("Loading execution controller...");
+    private synchronized void loadServices() {
+        debugLogger.debug("Loading execution service...");
         InterceptorFactory interceptorFactory = platformProvider.getInterceptorFactory();
-        this.executionController = new ExecutionController(this, config, messages, easyPaymentsClient, shopCartStorage, interceptorFactory);
+        this.executionService = new ExecutionService(this, config, interceptorFactory);
+
+        debugLogger.debug("Loading issuance report service...");
+        this.issuanceReportService = new IssuanceReportService(this, persistanceService, easyPaymentsClient);
+
+        debugLogger.debug("Loading issuance perform service...");
+        this.issuancePerformService = new IssuancePerformService(this, issuanceReportService, executionService, persistanceService);
+
+        debugLogger.debug("Loading LongPoll event dispatcher...");
+        this.lpEventDispatcher = new LongPollEventDispatcher(this, executionService);
     }
 
-    private synchronized void shutdownExecutionController() {
-        if (executionController != null) {
-            debugLogger.debug("Shutting down execution controller...");
-            executionController.shutdown();
+    private synchronized void shutdownServices() {
+        if (lpEventDispatcher != null) {
+            debugLogger.debug("Shutting down LongPoll event dispatcher...");
+            lpEventDispatcher.shutdown();
+        }
+
+        if (executionService != null) {
+            debugLogger.debug("Shutting down execution service...");
+            executionService.shutdown();
         }
     }
 
@@ -347,10 +339,6 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
             debugLogger.debug("Updating interceptor factory with username '{0}' and permission level '{1}'", COMMAND_EXECUTOR_NAME, permissionLevel);
             ((PlatformProviderBase) platformProvider).updateInterceptorFactory(COMMAND_EXECUTOR_NAME, permissionLevel);
         }
-
-        // show shop cart status in logs
-        boolean shopCartEnabled = config.getBoolean("use-shop-cart", Constants.DEFAULT_SHOP_CART_STATUS);
-        debugLogger.debug("Shop cart status: {0}", (shopCartEnabled ? "ON" : "OFF"));
 
         // clean old log files
         int logFileTTL = config.getInt("log-file-time-to-life");
@@ -415,14 +403,12 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         debugLogger.debug("[Tasks] Launching plugin tasks...");
 
         debugLogger.debug("[Tasks] - Launching report cache worker task...");
-        this.reportCacheWorker = new ReportCacheWorker(this, executionController);
+        this.reportCacheWorker = new ReportCacheWorker(this, issuanceReportService, persistanceService);
         this.reportCacheWorker.start();
-        debugLogger.debug("[Tasks]   Done");
 
         debugLogger.debug("[Tasks] - Launching payments query task...");
-        this.paymentsQueryTask = new PaymentsQueryTask(this, executionController);
+        this.paymentsQueryTask = new PaymentsQueryTask(this, easyPaymentsClient, lpEventDispatcher, issuanceReportService);
         this.paymentsQueryTask.start();
-        debugLogger.debug("[Tasks]   Done");
     }
 
     private void closeTasks() {
@@ -497,6 +483,17 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     private void error(@NotNull String message, @Nullable Object... args) {
         getLogger().severe(colorize(String.format(message, args)));
+    }
+
+    public @NotNull DatabaseManager getStorage() {
+        if (!isPluginEnabled() || databaseManager == null)
+            throw new PluginUnavailableException();
+
+        return databaseManager;
+    }
+
+    public @NotNull Optional<VersionResponse> getVersionResponse() {
+        return Optional.ofNullable(versionResponse);
     }
 
     private boolean pluginEnabled() {

@@ -12,8 +12,11 @@ import ru.easydonate.easypayments.command.annotation.*;
 import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
 import ru.easydonate.easypayments.core.config.localized.Messages;
-import ru.easydonate.easypayments.database.model.Payment;
+import ru.easydonate.easypayments.core.easydonate4j.EventType;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReport;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReports;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.NewPaymentReport;
+import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.shopcart.ShopCart;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 
@@ -121,8 +124,11 @@ public final class CommandClear extends CommandExecutor {
                         .mapToObj(paymentId -> NewPaymentReport.createCartClearReport(paymentId, playerName))
                         .collect(Collectors.toList());
 
+                EventUpdateReport<NewPaymentReport> updateReport = new EventUpdateReport<>(EventType.NEW_PAYMENT, reports);
+                EventUpdateReports updateReports = new EventUpdateReports(updateReport);
+
                 try {
-                    plugin.getExecutionController().uploadCartReports(reports);
+                    plugin.getIssuanceReportService().uploadReports(updateReports);
                 } catch (HttpRequestException | HttpResponseException ex) {
                     plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
                     plugin.getLogger().severe("Please, contact with the platform support:");
@@ -133,10 +139,6 @@ public final class CommandClear extends CommandExecutor {
                 messages.getAndSend(sender, messagesRoot + ".success", "%player%", playerName);
             });
         });
-    }
-
-    private CompletableFuture<Payment> syncPaymentWithDatabase(Payment payment) {
-        return null;
     }
 
 }

@@ -40,7 +40,15 @@ public final class ShopCart {
     }
 
     public boolean isEmpty() {
-        return getContent().isEmpty();
+        Collection<Payment> payments = getContent();
+        if (payments == null || payments.isEmpty())
+            return true;
+
+        for (Payment payment : payments)
+            if (payment.hasPurchases() && payment.getPurchases().stream().anyMatch(p -> !p.isCollected()))
+                return false;
+
+        return true;
     }
 
     @Override

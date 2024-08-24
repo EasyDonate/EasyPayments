@@ -103,25 +103,28 @@ public final class CommandBrowse extends CommandExecutor {
 
         shopCartFuture.thenAccept(shopCart -> {
             Collection<Payment> cartContent = shopCart != null ? shopCart.getContent() : null;
-            if (cartContent == null || cartContent.isEmpty()) {
-                messages.getAndSend(sender, messagesRoot + ".failed.no-purchases", "%player%", playerName);
-                return;
+            if (cartContent != null && !cartContent.isEmpty()) {
+                List<String> purchases = cartContent.stream()
+                        .filter(Payment::hasPurchases)
+                        .map(Payment::getPurchases)
+                        .flatMap(Collection::stream)
+                        .filter(p -> !p.isCollected())
+                        .map(purchase -> asBodyElement(purchase, messagesRoot))
+                        .collect(Collectors.toList());
+
+                if (!purchases.isEmpty()) {
+                    List<String> message = new ArrayList<>();
+                    message.add(messages.get(messagesRoot + ".header", "%player%", playerName));
+                    message.addAll(purchases);
+                    message.add(messages.get(messagesRoot + ".footer", "%player%", playerName));
+                    message.removeIf(String::isEmpty);
+
+                    messages.send(sender, String.join("\n", message));
+                    return;
+                }
             }
 
-            List<String> purchases = cartContent.stream()
-                    .filter(Payment::hasPurchases)
-                    .map(Payment::getPurchases)
-                    .flatMap(Collection::stream)
-                    .map(purchase -> asBodyElement(purchase, messagesRoot))
-                    .collect(Collectors.toList());
-
-            List<String> message = new ArrayList<>();
-            message.add(messages.get(messagesRoot + ".header", "%player%", playerName));
-            message.addAll(purchases);
-            message.add(messages.get(messagesRoot + ".footer", "%player%", playerName));
-            message.removeIf(String::isEmpty);
-
-            messages.send(sender, String.join("\n", message));
+            messages.getAndSend(sender, messagesRoot + ".failed.no-purchases", "%player%", playerName);
         });
     }
 

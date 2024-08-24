@@ -1,4 +1,4 @@
-package ru.easydonate.easypayments.execution.processor.object;
+package ru.easydonate.easypayments.service.processor.object;
 
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.plugin.PluginEventReport;

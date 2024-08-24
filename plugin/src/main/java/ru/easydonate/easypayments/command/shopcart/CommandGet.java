@@ -51,7 +51,6 @@ public final class CommandGet extends CommandExecutor {
 
         Player player = (Player) sender;
         Optional<ShopCart> cachedCart = shopCartStorage.getCached(player.getName());
-
         if (!cachedCart.isPresent()) {
             plugin.getLogger().warning(String.format("%s's shop cart still isn't cached!", player.getName()));
             plugin.getLogger().warning("Probably a database connection is very slow...");
@@ -60,17 +59,25 @@ public final class CommandGet extends CommandExecutor {
 
         ShopCart shopCart = cachedCart.get();
         Collection<Payment> cartContent = shopCart.getContent();
-
         if (cartContent.isEmpty())
             throw new ExecutionException(messages.get("cart-get.failed.no-purchases"));
 
-        uploadReports(cartContent).thenRun(() -> {
-            List<String> purchases = cartContent.stream()
-                    .filter(Payment::hasPurchases)
-                    .map(Payment::getPurchases)
-                    .flatMap(Collection::stream)
+        List<Purchase> uncollectedPurchases = cartContent.stream()
+                .filter(Payment::hasPurchases)
+                .map(Payment::getPurchases)
+                .flatMap(Collection::stream)
+                .filter(p -> !p.isCollected())
+                .collect(Collectors.toList());
+
+        issuePurchases(cartContent).thenRun(() -> {
+            List<String> purchases = uncollectedPurchases.stream()
                     .map(this::asBodyElement)
                     .collect(Collectors.toList());
+
+            if (purchases.isEmpty()) {
+                messages.getAndSend(sender, "cart-get.failed.no-purchases");
+                return;
+            }
 
             List<String> message = new ArrayList<>();
             message.add(messages.get("cart-get.header"));
@@ -79,6 +86,22 @@ public final class CommandGet extends CommandExecutor {
             message.removeIf(String::isEmpty);
 
             messages.send(sender, String.join("\n", message));
+        });
+    }
+
+    private @NotNull CompletableFuture<Void> issuePurchases(@NotNull Collection<Payment> payments) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                plugin.getIssuancePerformService().issuePurchasesAndReport(payments, purchase -> !purchase.isCollected());
+            } catch (HttpRequestException | HttpResponseException ex) {
+                plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
+                plugin.getLogger().severe("Please, contact with the platform support:");
+                plugin.getLogger().severe(EasyPaymentsPlugin.SUPPORT_URL);
+                plugin.getDebugLogger().error(ex);
+            } catch (Throwable ex) {
+                plugin.getDebugLogger().error("An unexpected error was occured!");
+                plugin.getDebugLogger().error(ex);
+            }
         });
     }
 
@@ -96,19 +119,6 @@ public final class CommandGet extends CommandExecutor {
 
     private @NotNull String getNoValueStub() {
         return messages.get("cart-get.no-value-stub");
-    }
-
-    private @NotNull CompletableFuture<Void> uploadReports(@NotNull Collection<Payment> payments) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                plugin.getExecutionController().givePurchasesFromCartAndReport(payments);
-            } catch (HttpRequestException | HttpResponseException ex) {
-                plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
-                plugin.getLogger().severe("Please, contact with the platform support:");
-                plugin.getLogger().severe("https://vk.me/easydonateru");
-                ex.printStackTrace();
-            }
-        });
     }
 
 }
