@@ -76,10 +76,15 @@ tasks.shadowJar {
 // configure resources filtering
 tasks.processResources {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-    val replacements = mapOf("copyright_years" to "2020-$currentYear") + rootProject.properties
+    val replacements = mapOf("copyright_years" to "2020-$currentYear")
+
+    inputs.properties(replacements)
+    inputs.property("project.name", rootProject.name)
+    inputs.property("project.description", rootProject.description)
+    inputs.property("project.version", rootProject.version)
 
     filesMatching(listOf("plugin.yml", "assets/templates/**/*.yml")) {
-        expand(replacements)
+        expand(replacements + rootProject.properties)
     }
 }
 
