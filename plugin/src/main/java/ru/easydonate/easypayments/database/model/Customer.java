@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
@@ -57,10 +56,6 @@ public final class Customer {
 
     public @NotNull OfflinePlayer asBukkitPlayer() {
         return Bukkit.getOfflinePlayer(playerUUID);
-    }
-
-    public @NotNull Player asOnlinePlayer() {
-        return Bukkit.getPlayer(playerUUID);
     }
 
     public int getPaymentsAmount() {

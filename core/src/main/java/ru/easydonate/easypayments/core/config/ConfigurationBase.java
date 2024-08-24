@@ -108,6 +108,11 @@ public abstract class ConfigurationBase implements Configuration {
     }
 
     @Override
+    public @NotNull List<Integer> getIntList(@NotNull String path) {
+        return getBukkitConfiguration().getIntegerList(path);
+    }
+
+    @Override
     public double getDouble(@NotNull String path) {
         return getBukkitConfiguration().getDouble(path);
     }

@@ -3,17 +3,22 @@ package ru.easydonate.easypayments.task;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easydonate4j.api.v3.exception.ApiResponseFailureException;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
 import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easydonate4j.exception.JsonSerializationException;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
+import ru.easydonate.easypayments.core.easydonate4j.extension.client.EasyPaymentsClient;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReports;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventUpdates;
-import ru.easydonate.easypayments.execution.ExecutionController;
+import ru.easydonate.easypayments.database.model.Purchase;
+import ru.easydonate.easypayments.service.IssuanceReportService;
+import ru.easydonate.easypayments.service.LongPollEventDispatcher;
 import ru.easydonate.easypayments.core.util.ThreadLocker;
 import ru.easydonate.easypayments.core.util.ThrowableCauseFinder;
+import ru.easydonate.easypayments.shopcart.ShopCartConfig;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,17 +34,26 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
     private static final String THREAD_NAME = "EasyPayments LongPoll Events Listener";
     private static final long TASK_PERIOD_MILLIS = 3000L;
 
-    private final ExecutionController executionController;
-    private final ExecutorService longPollExecutorService;
+    private final EasyPaymentsClient easyPaymentsClient;
+    private final LongPollEventDispatcher eventDispatcher;
+    private final IssuanceReportService reportService;
+    private final ExecutorService longPollExecutor;
 
     private volatile boolean working;
     private Thread workingThread;
     private CompletableFuture<EventUpdates> longPollQueryTask;
 
-    public PaymentsQueryTask(@NotNull EasyPaymentsPlugin plugin, @NotNull ExecutionController executionController) {
+    public PaymentsQueryTask(
+            @NotNull EasyPaymentsPlugin plugin,
+            @NotNull EasyPaymentsClient easyPaymentsClient,
+            @NotNull LongPollEventDispatcher eventDispatcher,
+            @NotNull IssuanceReportService reportService
+    ) {
         super(plugin, 100L);
-        this.executionController = executionController;
-        this.longPollExecutorService = Executors.newSingleThreadExecutor();
+        this.easyPaymentsClient = easyPaymentsClient;
+        this.eventDispatcher = eventDispatcher;
+        this.reportService = reportService;
+        this.longPollExecutor = Executors.newSingleThreadExecutor();
     }
 
     @Override
@@ -66,7 +80,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             if (longPollQueryTask != null)
                 longPollQueryTask.cancel(true);
 
-            longPollExecutorService.shutdownNow();
+            longPollExecutor.shutdownNow();
         } catch (Throwable ex) {
             plugin.getLogger().severe("Couldn't correctly shutdown a payments query task!");
             plugin.getLogger().severe(ex.getMessage());
@@ -98,11 +112,11 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
 
     @SneakyThrows(JsonSerializationException.class)
     private void doQuery() {
-        if (longPollExecutorService.isShutdown() || longPollExecutorService.isTerminated())
+        if (longPollExecutor.isShutdown() || longPollExecutor.isTerminated())
             return;
 
         try {
-            this.longPollQueryTask = CompletableFuture.supplyAsync(this::queryUpdates, longPollExecutorService);
+            this.longPollQueryTask = CompletableFuture.supplyAsync(this::queryUpdates, longPollExecutor);
 
             EventUpdates updates = longPollQueryTask.exceptionally(throwable -> {
                 if (throwable instanceof CancellationException || throwable instanceof RejectedExecutionException)
@@ -138,8 +152,23 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
             DATABASE_QUERIES_LOCK.lock();
 
             try {
-                EventUpdateReports reports = executionController.processEventUpdates(updates).join();
-                executionController.uploadReports(reports);
+                ShopCartConfig shopCartConfig = plugin.getShopCartConfig();
+                EventUpdateReports reports = eventDispatcher.processEventUpdates(updates).join();
+                reportService.uploadReportsAndPersistStates(reports, payment -> {
+                    if (payment == null || !payment.hasPurchases() || !shopCartConfig.isEnabled())
+                        return true;
+
+                    if (shopCartConfig.shouldIssueWhenOnline()) {
+                        Player onlinePlayer = plugin.getServer().getPlayer(payment.getCustomer().getPlayerName());
+                        if (onlinePlayer != null && onlinePlayer.isOnline()) {
+                            return true;
+                        }
+                    }
+
+                    return payment.getPurchases().stream()
+                            .mapToInt(Purchase::getProductId)
+                            .noneMatch(shopCartConfig::shouldAddToCart);
+                });
             } finally {
                 DATABASE_QUERIES_LOCK.unlock();
             }
@@ -159,7 +188,7 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
 
     private @NotNull EventUpdates queryUpdates() {
         try {
-            return executionController.getEasyPaymentsClient().getLongPollClient().getUpdatesListSync();
+            return easyPaymentsClient.getLongPollClient().getUpdatesListSync();
         } catch (ApiResponseFailureException ex) {
             // redirect API errors to warning channel
             warning("[PaymentsQuery] Response from API: %s", ex.getMessage());

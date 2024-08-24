@@ -1,21 +1,21 @@
-package ru.easydonate.easypayments.execution.processor.object;
+package ru.easydonate.easypayments.service.processor.object;
 
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.RepeatPaymentReport;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.PurchasedProduct;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.RepeatPaymentEvent;
 import ru.easydonate.easypayments.core.exception.StructureValidationException;
-import ru.easydonate.easypayments.execution.ExecutionController;
+import ru.easydonate.easypayments.service.execution.ExecutionService;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public final class RepeatPaymentObjectProcessor extends EventObjectProcessor<RepeatPaymentEvent, RepeatPaymentReport> {
 
-    private final ExecutionController controller;
+    private final ExecutionService executionService;
 
-    public RepeatPaymentObjectProcessor(@NotNull ExecutionController controller) {
-        this.controller = controller;
+    public RepeatPaymentObjectProcessor(@NotNull ExecutionService executionService) {
+        this.executionService = executionService;
     }
 
     @Override
@@ -33,7 +33,7 @@ public final class RepeatPaymentObjectProcessor extends EventObjectProcessor<Rep
                 .collect(Collectors.toList());
 
         // execute commands just now
-        controller.processCommandsKeepSequence(commands).forEach(report::addCommandReport);
+        executionService.processCommandsKeepSequence(commands).forEach(report::addCommandReport);
         return report;
     }
 

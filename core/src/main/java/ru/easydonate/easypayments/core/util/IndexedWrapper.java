@@ -1,4 +1,4 @@
-package ru.easydonate.easypayments.execution;
+package ru.easydonate.easypayments.core.util;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;

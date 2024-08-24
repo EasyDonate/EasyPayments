@@ -1,4 +1,4 @@
-package ru.easydonate.easypayments.execution.processor.object;
+package ru.easydonate.easypayments.service.processor.object;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

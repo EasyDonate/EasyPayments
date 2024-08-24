@@ -26,11 +26,12 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
     public static final String VALUE_PLACEHOLDER = "_value_";
 
     protected final EasyPayments plugin;
-
+    protected final Map<String, String[]> keyAliases;
     protected FileConfiguration bukkitConfig;
 
     public TemplateConfigurationBase(@NotNull EasyPayments plugin) {
         this.plugin = plugin;
+        this.keyAliases = new HashMap<>();
         this.bukkitConfig = new YamlConfiguration();
     }
 
@@ -41,6 +42,12 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
     @Override
     protected @NotNull FileConfiguration getBukkitConfiguration() {
         return bukkitConfig;
+    }
+
+    public void registerKeyAliases(@NotNull String key, String... aliases) {
+        if (aliases != null && aliases.length != 0) {
+            this.keyAliases.put(key, aliases);
+        }
     }
 
     @Override
@@ -96,7 +103,7 @@ public abstract class TemplateConfigurationBase extends ConfigurationBase {
                 dataValues = mergeConfigurationData(dataValues, overrides);
 
             try {
-                new TemplateWriter(outputFile, template, dataValues).write();
+                new TemplateWriter(outputFile, template, dataValues, keyAliases).write();
             } catch (IOException ex) {
                 plugin.getLogger().severe(String.format("Couldn't save generated configuration as '%s': %s", outputFile, ex.getMessage()));
                 plugin.getDebugLogger().error("Couldn't save generated configuration as '{0}'", outputFile);

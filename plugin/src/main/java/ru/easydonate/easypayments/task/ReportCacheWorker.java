@@ -6,16 +6,16 @@ import ru.easydonate.easydonate4j.api.v3.exception.ApiResponseFailureException;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
 import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
-import ru.easydonate.easypayments.database.DatabaseManager;
-import ru.easydonate.easypayments.database.model.Payment;
-import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.core.easydonate4j.EventType;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReport;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReports;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.CommandReport;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.NewPaymentReport;
-import ru.easydonate.easypayments.execution.ExecutionController;
 import ru.easydonate.easypayments.core.util.ThrowableCauseFinder;
+import ru.easydonate.easypayments.database.model.Payment;
+import ru.easydonate.easypayments.database.model.Purchase;
+import ru.easydonate.easypayments.service.IssuanceReportService;
+import ru.easydonate.easypayments.service.PersistanceService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,11 +28,17 @@ public final class ReportCacheWorker extends AbstractPluginTask {
 
     private static final long TASK_PERIOD = 6000L;
 
-    private final ExecutionController executionController;
+    private final IssuanceReportService reportService;
+    private final PersistanceService persistanceService;
 
-    public ReportCacheWorker(@NotNull EasyPaymentsPlugin plugin, @NotNull ExecutionController executionController) {
+    public ReportCacheWorker(
+            @NotNull EasyPaymentsPlugin plugin,
+            @NotNull IssuanceReportService reportService,
+            @NotNull PersistanceService persistanceService
+    ) {
         super(plugin, 20L);
-        this.executionController = executionController;
+        this.reportService = reportService;
+        this.persistanceService = persistanceService;
     }
 
     @Override
@@ -45,9 +51,6 @@ public final class ReportCacheWorker extends AbstractPluginTask {
         if (!isWorking())
             return;
 
-        int serverId = executionController.getServerId();
-        DatabaseManager databaseManager = executionController.getPlugin().getStorage();
-
         List<Payment> payments = null;
 
         // do that synchronously to prevent any conflicts with other tasks
@@ -55,7 +58,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
 
         try {
             if (isWorking()) {
-                payments = databaseManager.getAllUnreportedPayments(serverId).join();
+                payments = persistanceService.findUnreportedPayments();
             }
         } catch (RejectedExecutionException ignored) {
         } finally {
@@ -72,18 +75,17 @@ public final class ReportCacheWorker extends AbstractPluginTask {
         EventUpdateReport<NewPaymentReport> report = new EventUpdateReport<>(EventType.NEW_PAYMENT);
         reports.add(report);
 
-        payments.parallelStream()
-                .map(this::handlePayment)
-                .forEach(report::addObject);
+        payments.forEach(payment -> report.addObject(constructReport(payment)));
 
         try {
-            executionController.uploadReports(reports);
+            reportService.uploadReports(reports);
 
-            payments.stream()
+            CompletableFuture<?>[] futures = payments.stream()
                     .filter(Payment::markAsReported)
-                    .map(databaseManager::savePayment)
-                    .parallel()
-                    .forEach(CompletableFuture::join);
+                    .map(persistanceService::savePayment)
+                    .toArray(CompletableFuture<?>[]::new);
+
+            CompletableFuture.allOf(futures).join();
         } catch (ApiResponseFailureException ex) {
             // redirect API errors to warning channel
             warning("[ReportCache] Response from API: %s", ex.getMessage());
@@ -108,7 +110,7 @@ public final class ReportCacheWorker extends AbstractPluginTask {
         updateActivityState();
     }
 
-    private @NotNull NewPaymentReport handlePayment(@NotNull Payment payment) {
+    private @NotNull NewPaymentReport constructReport(@NotNull Payment payment) {
         List<CommandReport> commandReports = new ArrayList<>();
 
         if (payment.hasPurchases())

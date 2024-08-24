@@ -1,19 +1,19 @@
-package ru.easydonate.easypayments.execution.processor.object;
+package ru.easydonate.easypayments.service.processor.object;
 
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.NewRewardReport;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.NewRewardEvent;
 import ru.easydonate.easypayments.core.exception.StructureValidationException;
-import ru.easydonate.easypayments.execution.ExecutionController;
+import ru.easydonate.easypayments.service.execution.ExecutionService;
 
 import java.util.List;
 
 public final class NewRewardObjectProcessor extends EventObjectProcessor<NewRewardEvent, NewRewardReport> {
 
-    private final ExecutionController controller;
+    private final ExecutionService executionService;
 
-    public NewRewardObjectProcessor(@NotNull ExecutionController controller) {
-        this.controller = controller;
+    public NewRewardObjectProcessor(@NotNull ExecutionService executionService) {
+        this.executionService = executionService;
     }
 
     @Override
@@ -25,7 +25,7 @@ public final class NewRewardObjectProcessor extends EventObjectProcessor<NewRewa
         List<String> commands = eventObject.getCommands();
 
         // execute commands just now
-        controller.processCommandsKeepSequence(commands).forEach(report::addCommandReport);
+        executionService.processCommandsKeepSequence(commands).forEach(report::addCommandReport);
         return report;
     }
 
