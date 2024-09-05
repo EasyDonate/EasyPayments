@@ -4,3 +4,7 @@ build/
 *.iml
 *.jar
 *.class
+
+# avoid ignoring Gradle wrapper files
+!gradle-wrapper.jar
+!gradle-wrapper.properties
