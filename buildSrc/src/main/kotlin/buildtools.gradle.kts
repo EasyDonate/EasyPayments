@@ -96,4 +96,5 @@ fun declarePlatformImplementations(): Platform {
         .add("1.20.4", 3)
         .add("1.20.6", 4)
         .add("1.21.1", 1)
+        .add("1.21.3", 2)
 }
