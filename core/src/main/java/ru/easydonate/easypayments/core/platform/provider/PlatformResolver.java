@@ -86,7 +86,7 @@ public final class PlatformResolver {
 
     private static String resolvePlatformClassName(@NotNull EnvironmentLookupResult lookupResult) throws UnsupportedPlatformException {
         if (lookupResult.isFoliaDetected()) {
-            if (!lookupResult.isNativeInterceptorSupported() || !lookupResult.isUnrelocatedInternalsDetected())
+            if (!lookupResult.isNativeInterceptorSupported())
                 throw new UnsupportedPlatformException("unsupported Folia build detected");
 
             if (!MINECRAFT_VERSION.isAtLeast(MinecraftVersion.FOLIA_SUPPORTED_UPDATE))
@@ -109,8 +109,13 @@ public final class PlatformResolver {
 
     private static EnvironmentLookupResult lookupEnvironment(@NotNull DebugLogger logger) throws UnsupportedPlatformException {
         String craftBukkitPackage = Bukkit.getServer().getClass().getPackage().getName();
+        logger.debug("[Platform] CraftBukkit package: '{0}'", craftBukkitPackage);
+
         boolean foliaDetected = detectFolia();
+        logger.debug("[Platform] Folia detected: {0}", foliaDetected);
+
         boolean nativeInterceptorSupported = detectNativeInterceptorSupport();
+        logger.debug("[Platform] Native interceptor supported: {0}", nativeInterceptorSupported);
 
         if ("org.bukkit.craftbukkit".equals(craftBukkitPackage)) {
             logger.info("[Platform] Detected unrelocated internals (MC {0})", MINECRAFT_VERSION.getVersion());
