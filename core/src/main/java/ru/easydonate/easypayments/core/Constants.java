@@ -3,12 +3,12 @@ package ru.easydonate.easypayments.core;
 public final class Constants {
 
     public static final String MIN_SUPPORTED_SPIGOT = "1.8";
-    public static final String MAX_SUPPORTED_SPIGOT = "1.21.3";
+    public static final String MAX_SUPPORTED_SPIGOT = "1.21.4";
     public static final String MIN_SUPPORTED_PAPER = "1.8.8";
     public static final String MIN_SUPPORTED_FOLIA = "1.20.2";
 
-    public static final String MINECRAFT_LAST_KNOWN_VERSION = "1.21.3";
-    public static final String MINECRAFT_LAST_RELEASE_DATE = "2024-10-23";
+    public static final String MINECRAFT_LAST_KNOWN_VERSION = "1.21.4";
+    public static final String MINECRAFT_LAST_RELEASE_DATE = "2024-12-03";
 
     public static final boolean COMMAND_SENDER_ACCEPTS_SUCCESS = true;
     public static final boolean COMMAND_SENDER_ACCEPTS_FAILURE = true;
