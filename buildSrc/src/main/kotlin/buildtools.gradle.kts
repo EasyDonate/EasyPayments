@@ -1,17 +1,15 @@
-
 import easypayments.gradle.model.Platform
 import easypayments.gradle.task.FetchBuildInfoTask
 import easypayments.gradle.task.FetchBuildToolsTask
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 
 plugins {
     `java-base`
 }
 
 val platform: Platform by extra(declarePlatformImplementations())
-val localRepoPath: Path = Paths.get(repositories.mavenLocal().url.path)
+val localRepoPath: Path = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository")
 val globalCacheDir: Path by extra(gradle.gradleUserHomeDir.toPath().resolve("caches").resolve("easypayments"))
 val buildToolsCacheDir: Path by extra(globalCacheDir.resolve("build-tools"))
 val buildToolsJarPath: Path by extra(buildToolsCacheDir.resolve("BuildTools.jar"))

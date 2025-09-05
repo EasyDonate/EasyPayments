@@ -3,7 +3,6 @@ import easypayments.gradle.model.Platform
 import easypayments.gradle.task.SpecialSourceTask
 import easypayments.gradle.util.ArtifactResolver
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.*
 
 plugins {
@@ -18,7 +17,7 @@ val remapJarsTask = tasks.register("remapJars")
 tasks.build.get().dependsOn(remapJarsTask)
 
 val platform: Platform = rootProject.extra["platform"] as Platform
-val localRepoPath: Path = Paths.get(repositories.mavenLocal().url.path)
+val localRepoPath: Path = Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository")
 val specialSourceJarFile: File = ArtifactResolver.resolveSpecialSourceJarFile(configurations["specialSource"])
 
 platform.forEachInternal(schemaVersion) {
