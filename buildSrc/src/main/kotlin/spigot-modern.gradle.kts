@@ -1,3 +1,4 @@
+
 import easypayments.gradle.model.Internals.DependencyTarget
 import easypayments.gradle.model.Platform
 import easypayments.gradle.task.SpecialSourceTask
@@ -14,7 +15,7 @@ plugins {
 val props = project.extra["props"] as Properties
 val schemaVersion = (props["schema.version"] as String).toInt()
 
-val remapJarsTask = tasks.create("remapJars")
+val remapJarsTask = tasks.register("remapJars")
 tasks.build.get().dependsOn(remapJarsTask)
 
 val platform: Platform = rootProject.extra["platform"] as Platform
@@ -34,7 +35,7 @@ platform.forEachInternal(schemaVersion) {
     }
 
     // remap JAR: mojang -> reobf
-    tasks.create<SpecialSourceTask>("${nmsSpec}-remapMojangJar") {
+    tasks.register<SpecialSourceTask>("${nmsSpec}-remapMojangJar") {
         classpath(listOf(specialSourceJarFile, it.dependencyFilePath(localRepoPath, DependencyTarget.SPIGOT_REMAPPED_MOJANG)))
         javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(8) }
 
@@ -47,7 +48,7 @@ platform.forEachInternal(schemaVersion) {
     }
 
     // remap JAR: reobf -> spigot
-    tasks.create<SpecialSourceTask>("${nmsSpec}-remapReobfJar") {
+    tasks.register<SpecialSourceTask>("${nmsSpec}-remapReobfJar") {
         classpath(listOf(specialSourceJarFile, it.dependencyFilePath(localRepoPath, DependencyTarget.SPIGOT_REMAPPED_OBF)))
         javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(8) }
 
@@ -56,6 +57,6 @@ platform.forEachInternal(schemaVersion) {
         mappingsPath = it.dependencyFilePath(localRepoPath, DependencyTarget.MAPS_SPIGOT).toFile()
 
         dependsOn("${nmsSpec}-remapMojangJar")
-        remapJarsTask.dependsOn(this)
+        remapJarsTask.get().dependsOn(this)
     }
 }

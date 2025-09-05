@@ -1,3 +1,4 @@
+
 import easypayments.gradle.model.Internals.DependencyTarget
 import easypayments.gradle.model.Platform
 import easypayments.gradle.task.SpecialSourceTask
@@ -77,7 +78,7 @@ platform.forEachInternal(schemaVersion) {
     val buildDir = layout.buildDirectory.dir("nms/${nmsSpec}").get()
 
     // generate mappings in the build directory
-    tasks.create("${nmsSpec}-copyMappings") {
+    tasks.register("${nmsSpec}-copyMappings") {
         doFirst {
             copy {
                 from(sourceSets.main.get().resources.sourceDirectories.singleFile.resolve("mappings")) {
@@ -92,7 +93,7 @@ platform.forEachInternal(schemaVersion) {
     }
 
     // remap assembled base JAR
-    tasks.create<SpecialSourceTask>("${nmsSpec}-remapBaseJar") {
+    tasks.register<SpecialSourceTask>("${nmsSpec}-remapBaseJar") {
         classpath(listOf(specialSourceJarFile, it.dependencyFilePath(localRepoPath, DependencyTarget.SPIGOT)))
         javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(8) }
 

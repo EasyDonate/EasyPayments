@@ -1,3 +1,4 @@
+
 import easypayments.gradle.model.Platform
 import easypayments.gradle.task.FetchBuildInfoTask
 import easypayments.gradle.task.FetchBuildToolsTask
@@ -15,13 +16,13 @@ val globalCacheDir: Path by extra(gradle.gradleUserHomeDir.toPath().resolve("cac
 val buildToolsCacheDir: Path by extra(globalCacheDir.resolve("build-tools"))
 val buildToolsJarPath: Path by extra(buildToolsCacheDir.resolve("BuildTools.jar"))
 
-val buildSpigotJarsTask = tasks.create("buildSpigotJars")
+val buildSpigotJarsTask = tasks.register("buildSpigotJars")
 
-tasks.create<FetchBuildToolsTask>("fetchBuildTools") {
+tasks.register<FetchBuildToolsTask>("fetchBuildTools") {
     jarPath = buildToolsJarPath
 }
 
-tasks.create("setupSpigotJars") {
+tasks.register("setupSpigotJars") {
     dependsOn("fetchBuildTools")
 
     platform.forEachInternal {
@@ -35,7 +36,7 @@ tasks.create("setupSpigotJars") {
         if (!Files.isDirectory(versionBuildDir))
             Files.createDirectories(versionBuildDir)
 
-        tasks.create<JavaExec>("buildSpigotJars-${it.gameVersion}") {
+        tasks.register<JavaExec>("buildSpigotJars-${it.gameVersion}") {
             val args = ArrayList<String>()
             args.add("--rev")
             args.add(it.gameVersion)
@@ -51,7 +52,7 @@ tasks.create("setupSpigotJars") {
             logging.captureStandardError(LogLevel.DEBUG)
             workingDir = versionBuildDir.toFile()
 
-            buildSpigotJarsTask.dependsOn(this)
+            buildSpigotJarsTask.get().dependsOn(this)
         }
     }
 
