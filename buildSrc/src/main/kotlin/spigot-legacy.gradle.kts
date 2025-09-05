@@ -1,4 +1,3 @@
-
 import easypayments.gradle.model.Platform
 import easypayments.gradle.task.SpecialSourceTask
 import java.util.*

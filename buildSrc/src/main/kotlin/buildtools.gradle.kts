@@ -1,4 +1,3 @@
-
 import easypayments.gradle.model.Platform
 import easypayments.gradle.task.FetchBuildInfoTask
 import easypayments.gradle.task.FetchBuildToolsTask
