@@ -97,6 +97,8 @@ fun declarePlatformImplementations(): Platform {
         .add("1.21.1", 1)
         .add("1.21.3", 2)
         .add("1.21.4", 3)
+        .add("1.21.5", 4)
+        .add("1.21.8", 5)
 }
 
 fun collectProxyJvmArgs(): List<String> = listOf("http.proxyHost", "http.proxyPort", "https.proxyHost", "https.proxyPort")
