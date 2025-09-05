@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.jar.JarFile;
+import java.util.zip.ZipException;
 
 public abstract class FetchBuildToolsTask extends DefaultTask {
 
@@ -41,6 +42,9 @@ public abstract class FetchBuildToolsTask extends DefaultTask {
             } else {
                 return -1;
             }
+        } catch (ZipException ex) {
+            getLogger().warn("Failed to read BuildTools.jar!", ex);
+            return -1;
         } catch (IOException ex) {
             throw ex;
         } catch (Exception ex) {
