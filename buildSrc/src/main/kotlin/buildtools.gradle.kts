@@ -14,45 +14,47 @@ val globalCacheDir: Path by extra(gradle.gradleUserHomeDir.toPath().resolve("cac
 val buildToolsCacheDir: Path by extra(globalCacheDir.resolve("build-tools"))
 val buildToolsJarPath: Path by extra(buildToolsCacheDir.resolve("BuildTools.jar"))
 
+val buildSpigotJarsTask = tasks.register("buildSpigotJars")
+
 tasks.register<FetchBuildToolsTask>("fetchBuildTools") {
     jarPath = buildToolsJarPath
 }
 
-var setupSpigotJarsTask = tasks.register("setupSpigotJars") {
+tasks.register("setupSpigotJars") {
     dependsOn("fetchBuildTools")
-}
 
-platform.forEachInternal {
-    if (it.areAllBuildArtifactsPresent(localRepoPath))
-        return@forEachInternal
+    platform.forEachInternal {
+        if (it.areAllBuildArtifactsPresent(localRepoPath))
+            return@forEachInternal
 
-    val buildInfo = FetchBuildInfoTask.fetchBuildInfo(it.gameVersion)
-    val requiredJavaVersion = JavaVersion.forClassVersion(buildInfo.requiredJavaVersion).majorVersion
+        val buildInfo = FetchBuildInfoTask.fetchBuildInfo(it.gameVersion)
+        val requiredJavaVersion = JavaVersion.forClassVersion(buildInfo.requiredJavaVersion).majorVersion
 
-    val versionBuildDir = buildToolsCacheDir.resolve(it.gameVersion)
-    Files.createDirectories(versionBuildDir)
+        val versionBuildDir = buildToolsCacheDir.resolve(it.gameVersion)
+        if (!Files.isDirectory(versionBuildDir))
+            Files.createDirectories(versionBuildDir)
 
-    val task = tasks.register<JavaExec>("buildSpigotJars-${it.gameVersion}") {
-        val args = ArrayList<String>()
-        args.add("--rev")
-        args.add(it.gameVersion)
-        args.add("--nogui")
+        tasks.register<JavaExec>("buildSpigotJars-${it.gameVersion}") {
+            val args = ArrayList<String>()
+            args.add("--rev")
+            args.add(it.gameVersion)
+            args.add("--nogui")
 
-        if (it.usesRemappedSpigot)
-            args.add("--remapped")
+            if (it.usesRemappedSpigot)
+                args.add("--remapped")
 
-        args(args)
-        jvmArgs(collectProxyJvmArgs())
-        classpath = files(buildToolsJarPath)
-        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(requiredJavaVersion) }
-        logging.captureStandardOutput(LogLevel.DEBUG)
-        logging.captureStandardError(LogLevel.DEBUG)
-        workingDir = versionBuildDir.toFile()
+            args(args)
+            classpath = files(buildToolsJarPath)
+            javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(requiredJavaVersion) }
+            logging.captureStandardOutput(LogLevel.DEBUG)
+            logging.captureStandardError(LogLevel.DEBUG)
+            workingDir = versionBuildDir.toFile()
 
-        dependsOn("fetchBuildTools")
+            buildSpigotJarsTask.get().dependsOn(this)
+        }
     }
 
-    setupSpigotJarsTask.get().dependsOn(task)
+    finalizedBy(buildSpigotJarsTask)
 }
 
 fun declarePlatformImplementations(): Platform {
@@ -98,8 +100,3 @@ fun declarePlatformImplementations(): Platform {
         .add("1.21.5", 4)
         .add("1.21.8", 5)
 }
-
-fun collectProxyJvmArgs(): List<String> = listOf("http.proxyHost", "http.proxyPort", "https.proxyHost", "https.proxyPort")
-    .map { it to System.getProperty(it) }
-    .filter { it.second != null }
-    .map { "-D${it.first}=${it.second}" }
