@@ -8,6 +8,14 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
+spigotMapper {
+    minecraftVersions {
+        include("1.19", "1.19.3", "1.19.4")
+        include("1.20.1", "1.20.2", "1.20.4", "1.20.6")
+        include("1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.8")
+    }
+}
+
 dependencies {
     compileOnly(projects.core)
 

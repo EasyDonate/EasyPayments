@@ -8,6 +8,13 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(16)
 }
 
+spigotMapper {
+    minecraftVersions {
+        include("1.17.1")
+        include("1.18.1", "1.18.2")
+    }
+}
+
 dependencies {
     compileOnly(projects.core)
 

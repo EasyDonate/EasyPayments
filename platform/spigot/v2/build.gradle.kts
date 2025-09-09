@@ -4,6 +4,15 @@ plugins {
     spigotmapper
 }
 
+spigotMapper {
+    minecraftVersions {
+        include("1.13", "1.13.2")
+        include("1.14.4")
+        include("1.15.2")
+        include("1.16.1", "1.16.3", "1.16.5")
+    }
+}
+
 dependencies {
     compileOnly(projects.core)
 
