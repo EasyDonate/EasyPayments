@@ -1,31 +1,36 @@
-import java.util.*
-
 plugins {
-    base
-    buildtools
+    alias(libs.plugins.buildtools.plugin)
 }
 
 group = "ru.easydonate.easypayments"
 version = "2.4.2"
+
 description = "The official payment processing implementation as alternative for the RCON protocol"
 
-// provide group and version all subprojects
+repositories {
+    mavenLocal()
+}
+
 subprojects {
     group = rootProject.group
     version = rootProject.version
 
-    val props by extra(loadProperties(project))
-}
-
-fun loadProperties(project: Project): Properties {
-    val file = project.file("build.properties")
-    val props = Properties()
-
-    if (file.isFile()) {
-        props.apply {
-            load(file.reader())
-        }
+    repositories {
+        mavenLocal()
+        mavenCentral()
     }
 
-    return props
+    plugins.withType(JavaLibraryPlugin::class.java) {
+        dependencies {
+            add("compileOnly", libs.jetbrains.annotations)
+            add("compileOnly", libs.lombok)
+            add("annotationProcessor", libs.lombok)
+
+            constraints {
+                add("compileOnly", libs.jetbrains.annotations)
+                add("compileOnly", libs.lombok)
+                add("annotationProcessor", libs.lombok)
+            }
+        }
+    }
 }

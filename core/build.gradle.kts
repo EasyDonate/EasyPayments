@@ -18,13 +18,11 @@ repositories {
 }
 
 dependencies {
-    api(libs.jetbrainsAnnotations)
-    compileOnlyApi(libs.spigotApi) { exclude(module = "gson") }
+    api(libs.easydonate4j.api)
+    implementation(libs.easydonate4j.jdk.legacy.http.client)
+    implementation(libs.easydonate4j.gson.json.provider)
 
-    api(libs.easydonate4jApi)
-    api(libs.easydonate4jHttpClientService)
-    api(libs.easydonate4jJsonSerializationService)
-
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
+    compileOnly(libs.spigot.api) {
+        exclude(module = "gson")
+    }
 }

@@ -1,19 +1,30 @@
 [versions]
+buildtools-plugin = "1.1"
 easydonate4j = "2.0.6"
-foliaDevBundle = "1.20.2-R0.1-SNAPSHOT"
-jetbrainsAnnotations = "24.1.0"
-lombok = "1.18.34"
+folia-dev-bundle = "1.20.2-R0.1-SNAPSHOT"
+jetbrains-annotations = "26.0.2-1"
+lombok = "1.18.40"
 ormlite = "6.1"
-paperApi = "1.18.1-R0.1-SNAPSHOT"
-paperDevBundle = "1.20.6-R0.1-SNAPSHOT"
-spigotApi = "1.12.2-R0.1-SNAPSHOT"
+paper-api = "1.18.1-R0.1-SNAPSHOT"
+paper-dev-bundle = "1.20.6-R0.1-SNAPSHOT"
+paperweight-plugin = "1.7.7"
+shadow-plugin = "9.1.0"
+spigot-api = "1.12.2-R0.1-SNAPSHOT"
 
 [libraries]
-easydonate4jApi = { group = "ru.easydonate.easydonate4j", name = "api-v3", version.ref = "easydonate4j" }
-easydonate4jHttpClientService = { group = "ru.easydonate.easydonate4j", name = "jdk-legacy-http-client", version.ref = "easydonate4j" }
-easydonate4jJsonSerializationService = { group = "ru.easydonate.easydonate4j", name = "gson-json-provider", version.ref = "easydonate4j" }
-jetbrainsAnnotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrainsAnnotations" }
-lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
-ormliteJdbc = { group = "com.j256.ormlite", name = "ormlite-jdbc", version.ref = "ormlite" }
-paperApi = { group = "io.papermc.paper", name = "paper-api", version.ref = "paperApi" }
-spigotApi = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigotApi" }
+buildtools-plugin = { module = "io.github.soknight.buildtools:io.github.soknight.buildtools.gradle.plugin", version.ref = "buildtools-plugin" }
+easydonate4j-api = { module = "ru.easydonate.easydonate4j:api-v3", version.ref = "easydonate4j" }
+easydonate4j-jdk-legacy-http-client = { module = "ru.easydonate.easydonate4j:jdk-legacy-http-client", version.ref = "easydonate4j" }
+easydonate4j-gson-json-provider = { module = "ru.easydonate.easydonate4j:gson-json-provider", version.ref = "easydonate4j" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+ormlite-jdbc = { module = "com.j256.ormlite:ormlite-jdbc", version.ref = "ormlite" }
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
+paperweight-plugin = { module = "io.papermc.paperweight.userdev:io.papermc.paperweight.userdev.gradle.plugin", version.ref = "paperweight-plugin" }
+shadow-plugin = { module = "com.gradleup.shadow:com.gradleup.shadow.gradle.plugin", version.ref = "shadow-plugin" }
+spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot-api" }
+
+[plugins]
+buildtools-plugin = { id = "io.github.soknight.buildtools" }
+paperweight-plugin = { id = "io.papermc.paperweight.userdev" }
+shadow-plugin = { id = "com.gradleup.shadow" }

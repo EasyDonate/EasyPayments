@@ -12,9 +12,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly(project(":core")) { exclude(group = "org.spigotmc") }
-    compileOnly(libs.paperApi)
+    compileOnly(projects.core)
 
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
+    compileOnly(libs.paper.api)
 }

@@ -2,7 +2,7 @@ import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
 
 plugins {
     `java-library`
-    id("io.papermc.paperweight.userdev") version "1.7.1"
+    alias(libs.plugins.paperweight.plugin)
 }
 
 java {
@@ -14,9 +14,7 @@ paperweight {
 }
 
 dependencies {
-    compileOnly(project(":core")) { exclude(group = "org.spigotmc") }
-    paperweight.paperDevBundle(libs.versions.paperDevBundle)
+    compileOnly(projects.core)
 
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
+    paperweight.paperDevBundle(libs.versions.paper.dev.bundle)
 }

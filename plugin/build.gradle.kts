@@ -1,10 +1,8 @@
-import easypayments.gradle.model.Platform
 import java.util.*
 
 plugins {
-    java
-    id("easypayments")
-    id("io.github.goooler.shadow")
+    `java-library`
+    alias(libs.plugins.shadow.plugin)
 }
 
 java {
@@ -23,12 +21,13 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":core"))
+    implementation(projects.core)
 
-    implementation(libs.ormliteJdbc)
+    implementation(libs.ormlite.jdbc)
 
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
+    implementation(libs.spigot.api) {
+        exclude(module = "gson")
+    }
 }
 
 // configure JAR assembly
@@ -52,25 +51,14 @@ tasks.shadowJar {
     includeEmptyDirs = false
     exclude("META-INF/maven/**", "META-INF/versions/**")
 
-    listOf("folia", "paper:internals", "paper:universal").map { project(":platform:${it}") }.forEach {
-        from(it.tasks.jar.get().archiveFile)
-        dependsOn(it.tasks.jar)
-    }
-
-    val platform: Platform = rootProject.extra["platform"] as Platform
-    platform.forEachInternal {
-        val nmsSpec = it.nmsSpec()
-        val spigotPlatformProject = project(":platform:spigot:v${it.schemaVersion}")
-
-        from(spigotPlatformProject.layout.buildDirectory.get().dir("libs").file("${nmsSpec}.jar"))
-        dependsOn(spigotPlatformProject.tasks.named(if (it.usesRemappedSpigot) "${nmsSpec}-remapReobfJar" else "${nmsSpec}-remapBaseJar"))
-    }
+    listOf(projects.platform.folia, projects.platform.paper.internals, projects.platform.paper.universal)
+        .map { project(it.path) }
+        .onEach { from(it.tasks.jar.map(Jar::getArchiveFile)) }
+        .forEach { dependsOn(it.tasks.jar) }
 
     relocate("com.google.gson", "ru.easydonate.easypayments.libs.gson")
     relocate("com.j256.ormlite", "ru.easydonate.easypayments.libs.ormlite")
     relocate("ru.easydonate.easydonate4j", "ru.easydonate.easypayments.libs.easydonate4j")
-    relocate("org.intellij", "ru.easydonate.easypayments.libs.intellij")
-    relocate("org.jetbrains", "ru.easydonate.easypayments.libs.jetbrains")
 }
 
 // configure resources filtering
