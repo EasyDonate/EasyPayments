@@ -8,10 +8,6 @@ version = "2.4.2"
 
 description = "The official payment processing implementation as alternative for the RCON protocol"
 
-repositories {
-    mavenLocal()
-}
-
 buildTools {
     buildToolsVersion = 193
     minecraftVersions.addAll("1.8", "1.13", "1.17.1", "1.19")
