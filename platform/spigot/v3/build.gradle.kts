@@ -1,3 +1,18 @@
 plugins {
+    `java-library`
+    `spigot-platform`
     spigotmapper
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(16)
+}
+
+dependencies {
+    compileOnly(projects.core)
+
+    val spigotVersion = "1.17.1-R0.1-SNAPSHOT"
+
+    compileOnly(libs.spigot.api) { version { strictly(spigotVersion) } }
+    compileOnly(variantOf(libs.spigot.full) { classifier("remapped-mojang") } ) { version { strictly(spigotVersion) } }
 }
