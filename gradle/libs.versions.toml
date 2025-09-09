@@ -1,4 +1,5 @@
 [versions]
+brigadier = "1.0.18"
 buildtools-plugin = "1.1"
 easydonate4j = "2.0.6"
 folia-dev-bundle = "1.20.2-R0.1-SNAPSHOT"
@@ -12,6 +13,7 @@ shadow-plugin = "9.1.0"
 spigot-api = "1.12.2-R0.1-SNAPSHOT"
 
 [libraries]
+brigadier = { module = "com.mojang:brigadier", version.ref = "brigadier" }
 buildtools-plugin = { module = "io.github.soknight.buildtools:io.github.soknight.buildtools.gradle.plugin", version.ref = "buildtools-plugin" }
 easydonate4j-api = { module = "ru.easydonate.easydonate4j:api-v3", version.ref = "easydonate4j" }
 easydonate4j-jdk-legacy-http-client = { module = "ru.easydonate.easydonate4j:jdk-legacy-http-client", version.ref = "easydonate4j" }
@@ -23,6 +25,7 @@ paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 paperweight-plugin = { module = "io.papermc.paperweight.userdev:io.papermc.paperweight.userdev.gradle.plugin", version.ref = "paperweight-plugin" }
 shadow-plugin = { module = "com.gradleup.shadow:com.gradleup.shadow.gradle.plugin", version.ref = "shadow-plugin" }
 spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot-api" }
+spigot-full = { module = "org.spigotmc:spigot", version.ref = "spigot-api" }
 
 [plugins]
 buildtools-plugin = { id = "io.github.soknight.buildtools" }
