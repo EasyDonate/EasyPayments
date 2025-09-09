@@ -14,9 +14,7 @@ paperweight {
 }
 
 dependencies {
-    compileOnly(projects.core) {
-        exclude(group = "org.spigotmc")
-    }
+    compileOnly(projects.core)
 
     paperweight.foliaDevBundle(libs.versions.folia.dev.bundle)
 }
