@@ -18,12 +18,16 @@ abstract class SpecialSourceTask : JavaExec() {
         super.exec()
     }
 
-    private fun constructArgs(): MutableList<String> = mutableListOf<String>().apply {
-        this += "--live"
-        this += arrayOf("-i", inputFile.asFile.map { it.absolutePath }.get())
-        this += arrayOf("-m", mappingsFile.asFile.map { it.absolutePath }.get())
-        this += arrayOf("-o", outputFile.asFile.map { it.absolutePath }.get())
-        this += if (reverseFlag.getOrElse(false)) arrayOf("--reverse") else arrayOf<String>()
+    private fun constructArgs(): List<String> = buildList {
+        add("--live")
+
+        addAll(arrayOf("-i", inputFile.get().asFile.absolutePath))
+        addAll(arrayOf("-m", mappingsFile.get().asFile.absolutePath))
+        addAll(arrayOf("-o", outputFile.get().asFile.absolutePath))
+
+        if (reverseFlag.getOrElse(false)) {
+            add("--reverse")
+        }
     }
 
     @get:InputFile

@@ -1,32 +1,21 @@
 package ru.easydonate.easypayments.gradle.spigotmapper.extension
 
-import org.gradle.api.GradleException
+import ru.easydonate.easypayments.gradle.spigotmapper.model.MinecraftVersion
 
 class MinecraftVersionsCollector {
 
-    companion object {
+    private val minecraftVersions = sortedMapOf<Int, MutableSet<MinecraftVersion>>()
 
-        private fun resolveNmsVersion(minecraftVersion: String): String {
-            val firstDotIndex = minecraftVersion.indexOf('.')
-            if (firstDotIndex == -1)
-                throw GradleException("invalid minecraft version: '$minecraftVersion'")
-
-            val secondDotIndex = minecraftVersion.indexOf('.', firstDotIndex + 1)
-            val majorVersion = if (secondDotIndex > 0) minecraftVersion.take(secondDotIndex) else minecraftVersion
-            return majorVersion.replace('.', '_')
-        }
-
+    fun include(version: String) {
+        val minecraftVersion = MinecraftVersion.parse(version)
+        val majorVersion = minecraftVersion.major
+        this.minecraftVersions.computeIfAbsent(majorVersion) { sortedSetOf() }.add(minecraftVersion)
     }
 
-    val minecraftVersions = mutableMapOf<String, MutableSet<String>>()
-
-    fun include(minecraftVersion: String) {
-        val nmsVersion = resolveNmsVersion(minecraftVersion)
-        this.minecraftVersions.computeIfAbsent(nmsVersion) { LinkedHashSet() }.add(minecraftVersion)
+    fun include(vararg versions: String) {
+        versions.forEach(this::include)
     }
 
-    fun include(vararg minecraftVersions: String) {
-        minecraftVersions.forEach(this::include)
-    }
+    fun versions() = minecraftVersions
 
 }
