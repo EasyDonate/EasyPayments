@@ -10,6 +10,7 @@ paper-api = "1.18.1-R0.1-SNAPSHOT"
 paper-dev-bundle = "1.20.6-R0.1-SNAPSHOT"
 paperweight-plugin = "1.7.7"
 shadow-plugin = "9.1.0"
+special-source = "1.11.5"
 spigot-api = "1.12.2-R0.1-SNAPSHOT"
 
 [libraries]
@@ -24,6 +25,7 @@ ormlite-jdbc = { module = "com.j256.ormlite:ormlite-jdbc", version.ref = "ormlit
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 paperweight-plugin = { module = "io.papermc.paperweight.userdev:io.papermc.paperweight.userdev.gradle.plugin", version.ref = "paperweight-plugin" }
 shadow-plugin = { module = "com.gradleup.shadow:com.gradleup.shadow.gradle.plugin", version.ref = "shadow-plugin" }
+special-source = { module = "net.md-5:SpecialSource", version.ref = "special-source" }
 spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot-api" }
 spigot-full = { module = "org.spigotmc:spigot", version.ref = "spigot-api" }
 
