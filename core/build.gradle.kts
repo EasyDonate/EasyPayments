@@ -19,8 +19,8 @@ repositories {
 
 dependencies {
     api(libs.easydonate4j.api)
-    implementation(libs.easydonate4j.jdk.legacy.http.client)
-    implementation(libs.easydonate4j.gson.json.provider)
+    api(libs.easydonate4j.jdk.legacy.http.client)
+    api(libs.easydonate4j.gson.json.provider)
 
     compileOnly(libs.spigot.api) {
         exclude(module = "gson")
