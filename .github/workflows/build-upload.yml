@@ -53,7 +53,7 @@ jobs:
             ~/.m2/repository/org/spigotmc
           key: buildtools-spigot-artifacts
 
-      - name: Fix Spigot 1.17.1 build
+      - name: Fix Spigot some builds
         if: ${{ inputs.build-all-spigot }}
         run: |
           mkdir -p ~/.m2/repository/org/spigotmc/minecraft-server/
@@ -62,16 +62,6 @@ jobs:
       - name: Build all Spigot
         if: ${{ inputs.build-all-spigot }}
         run: ./gradlew buildAllSpigot --no-daemon --info --stacktrace
-
-      # - name: Build with Gradle
-      #   run: ./gradlew clean build --no-daemon
-
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: EasyPayments
-      #     path: build/EasyPayments-*.jar
-      #     if-no-files-found: warn
 
       - name: Cache BuildTools & Spigot Artifacts
         if: always() && inputs.cache-buildtools-spigot-artifacts
@@ -87,3 +77,13 @@ jobs:
             ~/.gradle/caches/build-tools/BuildTools.jar
             ~/.m2/repository/org/spigotmc
           key: buildtools-spigot-artifacts
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -PbuildSpigot=all --no-daemon
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EasyPayments
+          path: build/EasyPayments-*.jar
+          if-no-files-found: warn
