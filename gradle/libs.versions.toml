@@ -1,6 +1,6 @@
 [versions]
 brigadier = "1.0.18"
-buildtools-plugin = "1.1"
+buildtools-plugin = "1.2"
 easydonate4j = "2.0.6"
 folia-dev-bundle = "1.20.2-R0.1-SNAPSHOT"
 jetbrains-annotations = "26.0.2-1"
