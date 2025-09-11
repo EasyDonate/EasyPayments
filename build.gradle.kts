@@ -1,4 +1,5 @@
 plugins {
+    java
     alias(libs.plugins.buildtools.plugin)
 }
 
@@ -40,4 +41,8 @@ subprojects {
             }
         }
     }
+}
+
+tasks.jar {
+    enabled = false
 }
