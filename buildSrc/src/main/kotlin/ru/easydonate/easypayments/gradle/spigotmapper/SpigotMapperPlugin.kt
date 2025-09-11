@@ -8,20 +8,21 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.language.jvm.tasks.ProcessResources
 import ru.easydonate.easypayments.gradle.spigotmapper.extension.SpigotMapperExtension
 import ru.easydonate.easypayments.gradle.spigotmapper.model.MappingsName
+import ru.easydonate.easypayments.gradle.spigotmapper.util.SpigotBuildSetup
 import ru.easydonate.easypayments.gradle.spigotmapper.util.discoveryMappingsNames
 import ru.easydonate.easypayments.gradle.spigotmapper.util.registerRemapJarTasks
-import ru.easydonate.easypayments.gradle.spigotmapper.util.shouldBuildSpigotPlatform
 
 class SpigotMapperPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val extension = createExtension(project)
+        val buildSetup = SpigotBuildSetup(project)
 
-        if (shouldBuildSpigotPlatform()) {
+        if (buildSetup.shouldBuildSpigotPlatform()) {
             configureTasks(project)
 
             val mappingsNames = discoveryMappingsNames(project)
-            project.afterEvaluate { afterEvaluate(project, extension, mappingsNames) }
+            project.afterEvaluate { afterEvaluate(project, extension, buildSetup, mappingsNames) }
         } else {
             disableTasks(project)
         }
@@ -30,12 +31,13 @@ class SpigotMapperPlugin : Plugin<Project> {
     private fun afterEvaluate(
         project: Project,
         extension: SpigotMapperExtension,
+        buildSetup: SpigotBuildSetup,
         mappingsNames: List<MappingsName>
     ) {
         val remapJarsAggregatingTask = project.tasks.register("remapJars")
         project.tasks.named("build").configure { dependsOn(remapJarsAggregatingTask) }
 
-        val remapJarTasks = registerRemapJarTasks(project, extension, mappingsNames)
+        val remapJarTasks = registerRemapJarTasks(project, extension, buildSetup, mappingsNames)
         remapJarTasks.forEach { remapJarsAggregatingTask.configure { dependsOn(it) } }
 
         project.rootProject.project(":plugin").tasks.named("shadowJar", ShadowJar::class.java) {

@@ -64,19 +64,19 @@ gradlew.bat buildAllSpigot --info
 > добавлять поддержку для новых версий игры в `paper-internals`.
 
 ### Управление частичной сборкой
-Теперь, когда Вы определились с подходящими платформами, можно рассмотреть переменные окружения,
+Теперь, когда Вы определились с подходящими платформами, можно рассмотреть свойства Gradle,
 которыми контролируется частичная сборка:
 
-- `easypayments.build.folia` *(по умолчанию — **true**)*<br>
+- `buildFolia` *(по умолчанию — **true**)*<br>
   Указывает на то, нужно ли собирать плагин с поддержкой **Folia**.<br>
   Возможные значения: *true*, *false*.
 
-- `easypayments.build.platforms` *(по умолчанию — **all**)*<br>
+- `buildPlatforms` *(по умолчанию — **all**)*<br>
   Указывает на то, какие реализации платформы нужно включить в плагин.<br>
   Возможные значения: *all*, *paper-universal*, *paper-internals*, *spigot-internals*.<br>
   Несколько платформ могут быть перечислены через запятую.
 
-- `easypayments.build.spigot` *(по умолчанию — **only-installed**)*<br>
+- `buildSpigot` *(по умолчанию — **only-installed**)*<br>
   Указывает на то, какие реализации платформы `spigot-internals` нужно включить в плагин.<br>
   Возможные значения: *all*, *only-installed*, *(version)*.<br>
   Несколько версий могут быть перечислены через запятую.
@@ -85,27 +85,27 @@ gradlew.bat buildAllSpigot --info
 - Собрать EasyPayments под Paper **1.18.1+** без поддержки Folia.
   ```bash
   ./gradlew clean build \
-      -Deasypayments.build.folia=false \
-      -Deasypayments.build.platforms=paper-universal
+      -PbuildFolia=false \
+      -PbuildPlatforms=paper-universal
   ```
 - Собрать EasyPayments под Spigot **1.16.5** и **1.17.1**.
   ```bash
   ./gradlew clean build \
-      -Deasypayments.build.folia=false \
-      -Deasypayments.build.platforms=spigot-internals \
-      -Deasypayments.build.spigot=1.16.5,1.17.1
+      -PbuildFolia=false \
+      -PbuildPlatforms=spigot-internals \
+      -PbuildSpigot='1.16.5,1.17.1'
   ```
 - Собрать EasyPayments под версии Spigot, которые есть в системе.
   ```bash
   ./gradlew clean build \
-      -Deasypayments.build.folia=false \
-      -Deasypayments.build.platforms=spigot-internals \
-      -Deasypayments.build.spigot=only-installed
+      -PbuildFolia=false \
+      -PbuildPlatforms=spigot-internals \
+      -PbuildSpigot=only-installed
   ```
 - Собрать EasyPayments под Paper **1.20.6+**.
   ```bash
   ./gradlew clean build \
-      -Deasypayments.build.platforms=paper-internals
+      -PbuildPlatforms=paper-internals
   ```
 
 ## Последовательность действий

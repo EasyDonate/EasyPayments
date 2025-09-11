@@ -21,13 +21,8 @@ include(":plugin")
 // -------------- OPTIONAL PLATFORM MODULES ----------------------------------------------------------------------------
 
 // populate properties for submodules
-private val buildPlatforms = System.getProperty("easypayments.build.platforms", "all").let(BuildPlatform::parse)
-BuildPlatform.entries.forEach {
-    System.setProperty(
-        "easypayments.build.platform.${it.key}",
-        buildPlatforms.contains(it).toString()
-    )
-}
+private val buildPlatforms = providers.gradleProperty("buildPlatforms").getOrElse("all").let(BuildPlatform::parse)
+BuildPlatform.entries.forEach { System.setProperty(it.propertyName, buildPlatforms.contains(it).toString()) }
 
 // Folia support module
 include(":platform:folia")
@@ -46,11 +41,11 @@ include(":platform:spigot:v4")          // Spigot 1.19 and newer
 
 // -------------- INTERNAL CLASSES -------------------------------------------------------------------------------------
 
-private enum class BuildPlatform(val key: String) {
+private enum class BuildPlatform(val key: String, val propertyName: String) {
 
-    PAPER_INTERNALS     ("paper-internals"),
-    PAPER_UNIVERSAL     ("paper-universal"),
-    SPIGOT_INTERNALS    ("spigot-internals"),
+    PAPER_INTERNALS     ("paper-internals",     "buildPlatformPaperInternals"),
+    PAPER_UNIVERSAL     ("paper-universal",     "buildPlatformPaperUniversal"),
+    SPIGOT_INTERNALS    ("spigot-internals",    "buildPlatformSpigotInternals"),
     ;
 
     companion object {

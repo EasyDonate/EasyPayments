@@ -5,8 +5,9 @@ plugins {
     alias(libs.plugins.paperweight.plugin)
 }
 
-private val propertyName = "easypayments.build.platform.paper-internals"
-private val buildPlatform = System.getProperty(propertyName)?.toBooleanStrictOrNull() ?: true
+private val buildPlatform = providers.systemProperty("buildPlatformPaperInternals")
+    .map { it.toBooleanStrictOrNull() }
+    .getOrElse(true)
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -19,9 +20,7 @@ paperweight {
 dependencies {
     compileOnly(projects.core)
 
-    if (buildPlatform) {
-        paperweight.paperDevBundle(libs.versions.paper.dev.bundle)
-    }
+    paperweight.paperDevBundle(libs.versions.paper.dev.bundle)
 }
 
 if (!buildPlatform) {

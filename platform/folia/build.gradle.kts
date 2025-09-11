@@ -5,7 +5,9 @@ plugins {
     alias(libs.plugins.paperweight.plugin)
 }
 
-private val buildFolia = System.getProperty("easypayments.build.folia")?.toBooleanStrictOrNull() ?: true
+private val buildFolia = providers.gradleProperty("buildFolia")
+    .map { it.toBooleanStrictOrNull() }
+    .getOrElse(true)
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -18,9 +20,7 @@ paperweight {
 dependencies {
     compileOnly(projects.core)
 
-    if (buildFolia) {
-        paperweight.foliaDevBundle(libs.versions.folia.dev.bundle)
-    }
+    paperweight.foliaDevBundle(libs.versions.folia.dev.bundle)
 }
 
 if (!buildFolia) {

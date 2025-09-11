@@ -1,9 +1,10 @@
+private val buildPlatform = providers.systemProperty("buildPlatformPaperUniversal")
+    .map { it.toBooleanStrictOrNull() }
+    .getOrElse(true)
+
 plugins {
     `java-library`
 }
-
-private val propertyName = "easypayments.build.platform.paper-universal"
-private val buildPlatform = System.getProperty(propertyName)?.toBooleanStrictOrNull() ?: true
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)

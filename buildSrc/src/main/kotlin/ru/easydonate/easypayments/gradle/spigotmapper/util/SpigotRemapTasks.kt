@@ -22,11 +22,12 @@ private const val TASK_GROUP_NAME = "spigotmapper";
 fun registerRemapJarTasks(
     project: Project,
     extension: SpigotMapperExtension,
+    buildSetup: SpigotBuildSetup,
     mappingsNames: List<MappingsName>
 ): List<SpecialSourceTask> {
     return createMappings(mappingsNames, extension.minecraftVersionsCollector).mapNotNull { spigotMapping ->
         val environment = RemapperEnvironment(project, spigotMapping)
-        if (shouldMapSpigot(spigotMapping.minecraftVersion) { isSpigotInstalled(environment) }) {
+        if (buildSetup.shouldMapSpigot(spigotMapping.minecraftVersion) { isSpigotInstalled(environment) }) {
             val copyMappingsTask = registerCopyMappingsTask(environment)
             val remapBaseJarTask = registerRemapBaseJarTask(environment, copyMappingsTask)
 

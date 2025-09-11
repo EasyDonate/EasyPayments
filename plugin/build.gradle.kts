@@ -68,7 +68,9 @@ tasks.shadowJar {
 // configure resources filtering
 tasks.processResources {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-    val buildFolia = System.getProperty("easypayments.build.folia")?.toBooleanStrictOrNull() ?: true
+    val buildFolia = providers.gradleProperty("buildFolia")
+        .map { it.toBooleanStrictOrNull() }
+        .getOrElse(true)
 
     val replacements = mapOf(
         "copyright_years" to "2020-$currentYear",
@@ -91,15 +93,13 @@ tasks.build {
 }
 
 private fun lookupBuiltPlatformModules(): List<Project> = buildList {
-    val moduleMappings = mapOf(
-        "folia" to projects.platform.folia,
-        "platform.paper-internals" to projects.platform.paper.internals,
-        "platform.paper-universal" to projects.platform.paper.universal,
-    )
-
-    moduleMappings.forEach { (propertyKey, moduleProject) ->
-        if (System.getProperty("easypayments.build.$propertyKey")?.toBooleanStrictOrNull() ?: true) {
-            add(project(moduleProject.path))
+    listOf(
+        projects.platform.folia to providers.gradleProperty("buildFolia"),
+        projects.platform.paper.internals to providers.systemProperty("buildPlatformPaperInternals"),
+        projects.platform.paper.universal to providers.systemProperty("buildPlatformPaperUniversal"),
+    ).forEach {
+        if (it.second.map(String::toBooleanStrictOrNull).getOrElse(true)) {
+            add(project(it.first.path))
         }
     }
 }

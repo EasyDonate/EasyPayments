@@ -1,33 +1,43 @@
 package ru.easydonate.easypayments.gradle.spigotmapper.util
 
+import org.gradle.api.Project
 import ru.easydonate.easypayments.gradle.spigotmapper.model.MinecraftVersion
 import java.util.function.BooleanSupplier
 
-private const val SPIGOT_ALL = "all"
-private const val SPIGOT_ONLY_INSTALLED = "only-installed"
+class SpigotBuildSetup(project: Project) {
 
-private val buildPlatformSpigotInternals = property("platform.spigot-internals")?.toBooleanStrictOrNull() ?: true
-private val buildSpigotRawSpec = property("spigot")?.lowercase()?.split(',') ?: listOf(SPIGOT_ONLY_INSTALLED)
+    private val providers = project.providers
 
-private val buildSpigotAll = buildSpigotRawSpec.contains(SPIGOT_ALL)
-private val buildSpigotOnlyInstalled = buildSpigotRawSpec.contains(SPIGOT_ONLY_INSTALLED)
-private val buildSpigotVersions = buildSpigotRawSpec.mapNotNull { parseVersion(it) }
+    private val buildPlatformSpigotInternals = providers.systemProperty("buildPlatformSpigotInternals")
+        .map { it.toBooleanStrictOrNull() }
+        .getOrElse(false)
 
-fun shouldBuildSpigotPlatform() = buildPlatformSpigotInternals
+    private val buildSpigotRawSpec = providers.gradleProperty("buildSpigot")
+        .map { it.lowercase().split(',') }
+        .getOrElse(listOf(SPIGOT_ONLY_INSTALLED))
 
-fun shouldMapSpigot(version: MinecraftVersion, isInstalledSupplier: BooleanSupplier): Boolean {
-    if (!shouldBuildSpigotPlatform()) return false
-    if (buildSpigotAll || buildSpigotVersions.contains(version)) return true
-    return buildSpigotOnlyInstalled && isInstalledSupplier.asBoolean
-}
+    private val buildSpigotAll = buildSpigotRawSpec.contains(SPIGOT_ALL)
+    private val buildSpigotOnlyInstalled = buildSpigotRawSpec.contains(SPIGOT_ONLY_INSTALLED)
+    private val buildSpigotVersions = buildSpigotRawSpec.mapNotNull { parseVersion(it) }
 
-private fun parseVersion(version: String): MinecraftVersion? {
-    if (version == SPIGOT_ALL || version == SPIGOT_ONLY_INSTALLED)
-        return null
+    fun shouldBuildSpigotPlatform() = buildPlatformSpigotInternals
 
-    return MinecraftVersion.parse(version)
-}
+    fun shouldMapSpigot(version: MinecraftVersion, isInstalledSupplier: BooleanSupplier): Boolean {
+        if (!shouldBuildSpigotPlatform()) return false
+        if (buildSpigotAll || buildSpigotVersions.contains(version)) return true
+        return buildSpigotOnlyInstalled && isInstalledSupplier.asBoolean
+    }
 
-private fun property(key: String): String? {
-    return System.getProperty("easypayments.build.$key")
+    private fun parseVersion(version: String): MinecraftVersion? {
+        if (version == SPIGOT_ALL || version == SPIGOT_ONLY_INSTALLED)
+            return null
+
+        return MinecraftVersion.parse(version)
+    }
+
+    companion object {
+        private const val SPIGOT_ALL = "all"
+        private const val SPIGOT_ONLY_INSTALLED = "only-installed"
+    }
+
 }
