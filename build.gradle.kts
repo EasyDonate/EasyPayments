@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "ru.easydonate.easypayments"
-version = "2.4.2"
+version = "2.4.3"
 
 description = "The official payment processing implementation as alternative for the RCON protocol"
 
