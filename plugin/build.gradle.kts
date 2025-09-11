@@ -87,11 +87,6 @@ tasks.processResources {
     }
 }
 
-// shade after build
-tasks.build {
-    finalizedBy(tasks.shadowJar)
-}
-
 private fun lookupBuiltPlatformModules(): List<Project> = buildList {
     listOf(
         projects.platform.folia to providers.gradleProperty("buildFolia"),
