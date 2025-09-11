@@ -18,6 +18,7 @@ import ru.easydonate.easydonate4j.module.ModuleRegistrator;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventUpdates;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.response.GetUpdatesListResponse;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +29,10 @@ public final class LongPollClient {
     public static final String API_ENDPOINT = "https://ep.easydonate.ru";
     public static final String HEADER_SHOP_KEY = "X-Shop-Key";
     public static final String HEADER_SERVER_ID = "X-Server-Id";
+    public static final String HEADER_RUNTIME_ID = "X-Runtime-Id";
     public static final long READ_TIMEOUT = 60000;
+
+    private static final String CURRENT_RUNTIME_ID = UUID.randomUUID().toString();
 
     private final Headers defaultHeaders;
     private final HttpClient httpClient;
@@ -37,7 +41,8 @@ public final class LongPollClient {
     private LongPollClient(@NotNull String accessKey, int serverId, @NotNull String userAgent) {
         this.defaultHeaders = new Headers()
                 .set(HEADER_SHOP_KEY, accessKey)
-                .set(HEADER_SERVER_ID, serverId);
+                .set(HEADER_SERVER_ID, serverId)
+                .set(HEADER_RUNTIME_ID, CURRENT_RUNTIME_ID);
 
         this.httpClient = ModuleRegistrator.httpClientService().buildClient()
                 .setResponseTimeout(READ_TIMEOUT)
