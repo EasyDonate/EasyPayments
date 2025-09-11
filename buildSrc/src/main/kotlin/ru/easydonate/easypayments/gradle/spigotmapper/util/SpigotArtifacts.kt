@@ -6,6 +6,13 @@ import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier
 import org.gradle.kotlin.dsl.getByName
+import java.io.File
+
+fun resolveArtifactFile(project: Project, artifactType: SpigotArtifactType, version: String): File {
+    val mavenLocalUrl = project.repositories.mavenLocal().url
+    val dependencyPath = artifactType.dependencyPath(version)
+    return File(mavenLocalUrl).resolve(dependencyPath.replace('/', File.separatorChar))
+}
 
 fun resolveSpecialSourceArtifact(project: Project): ResolvedArtifact {
     val versionCatalogs = project.extensions.getByName<VersionCatalogsExtension>("versionCatalogs")
@@ -44,6 +51,13 @@ enum class SpigotArtifactType(
         classifier?.let { notation += ":$it" }
         extension?.let { notation += "@$it" }
         return notation
+    }
+
+    fun dependencyPath(version: String): String {
+        var path = "org/spigotmc/$artifactId/$version/$artifactId-$version"
+        classifier?.let { path += "-$it" }
+        path += ".${extension ?: "jar"}"
+        return path
     }
 
     fun isMinecraftServer(): Boolean = artifactId == "minecraft-server"

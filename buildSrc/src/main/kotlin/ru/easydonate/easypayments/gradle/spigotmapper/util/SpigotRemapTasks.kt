@@ -24,17 +24,21 @@ fun registerRemapJarTasks(
     extension: SpigotMapperExtension,
     mappingsNames: List<MappingsName>
 ): List<SpecialSourceTask> {
-    return createMappings(mappingsNames, extension.minecraftVersionsCollector).map { spigotMapping ->
+    return createMappings(mappingsNames, extension.minecraftVersionsCollector).mapNotNull { spigotMapping ->
         val environment = RemapperEnvironment(project, spigotMapping)
-        val copyMappingsTask = registerCopyMappingsTask(environment)
-        val remapBaseJarTask = registerRemapBaseJarTask(environment, copyMappingsTask)
+        if (shouldMapSpigot(spigotMapping.minecraftVersion) { isSpigotInstalled(environment) }) {
+            val copyMappingsTask = registerCopyMappingsTask(environment)
+            val remapBaseJarTask = registerRemapBaseJarTask(environment, copyMappingsTask)
 
-        if (environment.usesRemappedSpigot) {
-            val remapMojangJarTask = registerRemapMojangJarTask(environment, remapBaseJarTask)
-            val remapReobfJarTask = registerRemapReobfJarTask(environment, remapMojangJarTask)
-            remapReobfJarTask.get()
+            if (environment.usesRemappedSpigot) {
+                val remapMojangJarTask = registerRemapMojangJarTask(environment, remapBaseJarTask)
+                val remapReobfJarTask = registerRemapReobfJarTask(environment, remapMojangJarTask)
+                remapReobfJarTask.get()
+            } else {
+                remapBaseJarTask.get()
+            }
         } else {
-            remapBaseJarTask.get()
+            null
         }
     }
 }
@@ -59,7 +63,7 @@ private fun registerRemapBaseJarTask(
 ): TaskProvider<SpecialSourceTask> {
     val remappedJarFileName = if (env.usesRemappedSpigot) "remapped-mojang.jar" else "remapped.jar"
     return registerSpecialSourceTask(env, "remapBaseJar", copyMappingsTask) {
-        classpath(env.resolveArtifactFile(SpigotArtifactType.SPIGOT_JAR))
+        classpath(env.artifactFile(SpigotArtifactType.SPIGOT_JAR))
         inputFile.set(env.defaultJarTask.flatMap { it.archiveFile })
         mappingsFile.set(env.nmsBuildDir.file("mappings.csrg"))
         outputFile.set(env.nmsBuildDir.file(remappedJarFileName))
@@ -72,9 +76,9 @@ private fun registerRemapMojangJarTask(
     remapBaseJarTask: TaskProvider<SpecialSourceTask>
 ): TaskProvider<SpecialSourceTask> {
     return registerSpecialSourceTask(env, "remapMojangJar", remapBaseJarTask) {
-        classpath(env.resolveArtifactFile(SpigotArtifactType.SPIGOT_REMAPPED_MOJANG_JAR))
+        classpath(env.artifactFile(SpigotArtifactType.SPIGOT_REMAPPED_MOJANG_JAR))
         inputFile.set(remapBaseJarTask.flatMap { it.outputFile })
-        mappingsFile.set(env.resolveArtifactFile(SpigotArtifactType.MAPPINGS_MOJANG))
+        mappingsFile.set(env.artifactFile(SpigotArtifactType.MAPPINGS_MOJANG))
         outputFile.set(env.nmsBuildDir.file("remapped-reobf.jar"))
         reverseFlag.set(true)
     }
@@ -85,9 +89,9 @@ private fun registerRemapReobfJarTask(
     remapReobfJarTask: TaskProvider<SpecialSourceTask>
 ): TaskProvider<SpecialSourceTask> {
     return registerSpecialSourceTask(env, "remapReobfJar", remapReobfJarTask) {
-        classpath(env.resolveArtifactFile(SpigotArtifactType.SPIGOT_REMAPPED_OBF_JAR))
+        classpath(env.artifactFile(SpigotArtifactType.SPIGOT_REMAPPED_OBF_JAR))
         inputFile.set(remapReobfJarTask.flatMap { it.outputFile })
-        mappingsFile.set(env.resolveArtifactFile(SpigotArtifactType.MAPPINGS_SPIGOT))
+        mappingsFile.set(env.artifactFile(SpigotArtifactType.MAPPINGS_SPIGOT))
         outputFile.set(env.nmsBuildDir.file("remapped.jar"))
     }
 }
@@ -108,6 +112,18 @@ private fun registerSpecialSourceTask(
     }
 }
 
+private fun isSpigotInstalled(env: RemapperEnvironment): Boolean {
+    val artifactTypesToCheck = buildList {
+        add(SpigotArtifactType.SPIGOT_JAR)
+        if (env.usesRemappedSpigot) {
+            addAll(arrayOf(SpigotArtifactType.MAPPINGS_MOJANG, SpigotArtifactType.MAPPINGS_SPIGOT))
+            addAll(arrayOf(SpigotArtifactType.SPIGOT_REMAPPED_MOJANG_JAR, SpigotArtifactType.SPIGOT_REMAPPED_OBF_JAR))
+        }
+    }
+
+    return artifactTypesToCheck.all(env::artifactPresent)
+}
+
 private data class RemapperEnvironment(
     val project: Project,
     val mapping: SpigotMapping
@@ -125,12 +141,18 @@ private data class RemapperEnvironment(
     val tasks by lazy { project.tasks }
     val usesRemappedSpigot by lazy { mapping.usesRemappedSpigot() }
 
-    fun resolveArtifactFile(artifactType: SpigotArtifactType): File {
-        val version = resolveArtifactVersion(artifactType)
+    fun artifactPresent(artifactType: SpigotArtifactType): Boolean {
+        val version = artifactVersion(artifactType)
+        val artifactFile = resolveArtifactFile(project, artifactType, version)
+        return artifactFile.exists() && artifactFile.isFile && artifactFile.length() > 0L
+    }
+
+    fun artifactFile(artifactType: SpigotArtifactType): File {
+        val version = artifactVersion(artifactType)
         return resolveSpigotArtifact(project, artifactType, version).file
     }
 
-    private fun resolveArtifactVersion(artifactType: SpigotArtifactType): String {
+    private fun artifactVersion(artifactType: SpigotArtifactType): String {
         var version = mapping.minecraftVersion.toString()
         if (usesRemappedSpigot || !artifactType.isMinecraftServer()) version += "-R0.1"
         return "$version-SNAPSHOT"
