@@ -61,7 +61,7 @@ jobs:
 
       - name: Build all Spigot
         if: ${{ inputs.build-all-spigot }}
-        run: ./gradlew buildAllSpigot --no-daemon --info --stacktrace
+        run: ./gradlew buildAllSpigot --no-daemon --stacktrace
 
       - name: Cache BuildTools & Spigot Artifacts
         if: always() && inputs.cache-buildtools-spigot-artifacts
