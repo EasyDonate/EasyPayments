@@ -76,9 +76,9 @@ gradlew.bat buildAllSpigot --info
   Возможные значения: *all*, *paper-universal*, *paper-internals*, *spigot-internals*.<br>
   Несколько платформ могут быть перечислены через запятую.
 
-- `easypayments.build.spigot` *(по умолчанию — **all**)*<br>
+- `easypayments.build.spigot` *(по умолчанию — **only-installed**)*<br>
   Указывает на то, какие реализации платформы `spigot-internals` нужно включить в плагин.<br>
-  Возможные значения: *all*, *(version)*.<br>
+  Возможные значения: *all*, *only-installed*, *(version)*.<br>
   Несколько версий могут быть перечислены через запятую.
 
 Вот несколько примеров, как это можно использовать:
@@ -94,6 +94,13 @@ gradlew.bat buildAllSpigot --info
       -Deasypayments.build.folia=false \
       -Deasypayments.build.platforms=spigot-internals \
       -Deasypayments.build.spigot=1.16.5,1.17.1
+  ```
+- Собрать EasyPayments под версии Spigot, которые есть в системе.
+  ```bash
+  ./gradlew clean build \
+      -Deasypayments.build.folia=false \
+      -Deasypayments.build.platforms=spigot-internals \
+      -Deasypayments.build.spigot=only-installed
   ```
 - Собрать EasyPayments под Paper **1.20.6+**.
   ```bash
