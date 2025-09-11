@@ -25,7 +25,7 @@ dependencies {
 
     implementation(libs.ormlite.jdbc)
 
-    implementation(libs.spigot.api) {
+    compileOnly(libs.spigot.api) {
         exclude(module = "gson")
     }
 }
@@ -51,10 +51,14 @@ tasks.shadowJar {
     includeEmptyDirs = false
     exclude("META-INF/maven/**", "META-INF/versions/**")
 
-    listOf(projects.platform.folia, projects.platform.paper.internals, projects.platform.paper.universal)
-        .map { project(it.path) }
-        .onEach { from(it.tasks.jar.map(Jar::getArchiveFile)) }
-        .forEach { dependsOn(it.tasks.jar) }
+    dependencies {
+        exclude(dependency("org.jetbrains:annotations"))
+    }
+
+    lookupBuiltPlatformModules().forEach {
+        from(it.tasks.jar.map(Jar::getArchiveFile).map(::zipTree))
+        dependsOn(it.tasks.jar)
+    }
 
     relocate("com.google.gson", "ru.easydonate.easypayments.libs.gson")
     relocate("com.j256.ormlite", "ru.easydonate.easypayments.libs.ormlite")
@@ -79,4 +83,18 @@ tasks.processResources {
 // shade after build
 tasks.build {
     finalizedBy(tasks.shadowJar)
+}
+
+private fun lookupBuiltPlatformModules(): List<Project> = buildList {
+    val moduleMappings = mapOf(
+        "folia" to projects.platform.folia,
+        "platform.paper-internals" to projects.platform.paper.internals,
+        "platform.paper-universal" to projects.platform.paper.universal,
+    )
+
+    moduleMappings.forEach { (propertyKey, moduleProject) ->
+        if (System.getProperty("easypayments.build.$propertyKey")?.toBooleanStrictOrNull() ?: true) {
+            add(project(moduleProject.path))
+        }
+    }
 }

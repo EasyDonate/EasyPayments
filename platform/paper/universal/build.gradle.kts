@@ -2,6 +2,9 @@ plugins {
     `java-library`
 }
 
+private val propertyName = "easypayments.build.platform.paper-universal"
+private val buildPlatform = System.getProperty(propertyName)?.toBooleanStrictOrNull() ?: true
+
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
@@ -14,5 +17,11 @@ repositories {
 dependencies {
     compileOnly(projects.core)
 
-    compileOnly(libs.paper.api)
+    if (buildPlatform) {
+        compileOnly(libs.paper.api)
+    }
+}
+
+if (!buildPlatform) {
+    tasks.forEach { it.enabled = false }
 }
