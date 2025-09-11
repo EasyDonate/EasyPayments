@@ -5,8 +5,7 @@ plugins {
     alias(libs.plugins.paperweight.plugin)
 }
 
-private val propertyName = "easypayments.build.platform.paper-universal"
-private val buildFolia = System.getProperty(propertyName)?.toBooleanStrictOrNull() ?: true
+private val buildFolia = System.getProperty("easypayments.build.folia")?.toBooleanStrictOrNull() ?: true
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)

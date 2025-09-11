@@ -68,7 +68,12 @@ tasks.shadowJar {
 // configure resources filtering
 tasks.processResources {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-    val replacements = mapOf("copyright_years" to "2020-$currentYear")
+    val buildFolia = System.getProperty("easypayments.build.folia")?.toBooleanStrictOrNull() ?: true
+
+    val replacements = mapOf(
+        "copyright_years" to "2020-$currentYear",
+        "folia_supported" to buildFolia.toString()
+    )
 
     inputs.properties(replacements)
     inputs.property("project.name", rootProject.name)
