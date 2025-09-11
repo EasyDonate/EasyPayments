@@ -61,7 +61,7 @@ jobs:
 
       - name: Build all Spigot
         if: ${{ inputs.build-all-spigot }}
-        run: ./gradlew buildAllSpigot --no-daemon --stacktrace
+        run: ./gradlew buildAllSpigot --no-daemon --info --stacktrace
 
       # - name: Build with Gradle
       #   run: ./gradlew clean build --no-daemon
