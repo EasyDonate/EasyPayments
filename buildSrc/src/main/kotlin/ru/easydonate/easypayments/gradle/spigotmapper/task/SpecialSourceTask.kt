@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.io.OutputStream
 
+@CacheableTask
 abstract class SpecialSourceTask : JavaExec() {
 
     init {
@@ -31,9 +32,11 @@ abstract class SpecialSourceTask : JavaExec() {
     }
 
     @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val inputFile: RegularFileProperty
 
     @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val mappingsFile: RegularFileProperty
 
     @get:Input @get:Optional
