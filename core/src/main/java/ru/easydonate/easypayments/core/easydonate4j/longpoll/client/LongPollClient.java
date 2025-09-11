@@ -32,7 +32,7 @@ public final class LongPollClient {
     public static final String HEADER_RUNTIME_ID = "X-Runtime-Id";
     public static final long READ_TIMEOUT = 60000;
 
-    private static final String CURRENT_RUNTIME_ID = UUID.randomUUID().toString();
+    private static final String CURRENT_RUNTIME_ID = resolveCurrentRuntimeId();
 
     private final Headers defaultHeaders;
     private final HttpClient httpClient;
@@ -130,6 +130,16 @@ public final class LongPollClient {
 
         EasyHttpResponse response = request.execute();
         return ResponseContentDeserializer.deserializeResponseContent(responseObjectType, response);
+    }
+
+    private static String resolveCurrentRuntimeId() {
+        String runtimeId = System.getProperty("easypayments.runtimeId");
+        if (runtimeId == null) {
+            runtimeId = UUID.randomUUID().toString();
+            System.setProperty("easypayments.runtimeId", runtimeId);
+        }
+
+        return runtimeId;
     }
 
 }
