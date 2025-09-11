@@ -56,8 +56,8 @@ jobs:
       - name: Fix Spigot 1.17.1 build
         if: ${{ inputs.build-all-spigot }}
         run: |
-          mkdir -p ~/.m2/repository/org/spigotmc/minecraft-server/1.17.1-R0.1-SNAPSHOT/
-          cp ~/work/EasyPayments/EasyPayments/buildSrc/src/main/resources/buildtools/minecraft-server/1.17.1-R0.1-SNAPSHOT/* ~/.m2/repository/org/spigotmc/minecraft-server/1.17.1-R0.1-SNAPSHOT/
+          mkdir -p ~/.m2/repository/org/spigotmc/minecraft-server/
+          cp -rv ~/work/EasyPayments/EasyPayments/buildSrc/src/main/resources/buildtools/minecraft-server/* ~/.m2/repository/org/spigotmc/minecraft-server/
 
       - name: Build all Spigot
         if: ${{ inputs.build-all-spigot }}
