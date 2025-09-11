@@ -1,5 +1,6 @@
 package ru.easydonate.easypayments.gradle.spigotmapper
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.Jar
@@ -9,15 +10,21 @@ import ru.easydonate.easypayments.gradle.spigotmapper.extension.SpigotMapperExte
 import ru.easydonate.easypayments.gradle.spigotmapper.model.MappingsName
 import ru.easydonate.easypayments.gradle.spigotmapper.util.discoveryMappingsNames
 import ru.easydonate.easypayments.gradle.spigotmapper.util.registerRemapJarTasks
+import ru.easydonate.easypayments.gradle.spigotmapper.util.shouldBuildSpigotPlatform
 
 class SpigotMapperPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val extension = createExtension(project)
-        configureTasks(project)
 
-        val mappingsNames = discoveryMappingsNames(project)
-        project.afterEvaluate { afterEvaluate(project, extension, mappingsNames) }
+        if (shouldBuildSpigotPlatform()) {
+            configureTasks(project)
+
+            val mappingsNames = discoveryMappingsNames(project)
+            project.afterEvaluate { afterEvaluate(project, extension, mappingsNames) }
+        } else {
+            disableTasks(project)
+        }
     }
 
     private fun afterEvaluate(
@@ -30,6 +37,11 @@ class SpigotMapperPlugin : Plugin<Project> {
 
         val remapJarTasks = registerRemapJarTasks(project, extension, mappingsNames)
         remapJarTasks.forEach { remapJarsAggregatingTask.configure { dependsOn(it) } }
+
+        project.rootProject.project(":plugin").tasks.named("shadowJar", ShadowJar::class.java) {
+            remapJarTasks.forEach { from(project.zipTree(it.outputFile)) }
+            dependsOn(remapJarsAggregatingTask)
+        }
     }
 
     private fun configureTasks(project: Project) {
@@ -45,6 +57,12 @@ class SpigotMapperPlugin : Plugin<Project> {
             project.tasks.withType(ProcessResources::class.java) {
                 exclude("mappings/**")
             }
+        }
+    }
+
+    private fun disableTasks(project: Project) {
+        project.plugins.withId("java-library") {
+            project.tasks.forEach { it.enabled = false }
         }
     }
 

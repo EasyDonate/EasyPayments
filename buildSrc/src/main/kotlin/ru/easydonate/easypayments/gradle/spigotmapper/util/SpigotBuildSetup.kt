@@ -13,8 +13,10 @@ private val buildSpigotAll = buildSpigotRawSpec.contains(SPIGOT_ALL)
 private val buildSpigotOnlyInstalled = buildSpigotRawSpec.contains(SPIGOT_ONLY_INSTALLED)
 private val buildSpigotVersions = buildSpigotRawSpec.mapNotNull { parseVersion(it) }
 
+fun shouldBuildSpigotPlatform() = buildPlatformSpigotInternals
+
 fun shouldMapSpigot(version: MinecraftVersion, isInstalledSupplier: BooleanSupplier): Boolean {
-    if (!buildPlatformSpigotInternals) return false
+    if (!shouldBuildSpigotPlatform()) return false
     if (buildSpigotAll || buildSpigotVersions.contains(version)) return true
     return buildSpigotOnlyInstalled && isInstalledSupplier.asBoolean
 }
