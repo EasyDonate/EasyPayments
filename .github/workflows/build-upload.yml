@@ -36,16 +36,30 @@ jobs:
           cache-overwrite-existing: true
           gradle-version: "9.0.0"
 
+      - name: Cache BuildTools & Spigot Artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches/build-tools/apache-maven-*
+            ~/.gradle/caches/build-tools/BuildData
+            ~/.gradle/caches/build-tools/Bukkit
+            ~/.gradle/caches/build-tools/CraftBukkit
+            ~/.gradle/caches/build-tools/metadata
+            ~/.gradle/caches/build-tools/Spigot
+            ~/.gradle/caches/build-tools/BuildTools.jar
+            ~/.m2/repository/org/spigotmc
+          key: buildtools-spigot-artifacts
+
       - name: Build all Spigot
         if: ${{ inputs.build-all-spigot }}
         run: ./gradlew buildSpigot@1.8 --no-daemon --stacktrace
 
-      - name: Build with Gradle
-        run: ./gradlew clean build --no-daemon
+      # - name: Build with Gradle
+      #   run: ./gradlew clean build --no-daemon
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: EasyPayments
-          path: build/EasyPayments-*.jar
-          if-no-files-found: warn
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: EasyPayments
+      #     path: build/EasyPayments-*.jar
+      #     if-no-files-found: warn
