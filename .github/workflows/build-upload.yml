@@ -53,7 +53,7 @@ jobs:
             ~/.m2/repository/org/spigotmc
           key: buildtools-spigot-artifacts
 
-      - name: Fix Spigot some builds
+      - name: Apply Spigot build fixes
         if: ${{ inputs.build-all-spigot }}
         run: |
           mkdir -p ~/.m2/repository/org/spigotmc/minecraft-server/
