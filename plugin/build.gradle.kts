@@ -87,6 +87,11 @@ tasks.processResources {
     }
 }
 
+// shadow on build by default
+tasks.build {
+    dependsOn(tasks.shadowJar)
+}
+
 private fun lookupBuiltPlatformModules(): List<Project> = buildList {
     listOf(
         projects.platform.folia to providers.gradleProperty("buildFolia"),

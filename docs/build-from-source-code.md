@@ -20,7 +20,7 @@
    ```
 2. Запустите сборку плагина:
    ```bash
-   ./gradlew shadowJar
+   ./gradlew clean build
    ```
 3. Получите готовый jar-файл плагина по пути `build/EasyPayments-X.Y.Z.jar`.
 
