@@ -57,7 +57,7 @@ jobs:
         if: ${{ inputs.build-all-spigot }}
         run: |
           mkdir -p ~/.m2/repository/org/spigotmc/minecraft-server/1.17.1-R0.1-SNAPSHOT/
-          cp ~/work/EasyPayments/EasyPayments/buildSrc/src/main/resources/buildtools/minecraft-server-1.17.1-R0.1-SNAPSHOT-maps-spigot-fields.csrg ~/.m2/repository/org/spigotmc/minecraft-server/1.17.1-R0.1-SNAPSHOT/
+          cp ~/work/EasyPayments/EasyPayments/buildSrc/src/main/resources/buildtools/minecraft-server/1.17.1-R0.1-SNAPSHOT/* ~/.m2/repository/org/spigotmc/minecraft-server/1.17.1-R0.1-SNAPSHOT/
 
       - name: Build all Spigot
         if: ${{ inputs.build-all-spigot }}
