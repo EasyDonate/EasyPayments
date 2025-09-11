@@ -14,9 +14,14 @@ import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
 import ru.easydonate.easypayments.core.platform.scheduler.bukkit.BukkitPlatformScheduler;
 import ru.easydonate.easypayments.core.util.Reflection;
 
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Getter
 public final class PlatformResolver {
@@ -43,32 +48,45 @@ public final class PlatformResolver {
     }
 
     public PlatformProvider resolve(@NotNull String username, int permissionLevel) throws UnsupportedPlatformException {
-        String platformClassName = "ru.easydonate.easypayments.platform." + resolvePlatformClassName(lookupResult);
-        Class<?> platformClass;
+        List<String> candidates = resolvePlatformCandidates(lookupResult);
+        String candidatesJoined = !candidates.isEmpty() ? String.join(", ", candidates) : "<nothing>";
+        debugLogger.debug("[Platform] Candidates ({0}): {1}", candidates.size(), candidatesJoined);
 
-        try {
-            platformClass = Class.forName(platformClassName);
-        } catch (Throwable ex) {
-            throw new UnsupportedPlatformException("platform implementation class not found", ex);
-        }
+        Iterator<String> iterator = candidates.iterator();
+        while (iterator.hasNext()) {
+            String platformClassName = iterator.next();
+            Class<?> platformClass;
 
-        PlatformScheduler scheduler = resolveScheduler();
-
-        try {
-            // Paper platforms
-            return (PlatformProvider) platformClass
-                    .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, int.class, boolean.class)
-                    .newInstance(plugin, scheduler, username, permissionLevel, lookupResult.isFoliaDetected());
-        } catch (Throwable ignored) {
             try {
-                // Spigot platform
-                return (PlatformProvider) platformClass
-                        .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, int.class)
-                        .newInstance(plugin, scheduler, username, permissionLevel);
+                platformClass = Class.forName(platformClassName);
             } catch (Throwable ex) {
-                throw new UnsupportedPlatformException("couldn't create platform implementation instance", ex);
+                debugLogger.debug("[Platform] Platform class '{0}' not found!", platformClassName);
+                if (iterator.hasNext())
+                    continue;
+
+                throw new UnsupportedPlatformException("platform implementation class not found", ex);
+            }
+
+            PlatformScheduler scheduler = resolveScheduler();
+
+            try {
+                // Paper platforms
+                return (PlatformProvider) platformClass
+                        .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, int.class, boolean.class)
+                        .newInstance(plugin, scheduler, username, permissionLevel, lookupResult.isFoliaDetected());
+            } catch (Throwable ignored) {
+                try {
+                    // Spigot platform
+                    return (PlatformProvider) platformClass
+                            .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, int.class)
+                            .newInstance(plugin, scheduler, username, permissionLevel);
+                } catch (Throwable ex) {
+                    throw new UnsupportedPlatformException("couldn't create platform implementation instance", ex);
+                }
             }
         }
+
+        throw new UnsupportedPlatformException("seems that here is no supported platform");
     }
 
     private PlatformScheduler resolveScheduler() throws UnsupportedPlatformException {
@@ -84,7 +102,8 @@ public final class PlatformResolver {
         return new BukkitPlatformScheduler(plugin.getServer());
     }
 
-    private static String resolvePlatformClassName(@NotNull EnvironmentLookupResult lookupResult) throws UnsupportedPlatformException {
+    private static List<String> resolvePlatformCandidates(@NotNull EnvironmentLookupResult lookupResult) throws UnsupportedPlatformException {
+        Set<String> candidates = new LinkedHashSet<>();
         if (lookupResult.isFoliaDetected()) {
             if (!lookupResult.isNativeInterceptorSupported())
                 throw new UnsupportedPlatformException("unsupported Folia build detected");
@@ -92,19 +111,21 @@ public final class PlatformResolver {
             if (!MINECRAFT_VERSION.isAtLeast(MinecraftVersion.FOLIA_SUPPORTED_UPDATE))
                 throw new UnsupportedPlatformException("unsupported Folia version detected");
 
-            return PAPER_UNIVERSAL_PLATFORM_CLASS;
+            candidates.add(PAPER_UNIVERSAL_PLATFORM_CLASS);
         }
 
         if (lookupResult.isNativeInterceptorSupported())
-            return PAPER_UNIVERSAL_PLATFORM_CLASS;
+            candidates.add(PAPER_UNIVERSAL_PLATFORM_CLASS);
 
         if (lookupResult.isUnrelocatedInternalsDetected())
-            return PAPER_INTERNALS_PLATFORM_CLASS;
+            candidates.add(PAPER_INTERNALS_PLATFORM_CLASS);
 
         if (lookupResult.getInternalsVersion() != null)
-            return String.format(SPIGOT_INTERNALS_PLATFORM_CLASS, lookupResult.getInternalsVersion());
+            candidates.add(String.format(SPIGOT_INTERNALS_PLATFORM_CLASS, lookupResult.getInternalsVersion()));
 
-        throw new UnsupportedPlatformException();
+        return candidates.stream()
+                .map(str -> "ru.easydonate.easypayments.platform." + str)
+                .collect(Collectors.toList());
     }
 
     private static EnvironmentLookupResult lookupEnvironment(@NotNull DebugLogger logger) throws UnsupportedPlatformException {
