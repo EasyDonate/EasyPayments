@@ -2,10 +2,6 @@ name: Build & Upload
 
 on:
   workflow_dispatch:
-    inputs:
-      build-all-spigot:
-        description: 'Build all Spigot'
-        type: boolean
 
 jobs:
   build:
@@ -50,24 +46,22 @@ jobs:
             ~/.m2/repository/org/spigotmc
           key: buildtools-spigot-artifacts-${{ hashFiles('build.gradle.kts') }}
           restore-keys: |
-            buildtools-spigot-artifacts
+            buildtools-spigot-artifacts-
 
       - name: Apply Spigot build fixes
-        if: ${{ inputs.build-all-spigot }}
         run: |
           mkdir -p ~/.m2/repository/org/spigotmc/minecraft-server/
           cp -rv ~/work/EasyPayments/EasyPayments/buildSrc/src/main/resources/buildtools/minecraft-server/* ~/.m2/repository/org/spigotmc/minecraft-server/
 
       - name: Build all Spigot
-        if: ${{ inputs.build-all-spigot }}
-        run: ./gradlew buildAllSpigot --no-daemon --stacktrace
+        run: ./gradlew buildAllSpigot --stacktrace
 
-      # - name: Build with Gradle
-      #   run: ./gradlew clean build -PbuildSpigot=all --no-daemon
+      - name: Build with Gradle
+        run: ./gradlew clean build -PbuildSpigot=all
 
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: EasyPayments
-      #     path: build/EasyPayments-*.jar
-      #     if-no-files-found: warn
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EasyPayments
+          path: build/EasyPayments-*.jar
+          if-no-files-found: warn
