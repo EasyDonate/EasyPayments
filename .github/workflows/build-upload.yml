@@ -50,7 +50,7 @@ jobs:
             ~/.m2/repository/org/spigotmc
           key: buildtools-spigot-artifacts-${{ hashFiles('build.gradle.kts') }}
           restore-keys: |
-            buildtools-spigot-artifacts-
+            buildtools-spigot-artifacts
 
       - name: Apply Spigot build fixes
         if: ${{ inputs.build-all-spigot }}
