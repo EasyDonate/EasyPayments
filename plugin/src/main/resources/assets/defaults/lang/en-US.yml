@@ -1,7 +1,7 @@
 error:
   unavailable-feature: |
     &cThis plugin feature isn't available just now!
-    &7Probably, this plugin hasn't configured correctly.
+    &7Probably, the plugin hasn't configured correctly.
   unknown-command: |
     &cYou tried to use an unknown command!
     &7Please, use '/ep help' for help.
@@ -107,16 +107,21 @@ status:
     &7• &fVersion: &b%plugin_version%
     &7• &fStatus: &r%plugin_status%
     &7• &fStorage: &r%storage_status%
+    &7• &fPurchases issuance: &r%mode_issue_payments%
+    &7• &fPlayers sync: &r%mode_sync_players%
     &7• &fPlatform shop key: &b%access_key%
     &7• &fConnected to server: &b%server_id%
     &7• &fPermissions level: &b%permission_level%
     &7Made with &4♥ &7by EasyDonate
-  status:
+  plugin-status:
     working: '&aWorking'
     unconfigured: '&cUnconfigured'
-  storage:
+  storage-status:
     available: '&aAvailable'
     unavailable: '&cUnavailable'
+  plugin-mode:
+    active: '&aActive'
+    inactive: '&7Inactive'
   no-value-stub: '&c<n/a>'
 migrate:
   failed:

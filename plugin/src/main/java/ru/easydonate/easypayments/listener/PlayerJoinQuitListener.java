@@ -15,6 +15,7 @@ import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
 import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Customer;
 import ru.easydonate.easypayments.database.model.Payment;
+import ru.easydonate.easypayments.service.KnownPlayersService;
 import ru.easydonate.easypayments.shopcart.ShopCart;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
 
@@ -27,39 +28,49 @@ public final class PlayerJoinQuitListener implements Listener {
 
     private final Messages messages;
     private final ShopCartStorage shopCartStorage;
+    private final KnownPlayersService knownPlayersService;
 
     public PlayerJoinQuitListener(
             @NotNull EasyPaymentsPlugin plugin,
             @NotNull Messages messages,
-            @NotNull ShopCartStorage shopCartStorage
+            @NotNull ShopCartStorage shopCartStorage,
+            @NotNull KnownPlayersService knownPlayersService
     ) {
         this.plugin = plugin;
         this.scheduler = plugin.getPlatformProvider().getScheduler();
 
         this.messages = messages;
         this.shopCartStorage = shopCartStorage;
+        this.knownPlayersService = knownPlayersService;
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(@NotNull PlayerJoinEvent event) {
-        if (!EasyPaymentsPlugin.isPluginEnabled())
+        if (!EasyPaymentsPlugin.isPluginEnabled()) // FIXME check plugin state
             return;
 
         Player player = event.getPlayer();
         scheduler.runAsyncNow(plugin, () -> {
-            updateCustomerOwnership(player);
             notifyAboutVersionUpdate(player);
-            shopCartStorage.loadAndCache(player)
-                    .thenAccept(shopCart -> issueOrNotifyAboutCartContent(player, shopCart))
-                    .join();
+
+            if (EasyPaymentsPlugin.isPaymentIssuanceActive()) {
+                updateCustomerOwnership(player);
+                shopCartStorage.loadAndCache(player)
+                        .thenAccept(shopCart -> issueOrNotifyAboutCartContent(player, shopCart))
+                        .join();
+            }
+
+            if (EasyPaymentsPlugin.isPlayersSyncingActive()) {
+                knownPlayersService.rememberJoinedPlayer(player.getName());
+            }
         });
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerQuit(@NotNull PlayerQuitEvent event) {
-        if (!EasyPaymentsPlugin.isPluginEnabled())
+        if (!EasyPaymentsPlugin.isPluginEnabled() || !EasyPaymentsPlugin.isPaymentIssuanceActive())
             return;
 
         Player player = event.getPlayer();

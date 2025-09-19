@@ -107,16 +107,21 @@ status:
     &7• &fВерсия ПО: &b%plugin_version%
     &7• &fСостояние: &r%plugin_status%
     &7• &fХранилище: &r%storage_status%
+    &7• &fВыдача покупок: &r%mode_issue_payments%
+    &7• &fСинхронизация игроков: &r%mode_sync_players%
     &7• &fКлюч магазина: &b%access_key%
     &7• &fПодключен к серверу: &b%server_id%
     &7• &fУровень разрешений: &b%permission_level%
     &7Made with &4♥ &7by EasyDonate
-  status:
+  plugin-status:
     working: '&aРаботает'
     unconfigured: '&cНе настроен'
-  storage:
+  storage-status:
     available: '&aДоступно'
     unavailable: '&cНедоступно'
+  plugin-mode:
+    active: '&aАктивно'
+    inactive: '&7Не активно'
   no-value-stub: '&c<н/д>'
 migrate:
   failed:

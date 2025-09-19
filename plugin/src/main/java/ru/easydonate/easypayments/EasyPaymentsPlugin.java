@@ -31,16 +31,14 @@ import ru.easydonate.easypayments.database.model.Payment;
 import ru.easydonate.easypayments.database.model.Purchase;
 import ru.easydonate.easypayments.database.persister.LocalDateTimePersister;
 import ru.easydonate.easypayments.exception.*;
-import ru.easydonate.easypayments.service.LongPollEventDispatcher;
-import ru.easydonate.easypayments.service.IssuancePerformService;
-import ru.easydonate.easypayments.service.IssuanceReportService;
-import ru.easydonate.easypayments.service.PersistanceService;
-import ru.easydonate.easypayments.service.execution.ExecutionService;
 import ru.easydonate.easypayments.listener.CommandPreProcessListener;
 import ru.easydonate.easypayments.listener.PlayerJoinQuitListener;
+import ru.easydonate.easypayments.service.*;
+import ru.easydonate.easypayments.service.execution.ExecutionService;
 import ru.easydonate.easypayments.setup.InteractiveSetupProvider;
 import ru.easydonate.easypayments.shopcart.ShopCartConfig;
 import ru.easydonate.easypayments.shopcart.ShopCartStorage;
+import ru.easydonate.easypayments.task.KnownPlayersSyncTask;
 import ru.easydonate.easypayments.task.PaymentsQueryTask;
 import ru.easydonate.easypayments.task.PluginTask;
 import ru.easydonate.easypayments.task.ReportCacheWorker;
@@ -92,11 +90,13 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     @Getter private LongPollEventDispatcher lpEventDispatcher;
     @Getter private IssuanceReportService issuanceReportService;
     @Getter private IssuancePerformService issuancePerformService;
+    @Getter private KnownPlayersService knownPlayersService;
 
     @Getter
     private RelativeTimeFormatter relativeTimeFormatter;
     private VersionResponse versionResponse;
 
+    private PluginTask knownPlayersSyncTask;
     private PluginTask paymentsQueryTask;
     private PluginTask reportCacheWorker;
 
@@ -291,6 +291,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         debugLogger.debug("Loading LongPoll event dispatcher...");
         this.lpEventDispatcher = new LongPollEventDispatcher(this, executionService);
+
+        debugLogger.debug("Loading known players service...");
+        this.knownPlayersService = new KnownPlayersService();
     }
 
     private synchronized void shutdownServices() {
@@ -390,30 +393,45 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     private void registerCommands() throws InitializationException {
         debugLogger.debug("Registering commands...");
         new CommandEasyPayments(this, config, messages, setupProvider);
-        new CommandShopCart(this, messages, shopCartStorage);
+
+        if (isPaymentIssuanceActive()) {
+            new CommandShopCart(this, messages, shopCartStorage);
+        }
     }
 
     private void registerListeners() {
         debugLogger.debug("Registering event listeners...");
-        new PlayerJoinQuitListener(this, messages, shopCartStorage);
+        new PlayerJoinQuitListener(this, messages, shopCartStorage, knownPlayersService);
         new CommandPreProcessListener(this, setupProvider);
     }
 
     private void launchTasks() {
         debugLogger.debug("[Tasks] Launching plugin tasks...");
 
-        debugLogger.debug("[Tasks] - Launching report cache worker task...");
-        this.reportCacheWorker = new ReportCacheWorker(this, issuanceReportService, persistanceService);
-        this.reportCacheWorker.start();
+        if (isPaymentIssuanceActive()) {
+            debugLogger.debug("[Tasks] - Launching report cache worker task...");
+            this.reportCacheWorker = new ReportCacheWorker(this, issuanceReportService, persistanceService);
+            this.reportCacheWorker.start();
 
-        debugLogger.debug("[Tasks] - Launching payments query task...");
-        this.paymentsQueryTask = new PaymentsQueryTask(this, easyPaymentsClient, lpEventDispatcher, issuanceReportService);
-        this.paymentsQueryTask.start();
+            debugLogger.debug("[Tasks] - Launching payments query task...");
+            this.paymentsQueryTask = new PaymentsQueryTask(this, easyPaymentsClient, lpEventDispatcher, issuanceReportService);
+            this.paymentsQueryTask.start();
+        }
+
+        if (isPlayersSyncingActive()) {
+            debugLogger.debug("[Tasks] - Launching known players sync task...");
+            this.knownPlayersSyncTask = new KnownPlayersSyncTask(this, knownPlayersService);
+            this.knownPlayersSyncTask.start();
+        }
     }
 
     private void closeTasks() {
+        CompletableFuture<Void> knownPlayersSyncTaskFuture = null;
         CompletableFuture<Void> paymentsQueryTaskFuture = null;
         CompletableFuture<Void> reportCacheWorkerFuture = null;
+
+        if (knownPlayersSyncTask != null)
+            knownPlayersSyncTaskFuture = knownPlayersSyncTask.shutdownAsync();
 
         if (paymentsQueryTask != null)
             paymentsQueryTaskFuture = paymentsQueryTask.shutdownAsync();
@@ -421,9 +439,14 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         if (reportCacheWorker != null)
             reportCacheWorkerFuture = reportCacheWorker.shutdownAsync();
 
-        if (paymentsQueryTaskFuture != null || reportCacheWorkerFuture != null) {
+        if (knownPlayersSyncTaskFuture != null || paymentsQueryTaskFuture != null || reportCacheWorkerFuture != null) {
             getLogger().info("Closing internal tasks...");
             debugLogger.info("Closing internal tasks...");
+
+            if (knownPlayersSyncTaskFuture != null) {
+                knownPlayersSyncTaskFuture.join();
+                this.knownPlayersSyncTask = null;
+            }
 
             if (paymentsQueryTaskFuture != null) {
                 paymentsQueryTaskFuture.join();
@@ -457,22 +480,23 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     private void checkForUpdates() {
         String currentVersion = getDescription().getVersion();
+
         try {
             VersionResponse response = easyPaymentsClient.checkForUpdates(currentVersion);
-            if (response != null) {
-                debugLogger.debug("[CheckForUpdates] Response: {0}", response);
-                String downloadUrl = response.getDownloadUrl();
-                String version = response.getVersion();
-                if (downloadUrl != null && version != null) {
-                    this.versionResponse = response;
-                    debugLogger.info("[CheckForUpdates] Found new version {0}, current is {1}", version, currentVersion);
+            debugLogger.debug("[CheckForUpdates] Response: {0}", response);
 
-                    info(" ");
-                    info(" &rA new version of &eEasyPayments &ravailable!");
-                    info(" &rYour version: &b%s&r, available version: &a%s", currentVersion, version);
-                    info(" &rDownload: &6%s", downloadUrl);
-                    info(" ");
-                }
+            String downloadUrl = response.getDownloadUrl();
+            String version = response.getVersion();
+
+            if (downloadUrl != null && version != null) {
+                this.versionResponse = response;
+                debugLogger.info("[CheckForUpdates] Found new version {0}, current is {1}", version, currentVersion);
+
+                info(" ");
+                info(" &rA new version of &eEasyPayments &ravailable!");
+                info(" &rYour version: &b%s&r, available version: &a%s", currentVersion, version);
+                info(" &rDownload: &6%s", downloadUrl);
+                info(" ");
             }
         } catch (Exception ignored) {}
     }
@@ -514,6 +538,14 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     public static boolean isStorageAvailable() {
         return isPluginEnabled() && instance.databaseManager != null;
+    }
+
+    public static boolean isPaymentIssuanceActive() {
+        return isPluginEnabled() && true; // FIXME obtain plugin mode from the state
+    }
+
+    public static boolean isPlayersSyncingActive() {
+        return isPluginEnabled() && true; // FIXME obtain plugin mode from the state
     }
 
 }

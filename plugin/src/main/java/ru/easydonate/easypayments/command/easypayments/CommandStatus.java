@@ -35,6 +35,8 @@ public final class CommandStatus extends CommandExecutor {
 
         boolean isPluginEnabled = EasyPaymentsPlugin.isPluginEnabled();
         boolean isStorageAvailable = EasyPaymentsPlugin.isStorageAvailable();
+        boolean isPaymentIssuanceActive = EasyPaymentsPlugin.isPaymentIssuanceActive();
+        boolean isPlayersSyncingActive = EasyPaymentsPlugin.isPlayersSyncingActive();
 
         String accessKey = StringFormatter.maskAccessKey(plugin.getAccessKey());
         int serverId = plugin.getServerId();
@@ -42,8 +44,10 @@ public final class CommandStatus extends CommandExecutor {
 
         messages.getAndSend(sender, "status.message",
                 "%plugin_version%", plugin.getDescription().getVersion(),
-                "%plugin_status%", wrapBoolean(isPluginEnabled, "status.working", "status.unconfigured"),
-                "%storage_status%", wrapBoolean(isStorageAvailable, "storage.available", "storage.unavailable"),
+                "%plugin_status%", wrapBoolean(isPluginEnabled, "plugin-status", "working", "unconfigured"),
+                "%storage_status%", wrapBoolean(isStorageAvailable, "storage-status", "available", "unavailable"),
+                "%mode_issue_payments%", wrapBoolean(isPaymentIssuanceActive, "plugin-mode", "active", "inactive"),
+                "%mode_sync_players%", wrapBoolean(isPlayersSyncingActive, "plugin-mode", "active", "inactive"),
                 "%access_key%", accessKey != null && !accessKey.isEmpty() ? accessKey : getNoValueStub(),
                 "%server_id%", serverId > 0 ? ("#" + serverId) : getNoValueStub(),
                 "%permission_level%", permissionLevel > 0 ? permissionLevel : getNoValueStub()
@@ -54,8 +58,8 @@ public final class CommandStatus extends CommandExecutor {
         return messages.get("status.no-value-stub");
     }
 
-    private @NotNull String wrapBoolean(boolean value, @NotNull String trueKey, @NotNull String falseKey) {
-        return messages.get("status." + (value ? trueKey : falseKey));
+    private @NotNull String wrapBoolean(boolean value, @NotNull String subKey, @NotNull String trueKey, @NotNull String falseKey) {
+        return messages.get(String.format("status.%s.%s", subKey, (value ? trueKey : falseKey)));
     }
 
 }

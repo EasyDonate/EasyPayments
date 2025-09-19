@@ -100,13 +100,17 @@ setup:
 status:
   message: _value_
 
-  status:
+  plugin-status:
     working: _value_
     unconfigured: _value_
 
-  storage:
+  storage-status:
     available: _value_
     unavailable: _value_
+
+  plugin-mode:
+    active: _value_
+    inactive: _value_
 
   no-value-stub: _value_
 
