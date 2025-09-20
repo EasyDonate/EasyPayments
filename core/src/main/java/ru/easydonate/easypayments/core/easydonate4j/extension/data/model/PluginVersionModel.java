@@ -32,7 +32,7 @@ public final class PluginVersionModel {
 
     @Override
     public @NotNull String toString() {
-        return "VersionResponse{" +
+        return "PluginVersion{" +
                 "version='" + version + '\'' +
                 ", downloadUrl='" + downloadUrl + '\'' +
                 '}';
