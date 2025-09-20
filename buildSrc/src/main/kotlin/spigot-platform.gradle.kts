@@ -20,5 +20,7 @@ repositories {
     }
     maven("https://libraries.minecraft.net/")
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    // fallback repository for the bungeecord-chat
+    maven("https://hub.spigotmc.org/nexus/content/groups/public/")
     mavenCentral()
 }
