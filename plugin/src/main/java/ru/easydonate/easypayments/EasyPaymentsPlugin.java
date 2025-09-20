@@ -3,6 +3,7 @@ package ru.easydonate.easypayments;
 import com.j256.ormlite.logger.Level;
 import com.j256.ormlite.logger.Logger;
 import lombok.Getter;
+import lombok.Locked;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,6 +49,8 @@ import ru.easydonate.easypayments.task.ReportCacheWorker;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 import static ru.easydonate.easypayments.core.util.AnsiColorizer.colorize;
@@ -70,6 +73,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     @Getter
     private final DebugLogger debugLogger;
     private final String userAgent;
+    private final Lock reloadLock;
+    private final Lock syncLock;
     private volatile boolean pluginEnabled;
     private volatile boolean pluginConfigured;
 
@@ -117,6 +122,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     public EasyPaymentsPlugin() {
         this.debugLogger = new DebugLogger(this);
         this.userAgent = String.format(USER_AGENT_FORMAT, getDescription().getVersion());
+        this.reloadLock = new ReentrantLock();
+        this.syncLock = new ReentrantLock();
         this.pluginEnabled = true;
 
         this.config = new TemplateConfiguration(this, "config.yml");
@@ -217,7 +224,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         debugLogger.shutdown();
     }
 
-    public synchronized void reload() throws ConfigurationValidationException, StorageLoadException {
+    @Locked("reloadLock")
+    public void reload() throws ConfigurationValidationException, StorageLoadException {
         debugLogger.info("--- STATE: RELOADING ---");
 
         // shutting down
@@ -241,7 +249,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         debugLogger.info("--- STATE: RELOADED ---");
     }
 
-    private synchronized void loadConfigurations() throws ConfigurationValidationException {
+    @Locked("syncLock")
+    private void loadConfigurations() throws ConfigurationValidationException {
         debugLogger.debug("Loading configurations...");
         ConfigurationValidationException exception = null;
 
@@ -260,7 +269,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
             throw exception;
     }
 
-    private synchronized void loadStorage() throws StorageLoadException {
+    @Locked("syncLock")
+    private void loadStorage() throws StorageLoadException {
         debugLogger.debug("Loading storage...");
         this.databaseManager = null;
 
@@ -286,14 +296,16 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         }
     }
 
-    private synchronized void closeStorage() {
+    @Locked("syncLock")
+    private void closeStorage() {
         if (databaseManager != null) {
             debugLogger.debug("Shutting down storage...");
             databaseManager.shutdown();
         }
     }
 
-    private synchronized void loadServices() {
+    @Locked("syncLock")
+    private void loadServices() {
         debugLogger.debug("Loading execution service...");
         InterceptorFactory interceptorFactory = platformProvider.getInterceptorFactory();
         this.executionService = new ExecutionService(this, config, interceptorFactory);
@@ -311,7 +323,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         this.knownPlayersService = new KnownPlayersService();
     }
 
-    private synchronized void shutdownServices() {
+    @Locked("syncLock")
+    private void shutdownServices() {
         if (lpEventDispatcher != null) {
             debugLogger.debug("Shutting down LongPoll event dispatcher...");
             lpEventDispatcher.shutdown();
@@ -323,7 +336,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         }
     }
 
-    private synchronized void validateConfiguration(@NotNull Configuration config) throws ConfigurationValidationException {
+    @Locked("syncLock")
+    private void validateConfiguration(@NotNull Configuration config) throws ConfigurationValidationException {
         debugLogger.debug("[Validation] Validating configuration '{0}'...", config.getName());
 
         // validating the shop key
