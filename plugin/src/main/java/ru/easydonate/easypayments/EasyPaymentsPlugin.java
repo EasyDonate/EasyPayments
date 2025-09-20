@@ -7,6 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.command.easypayments.CommandEasyPayments;
+import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
 import ru.easydonate.easypayments.command.shopcart.CommandShopCart;
 import ru.easydonate.easypayments.core.Constants;
@@ -15,7 +16,8 @@ import ru.easydonate.easypayments.core.config.Configuration;
 import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.core.config.template.TemplateConfiguration;
 import ru.easydonate.easypayments.core.easydonate4j.extension.client.EasyPaymentsClient;
-import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.VersionResponse;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.PluginStateModel;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.PluginVersionModel;
 import ru.easydonate.easypayments.core.exception.ConfigurationValidationException;
 import ru.easydonate.easypayments.core.formatting.RelativeTimeFormatter;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
@@ -61,6 +63,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     public static final Pattern ACCESS_KEY_REGEX = Pattern.compile("[a-f\\d]{32}");
     public static final String CONFIG_KEY_ACCESS_KEY = "key";
     public static final String CONFIG_KEY_SERVER_ID = "server-id";
+    public static final int STATE_QUERY_ATTEMPTS = 5;
 
     private static EasyPaymentsPlugin instance;
 
@@ -68,6 +71,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     private final DebugLogger debugLogger;
     private final String userAgent;
     private volatile boolean pluginEnabled;
+    private volatile boolean pluginConfigured;
 
     private final Configuration config;
     @Getter
@@ -94,7 +98,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     @Getter
     private RelativeTimeFormatter relativeTimeFormatter;
-    private VersionResponse versionResponse;
+    private PluginStateModel pluginStateModel;
+    private PluginVersionModel pluginVersionModel;
 
     private PluginTask knownPlayersSyncTask;
     private PluginTask paymentsQueryTask;
@@ -119,6 +124,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         this.config.setValidator(this::validateConfiguration);
         this.messages = new Messages(this, config);
         this.shopCartConfig = new ShopCartConfig(config, debugLogger);
+
+        this.pluginStateModel = PluginStateModel.DEFAULT;
     }
 
     @Override
@@ -133,19 +140,21 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         try {
             // loading the plugin configurations
             loadConfigurations();
-
-            // loading storage
-            loadStorage();
-
             this.pluginEnabled = true;
-
-            // API client initialization
-            initializeApiClient();
         } catch (ConfigurationValidationException ex) {
             debugLogger.error("Configuration validation failed");
             debugLogger.error(ex);
             changeEnabledState(false);
             reportException(ex);
+        }
+
+        // API client initialization
+        initializeApiClient();
+        CompletableFuture<PluginStateModel> future = deferRemoteStateQuery();
+
+        try {
+            // loading storage
+            loadStorage();
         } catch (StorageLoadException ex) {
             debugLogger.error("Storage loading failed");
             debugLogger.error(ex);
@@ -171,6 +180,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         // event listeners initialization
         registerListeners();
+
+        awaitRemoteStateQuery(future);
 
         if (pluginEnabled()) {
             // starting tasks
@@ -219,9 +230,11 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         // loading all again
         loadConfigurations();
-        loadStorage();
         initializeApiClient();
+        CompletableFuture<PluginStateModel> future = deferRemoteStateQuery();
+        loadStorage();
         loadServices();
+        awaitRemoteStateQuery(future);
         launchTasks();
 
         changeEnabledState(true);
@@ -234,8 +247,10 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         try {
             config.reload();
+            this.pluginConfigured = true;
         } catch (ConfigurationValidationException ex) {
             exception = ex;
+            this.pluginConfigured = false;
         }
 
         messages.reload();
@@ -393,10 +408,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     private void registerCommands() throws InitializationException {
         debugLogger.debug("Registering commands...");
         new CommandEasyPayments(this, config, messages, setupProvider);
-
-        if (isPaymentIssuanceActive()) {
-            new CommandShopCart(this, messages, shopCartStorage);
-        }
+        new CommandShopCart(this, messages, shopCartStorage);
     }
 
     private void registerListeners() {
@@ -408,7 +420,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     private void launchTasks() {
         debugLogger.debug("[Tasks] Launching plugin tasks...");
 
-        if (isPaymentIssuanceActive()) {
+        if (isPurchasesIssuanceActive()) {
             debugLogger.debug("[Tasks] - Launching report cache worker task...");
             this.reportCacheWorker = new ReportCacheWorker(this, issuanceReportService, persistanceService);
             this.reportCacheWorker.start();
@@ -418,9 +430,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
             this.paymentsQueryTask.start();
         }
 
-        if (isPlayersSyncingActive()) {
+        if (isPlayersSyncActive()) {
             debugLogger.debug("[Tasks] - Launching known players sync task...");
-            this.knownPlayersSyncTask = new KnownPlayersSyncTask(this, knownPlayersService);
+            this.knownPlayersSyncTask = new KnownPlayersSyncTask(this, knownPlayersService, easyPaymentsClient);
             this.knownPlayersSyncTask.start();
         }
     }
@@ -478,18 +490,76 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         getServer().getPluginManager().disablePlugin(this);
     }
 
+    private @NotNull CompletableFuture<PluginStateModel> deferRemoteStateQuery() {
+        CompletableFuture<PluginStateModel> future = new CompletableFuture<>();
+        platformProvider.getScheduler().runAsyncNow(this, () -> {
+            try {
+                PluginStateModel pluginStateModel = PluginStateModel.DEFAULT;
+                int receivedOnAttempt = 0;
+
+                for (int attempt = 0; attempt < STATE_QUERY_ATTEMPTS; attempt++) {
+                    try {
+                        pluginStateModel = easyPaymentsClient.getPluginState();
+                        receivedOnAttempt = attempt;
+                    } catch (Exception ex) {
+                        if (attempt == STATE_QUERY_ATTEMPTS - 1)
+                            throw ex;
+
+                        debugLogger.warn("Couldn't query remote state! ({0} of {1})", attempt + 1, STATE_QUERY_ATTEMPTS);
+                        debugLogger.warn(ex);
+                    }
+                }
+
+                if (receivedOnAttempt > 0 && pluginConfigured)
+                    getLogger().warning(String.format(
+                            "Remote state has been received on attempt #%d! Ensure that your Internet connection is stable.",
+                            receivedOnAttempt + 1
+                    ));
+
+                debugLogger.debug("[RemoteState] Model: {0}", pluginStateModel);
+                future.complete(pluginStateModel);
+            } catch (Exception ex) {
+                future.completeExceptionally(ex);
+            }
+        });
+        return future;
+    }
+
+    private void awaitRemoteStateQuery(@NotNull CompletableFuture<PluginStateModel> future) {
+        try {
+            this.pluginStateModel = future.join();
+        } catch (Exception ex) {
+            this.pluginStateModel = PluginStateModel.DEFAULT;
+
+            Throwable cause = ex.getCause();
+            if (cause instanceof ExecutionException)
+                cause = cause.getCause();
+
+            debugLogger.error("[FATAL] Couldn't query remote state!");
+            if (cause != null)
+                debugLogger.error(cause);
+
+            if (!pluginConfigured)
+                return;
+
+            error("[FATAL] Couldn't query remote state! Please, check your Internet connection!");
+            error("[FATAL] Falling back to the default state! The plugin will not issue");
+            error("[FATAL] purchases or sync players until server restart or '/ep reload'.");
+        }
+    }
+
     private void checkForUpdates() {
         String currentVersion = getDescription().getVersion();
 
         try {
-            VersionResponse response = easyPaymentsClient.checkForUpdates(currentVersion);
-            debugLogger.debug("[CheckForUpdates] Response: {0}", response);
+            PluginVersionModel pluginVersionModel = easyPaymentsClient.getPluginVersion(currentVersion);
+            debugLogger.debug("[CheckForUpdates] Model: {0}", pluginVersionModel);
 
-            String downloadUrl = response.getDownloadUrl();
-            String version = response.getVersion();
+            String downloadUrl = pluginVersionModel.getDownloadUrl();
+            String version = pluginVersionModel.getVersion();
 
             if (downloadUrl != null && version != null) {
-                this.versionResponse = response;
+                this.pluginVersionModel = pluginVersionModel;
                 debugLogger.info("[CheckForUpdates] Found new version {0}, current is {1}", version, currentVersion);
 
                 info(" ");
@@ -516,8 +586,18 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         return databaseManager;
     }
 
-    public @NotNull Optional<VersionResponse> getVersionResponse() {
-        return Optional.ofNullable(versionResponse);
+    public @NotNull Optional<PluginVersionModel> getPluginVersionModel() {
+        return Optional.ofNullable(pluginVersionModel);
+    }
+
+    @Override
+    public boolean isPlayersSyncActive() {
+        return pluginEnabled() && pluginStateModel.isPlayersSyncActive();
+    }
+
+    @Override
+    public boolean isPurchasesIssuanceActive() {
+        return pluginEnabled() && pluginStateModel.isPurchaseIssuanceActive();
     }
 
     private boolean pluginEnabled() {
@@ -538,14 +618,6 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     public static boolean isStorageAvailable() {
         return isPluginEnabled() && instance.databaseManager != null;
-    }
-
-    public static boolean isPaymentIssuanceActive() {
-        return isPluginEnabled() && true; // FIXME obtain plugin mode from the state
-    }
-
-    public static boolean isPlayersSyncingActive() {
-        return isPluginEnabled() && true; // FIXME obtain plugin mode from the state
     }
 
 }
