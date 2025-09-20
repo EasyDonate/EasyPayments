@@ -107,7 +107,7 @@ status:
     &7• &fВерсия ПО: &b%plugin_version%
     &7• &fСостояние: &r%plugin_status%
     &7• &fХранилище: &r%storage_status%
-    &7• &fВыдача покупок: &r%mode_issue_payments%
+    &7• &fВыдача покупок: &r%mode_issue_purchases%
     &7• &fСинхронизация игроков: &r%mode_sync_players%
     &7• &fКлюч магазина: &b%access_key%
     &7• &fПодключен к серверу: &b%server_id%

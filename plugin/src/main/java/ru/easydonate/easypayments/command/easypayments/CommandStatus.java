@@ -35,8 +35,8 @@ public final class CommandStatus extends CommandExecutor {
 
         boolean isPluginEnabled = EasyPaymentsPlugin.isPluginEnabled();
         boolean isStorageAvailable = EasyPaymentsPlugin.isStorageAvailable();
-        boolean isPaymentIssuanceActive = EasyPaymentsPlugin.isPaymentIssuanceActive();
-        boolean isPlayersSyncingActive = EasyPaymentsPlugin.isPlayersSyncingActive();
+        boolean isPlayersSyncingActive = plugin.isPlayersSyncActive();
+        boolean isPurchasesIssuanceActive = plugin.isPurchasesIssuanceActive();
 
         String accessKey = StringFormatter.maskAccessKey(plugin.getAccessKey());
         int serverId = plugin.getServerId();
@@ -46,7 +46,7 @@ public final class CommandStatus extends CommandExecutor {
                 "%plugin_version%", plugin.getDescription().getVersion(),
                 "%plugin_status%", wrapBoolean(isPluginEnabled, "plugin-status", "working", "unconfigured"),
                 "%storage_status%", wrapBoolean(isStorageAvailable, "storage-status", "available", "unavailable"),
-                "%mode_issue_payments%", wrapBoolean(isPaymentIssuanceActive, "plugin-mode", "active", "inactive"),
+                "%mode_issue_purchases%", wrapBoolean(isPurchasesIssuanceActive, "plugin-mode", "active", "inactive"),
                 "%mode_sync_players%", wrapBoolean(isPlayersSyncingActive, "plugin-mode", "active", "inactive"),
                 "%access_key%", accessKey != null && !accessKey.isEmpty() ? accessKey : getNoValueStub(),
                 "%server_id%", serverId > 0 ? ("#" + serverId) : getNoValueStub(),
