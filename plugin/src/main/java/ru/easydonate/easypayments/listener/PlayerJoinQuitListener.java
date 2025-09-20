@@ -48,29 +48,29 @@ public final class PlayerJoinQuitListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(@NotNull PlayerJoinEvent event) {
-        if (!EasyPaymentsPlugin.isPluginEnabled()) // FIXME check plugin state
+        if (!EasyPaymentsPlugin.isPluginEnabled() || (!plugin.isPlayersSyncActive() && !plugin.isPurchasesIssuanceActive()))
             return;
 
         Player player = event.getPlayer();
         scheduler.runAsyncNow(plugin, () -> {
             notifyAboutVersionUpdate(player);
 
-            if (EasyPaymentsPlugin.isPaymentIssuanceActive()) {
+            if (plugin.isPurchasesIssuanceActive()) {
                 updateCustomerOwnership(player);
                 shopCartStorage.loadAndCache(player)
                         .thenAccept(shopCart -> issueOrNotifyAboutCartContent(player, shopCart))
                         .join();
             }
 
-            if (EasyPaymentsPlugin.isPlayersSyncingActive()) {
-                knownPlayersService.rememberJoinedPlayer(player.getName());
+            if (plugin.isPlayersSyncActive()) {
+                knownPlayersService.rememberJoinedPlayer(player);
             }
         });
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerQuit(@NotNull PlayerQuitEvent event) {
-        if (!EasyPaymentsPlugin.isPluginEnabled() || !EasyPaymentsPlugin.isPaymentIssuanceActive())
+        if (!EasyPaymentsPlugin.isPluginEnabled() || !plugin.isPurchasesIssuanceActive())
             return;
 
         Player player = event.getPlayer();
@@ -114,7 +114,7 @@ public final class PlayerJoinQuitListener implements Listener {
         if (!player.hasPermission("easypayments.notify.update"))
             return;
 
-        plugin.getVersionResponse().ifPresent(response -> messages.getAndSend(player, "update-notification",
+        plugin.getPluginVersionModel().ifPresent(response -> messages.getAndSend(player, "update-notification",
                 "%current_version%", plugin.getDescription().getVersion(),
                 "%available_version%", response.getVersion(),
                 "%download_url%", response.getDownloadUrl()
