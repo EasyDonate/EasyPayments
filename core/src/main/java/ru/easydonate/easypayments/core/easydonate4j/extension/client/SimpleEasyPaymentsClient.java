@@ -55,7 +55,7 @@ final class SimpleEasyPaymentsClient extends SimpleEasyDonateClient implements E
     }
 
     @Override
-    public boolean uploadKnownPlayers(@NotNull Map<String, Boolean> knownPlayers) throws HttpRequestException, HttpResponseException {
+    public boolean uploadKnownPlayers(@NotNull Map<String, Boolean> knownPlayers) throws HttpRequestException {
         if (knownPlayers.isEmpty())
             return false;
 
