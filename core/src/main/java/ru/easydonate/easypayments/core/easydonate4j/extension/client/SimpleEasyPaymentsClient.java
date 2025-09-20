@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easydonate4j.Constants;
 import ru.easydonate.easydonate4j.api.v3.client.SimpleEasyDonateClient;
+import ru.easydonate.easydonate4j.api.v3.response.ResponseContentDeserializer;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
 import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easydonate4j.exception.JsonSerializationException;
@@ -12,9 +13,13 @@ import ru.easydonate.easydonate4j.http.client.HttpClient;
 import ru.easydonate.easydonate4j.http.request.EasyHttpRequest;
 import ru.easydonate.easydonate4j.http.response.EasyHttpResponse;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReports;
-import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.VersionResponse;
-import ru.easydonate.easypayments.core.easydonate4j.extension.response.VersionCheckResponse;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.PluginStateModel;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.PluginVersionModel;
+import ru.easydonate.easypayments.core.easydonate4j.extension.response.PluginStateResponse;
+import ru.easydonate.easypayments.core.easydonate4j.extension.response.PluginVersionResponse;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.client.LongPollClient;
+
+import java.util.Map;
 
 @Getter
 final class SimpleEasyPaymentsClient extends SimpleEasyDonateClient implements EasyPaymentsClient {
@@ -29,18 +34,42 @@ final class SimpleEasyPaymentsClient extends SimpleEasyDonateClient implements E
     }
 
     @Override
-    public @NotNull VersionResponse checkForUpdates(@NotNull String version) throws HttpRequestException, HttpResponseException {
+    public @NotNull PluginVersionModel getPluginVersion(@NotNull String currentVersion) throws HttpRequestException, HttpResponseException {
         QueryParams queryParams = new QueryParams()
-                .set("version", version)
+                .set("version", currentVersion)
                 .set("edition", "je");
 
         EasyHttpRequest httpRequest = createRequest(HttpClient.Method.GET)
                 .setHeaders(defaultHeaders)
                 .setQueryParams(queryParams)
-                .setUrl(CHECK_FOR_UPDATES_URL, version)
+                .setUrl(CHECK_FOR_UPDATES_URL, currentVersion)
                 .build();
 
-        return request(VersionCheckResponse.class, httpRequest);
+        return request(PluginVersionResponse.class, httpRequest);
+    }
+
+    @Override
+    public @NotNull PluginStateModel getPluginState() throws HttpRequestException, HttpResponseException {
+        EasyHttpResponse response = longPollClient.makeCustomRequest(HttpClient.Method.GET, builder -> builder.setApiPath("/state"));
+        return ResponseContentDeserializer.deserializeResponseContent(PluginStateResponse.class, response);
+    }
+
+    @Override
+    public boolean uploadKnownPlayers(@NotNull Map<String, Boolean> knownPlayers) throws HttpRequestException, HttpResponseException {
+        if (knownPlayers.isEmpty())
+            return false;
+
+        try {
+            String jsonBody = jsonSerialization.serialize(knownPlayers);
+
+            EasyHttpResponse response = longPollClient.makeCustomRequest(HttpClient.Method.POST, builder -> builder
+                    .setApiPath("/players")
+                    .setBody(jsonBody));
+
+            return response.isSuccess();
+        } catch (JsonSerializationException ignored) {
+            return false;
+        }
     }
 
     @Override

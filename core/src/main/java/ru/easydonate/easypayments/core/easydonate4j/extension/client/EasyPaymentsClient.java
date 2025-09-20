@@ -7,8 +7,11 @@ import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easydonate4j.http.client.jdk.legacy.JDKLegacyHttpClientService;
 import ru.easydonate.easydonate4j.json.serialization.GsonSerializationService;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReports;
-import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.VersionResponse;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.PluginStateModel;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.PluginVersionModel;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.client.LongPollClient;
+
+import java.util.Map;
 
 public interface EasyPaymentsClient extends EasyDonateClient {
 
@@ -22,7 +25,11 @@ public interface EasyPaymentsClient extends EasyDonateClient {
 
     @NotNull LongPollClient getLongPollClient();
 
-    @NotNull VersionResponse checkForUpdates(@NotNull String version) throws HttpRequestException, HttpResponseException;
+    @NotNull PluginVersionModel getPluginVersion(@NotNull String currentVersion) throws HttpRequestException, HttpResponseException;
+
+    @NotNull PluginStateModel getPluginState() throws HttpRequestException, HttpResponseException;
+
+    boolean uploadKnownPlayers(@NotNull Map<String, Boolean> knownPlayers) throws HttpRequestException, HttpResponseException;
 
     boolean uploadReports(@NotNull EventUpdateReports updateReports) throws HttpRequestException, HttpResponseException;
 

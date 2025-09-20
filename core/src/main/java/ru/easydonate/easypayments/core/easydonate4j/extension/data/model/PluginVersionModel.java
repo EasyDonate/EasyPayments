@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 @Getter
-public final class VersionResponse {
+public final class PluginVersionModel {
 
     @SerializedName("version")
     private String version;
@@ -20,7 +20,7 @@ public final class VersionResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        VersionResponse that = (VersionResponse) o;
+        PluginVersionModel that = (PluginVersionModel) o;
         return Objects.equals(version, that.version) &&
                 Objects.equals(downloadUrl, that.downloadUrl);
     }
