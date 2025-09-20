@@ -73,7 +73,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     @Getter
     private final DebugLogger debugLogger;
     private final String userAgent;
+    @SuppressWarnings("FieldCanBeLocal") // used via @Locked
     private final Lock reloadLock;
+    @SuppressWarnings("FieldCanBeLocal") // used via @Locked
     private final Lock syncLock;
     private volatile boolean pluginEnabled;
     private volatile boolean pluginConfigured;
