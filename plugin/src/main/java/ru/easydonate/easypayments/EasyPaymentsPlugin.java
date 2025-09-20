@@ -491,38 +491,39 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     }
 
     private @NotNull CompletableFuture<PluginStateModel> deferRemoteStateQuery() {
-        CompletableFuture<PluginStateModel> future = new CompletableFuture<>();
-        platformProvider.getScheduler().runAsyncNow(this, () -> {
-            try {
-                PluginStateModel pluginStateModel = PluginStateModel.DEFAULT;
-                int receivedOnAttempt = 0;
+        return CompletableFuture.supplyAsync(() -> {
+            PluginStateModel pluginStateModel = PluginStateModel.DEFAULT;
+            int receivedOnAttempt = 0;
 
-                for (int attempt = 0; attempt < STATE_QUERY_ATTEMPTS; attempt++) {
+            for (int attempt = 0; attempt < STATE_QUERY_ATTEMPTS; attempt++) {
+                try {
+                    pluginStateModel = easyPaymentsClient.getPluginState();
+                    receivedOnAttempt = attempt;
+                    break;
+                } catch (Exception ex) {
+                    if (attempt == STATE_QUERY_ATTEMPTS - 1)
+                        throw new RuntimeException(ex);
+
+                    debugLogger.warn("Couldn't query remote state! ({0} of {1})", attempt + 1, STATE_QUERY_ATTEMPTS);
+                    debugLogger.warn(ex);
+
                     try {
-                        pluginStateModel = easyPaymentsClient.getPluginState();
-                        receivedOnAttempt = attempt;
-                    } catch (Exception ex) {
-                        if (attempt == STATE_QUERY_ATTEMPTS - 1)
-                            throw ex;
-
-                        debugLogger.warn("Couldn't query remote state! ({0} of {1})", attempt + 1, STATE_QUERY_ATTEMPTS);
-                        debugLogger.warn(ex);
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException ignored) {
+                        return pluginStateModel;
                     }
                 }
-
-                if (receivedOnAttempt > 0 && pluginConfigured)
-                    getLogger().warning(String.format(
-                            "Remote state has been received on attempt #%d! Ensure that your Internet connection is stable.",
-                            receivedOnAttempt + 1
-                    ));
-
-                debugLogger.debug("[RemoteState] Model: {0}", pluginStateModel);
-                future.complete(pluginStateModel);
-            } catch (Exception ex) {
-                future.completeExceptionally(ex);
             }
+
+            if (receivedOnAttempt > 0 && pluginConfigured)
+                getLogger().warning(String.format(
+                        "Remote state has been received on attempt #%d! Ensure that your Internet connection is stable.",
+                        receivedOnAttempt + 1
+                ));
+
+            debugLogger.debug("[RemoteState] Model: {0}", pluginStateModel);
+            return pluginStateModel;
         });
-        return future;
     }
 
     private void awaitRemoteStateQuery(@NotNull CompletableFuture<PluginStateModel> future) {
@@ -532,7 +533,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
             this.pluginStateModel = PluginStateModel.DEFAULT;
 
             Throwable cause = ex.getCause();
-            if (cause instanceof ExecutionException)
+            while (cause instanceof ExecutionException || cause instanceof RuntimeException)
                 cause = cause.getCause();
 
             debugLogger.error("[FATAL] Couldn't query remote state!");

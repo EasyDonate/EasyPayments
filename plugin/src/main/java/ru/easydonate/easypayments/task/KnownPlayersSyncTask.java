@@ -60,12 +60,19 @@ public final class KnownPlayersSyncTask extends AbstractPluginTask {
                                 attempt + 1
                         ));
                     }
+
+                    break;
                 } catch (Exception ex) {
                     if (attempt == UPLOAD_ATTEMPTS - 1)
                         throw ex;
 
                     plugin.getDebugLogger().warn("Couldn't upload known players! ({0} of {1})", attempt + 1, UPLOAD_ATTEMPTS);
                     plugin.getDebugLogger().warn(ex);
+
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException ignored) {
+                    }
                 }
             }
         } catch (Exception ex) {
