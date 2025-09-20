@@ -52,7 +52,6 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
         products.forEach(PurchasedProduct::validate);
 
         int addToCartCount = (int) products.stream()
-                .mapToInt(PurchasedProduct::getId)
                 .filter(plugin.getShopCartConfig()::shouldAddToCart)
                 .count();
 
@@ -79,7 +78,7 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
             // execute commands just now
             AtomicInteger indexer = new AtomicInteger();
             List<IndexedWrapper<PurchasedProduct>> indexedWrappers = products.stream()
-                    .filter(product -> isAutoIssuanceActive || !plugin.getShopCartConfig().shouldAddToCart(product.getId()))
+                    .filter(product -> isAutoIssuanceActive || !plugin.getShopCartConfig().shouldAddToCart(product))
                     .map(product -> new IndexedWrapper<>(indexer.getAndIncrement(), product))
                     .collect(Collectors.toList());
 

@@ -4,7 +4,6 @@ import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easydonate4j.data.model.PrettyPrintable;
 import ru.easydonate.easypayments.core.exception.StructureValidationException;
 
@@ -33,6 +32,9 @@ public final class PurchasedProduct implements PrettyPrintable {
 
     @SerializedName("count")
     private int count;
+
+    @SerializedName("issue_now")
+    private boolean issueNow;
 
     public void validate() throws StructureValidationException {
         if (id <= 0)
@@ -71,11 +73,11 @@ public final class PurchasedProduct implements PrettyPrintable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, commands, rawCommands, cost, count);
+        return Objects.hash(id, name, commands, rawCommands, cost, count, issueNow);
     }
 
     @Override
-    public @NotNull String toString() {
+    public String toString() {
         return "PurchasedProduct{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
@@ -83,6 +85,7 @@ public final class PurchasedProduct implements PrettyPrintable {
                 ", rawCommands=" + rawCommands +
                 ", cost=" + cost +
                 ", count=" + count +
+                ", issueNow=" + issueNow +
                 '}';
     }
 

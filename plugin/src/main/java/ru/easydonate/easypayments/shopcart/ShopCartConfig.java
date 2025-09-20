@@ -3,6 +3,7 @@ package ru.easydonate.easypayments.shopcart;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.Constants;
 import ru.easydonate.easypayments.core.config.Configuration;
+import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.object.PurchasedProduct;
 import ru.easydonate.easypayments.core.logging.DebugLogger;
 
 import java.util.List;
@@ -45,6 +46,10 @@ public final class ShopCartConfig {
 
     public boolean shouldIssueWhenOnline() {
         return !enabled || autoIssueEnabled;
+    }
+
+    public boolean shouldAddToCart(@NotNull PurchasedProduct product) {
+        return shouldAddToCart(product.getId()) && !product.isIssueNow();
     }
 
     public boolean shouldAddToCart(int productId) {
