@@ -22,5 +22,7 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
     // fallback repository for the bungeecord-chat
     maven("https://hub.spigotmc.org/nexus/content/groups/public/")
+    // use CodeMC repository for NMS-bundled Spigot artifacts
+    maven("https://repo.codemc.io/repository/nms-local/")
     mavenCentral()
 }
