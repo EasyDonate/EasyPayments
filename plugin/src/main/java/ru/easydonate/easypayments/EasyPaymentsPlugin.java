@@ -608,6 +608,11 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     }
 
     @Override
+    public boolean areBothFeaturesInactive() {
+        return !isPlayersSyncActive() && !isPurchasesIssuanceActive();
+    }
+
+    @Override
     public boolean isPlayersSyncActive() {
         return pluginEnabled() && pluginStateModel.isPlayersSyncActive();
     }

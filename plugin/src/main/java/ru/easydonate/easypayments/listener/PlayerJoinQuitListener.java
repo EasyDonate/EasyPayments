@@ -48,7 +48,7 @@ public final class PlayerJoinQuitListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(@NotNull PlayerJoinEvent event) {
-        if (!EasyPaymentsPlugin.isPluginEnabled() || (!plugin.isPlayersSyncActive() && !plugin.isPurchasesIssuanceActive()))
+        if (!EasyPaymentsPlugin.isPluginEnabled() || plugin.areBothFeaturesInactive())
             return;
 
         Player player = event.getPlayer();

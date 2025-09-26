@@ -21,6 +21,8 @@ public interface EasyPayments extends Plugin {
 
     int getPermissionLevel();
 
+    boolean areBothFeaturesInactive();
+
     boolean isPlayersSyncActive();
 
     boolean isPurchasesIssuanceActive();
