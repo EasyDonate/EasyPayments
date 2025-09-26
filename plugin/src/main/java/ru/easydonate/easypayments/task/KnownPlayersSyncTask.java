@@ -5,6 +5,7 @@ import ru.easydonate.easypayments.EasyPaymentsPlugin;
 import ru.easydonate.easypayments.core.easydonate4j.extension.client.EasyPaymentsClient;
 import ru.easydonate.easypayments.service.KnownPlayersService;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public final class KnownPlayersSyncTask extends AbstractPluginTask {
@@ -37,17 +38,21 @@ public final class KnownPlayersSyncTask extends AbstractPluginTask {
         if (!isWorking())
             return;
 
-        Map<String, Boolean> joinedPlayers = knownPlayersService.drainJoinedPlayers();
-        if (joinedPlayers.isEmpty())
+        // joined players since last drain (dynamic) + current online players (always 'true')
+        Map<String, Boolean> players = new HashMap<>();
+        knownPlayersService.drainJoinedPlayers(players::put);
+        plugin.getServer().getOnlinePlayers().forEach(player -> players.put(player.getName(), true));
+
+        if (players.isEmpty())
             return;
 
-        plugin.getDebugLogger().debug("[PlayersSync] Uploading known players ({0}):", joinedPlayers.size());
-        plugin.getDebugLogger().debug(joinedPlayers.toString());
+        plugin.getDebugLogger().debug("[PlayersSync] Uploading known players ({0}):", players.size());
+        plugin.getDebugLogger().debug(players.toString());
 
         try {
             for (int attempt = 0; attempt < UPLOAD_ATTEMPTS; attempt++) {
                 try {
-                    if (!easyPaymentsClient.uploadKnownPlayers(joinedPlayers)) {
+                    if (!easyPaymentsClient.uploadKnownPlayers(players)) {
                         plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
                         plugin.getLogger().severe("Please, contact with the platform support:");
                         plugin.getLogger().severe(EasyPaymentsPlugin.SUPPORT_URL);

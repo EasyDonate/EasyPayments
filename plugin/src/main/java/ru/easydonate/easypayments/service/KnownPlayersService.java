@@ -7,6 +7,7 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiConsumer;
 
 public final class KnownPlayersService {
 
@@ -18,23 +19,21 @@ public final class KnownPlayersService {
         this.joinedSinceLastDrainLock = new ReentrantLock();
     }
 
-    public @NotNull Map<String, Boolean> drainJoinedPlayers() {
-        Map<String, WeakReference<Player>> drained;
+    public void drainJoinedPlayers(@NotNull BiConsumer<String, Boolean> consumer) {
+        Map<String, WeakReference<Player>> threadSafeCopy;
 
         try {
             joinedSinceLastDrainLock.lock();
-
             if (joinedSinceLastDrain.isEmpty())
-                return Collections.emptyMap();
+                return;
 
-            drained = new HashMap<>(joinedSinceLastDrain);
+            threadSafeCopy = new HashMap<>(joinedSinceLastDrain);
             joinedSinceLastDrain.clear();
         } finally {
             joinedSinceLastDrainLock.unlock();
         }
 
-        Map<String, Boolean> joinedPlayers = new HashMap<>();
-        drained.forEach((playerName, playerRef) -> {
+        threadSafeCopy.forEach((playerName, playerRef) -> {
             boolean isOnline = false;
             if (playerRef != null) {
                 Player player = playerRef.get();
@@ -43,10 +42,8 @@ public final class KnownPlayersService {
                 }
             }
 
-            joinedPlayers.put(playerName, isOnline);
+            consumer.accept(playerName, isOnline);
         });
-
-        return joinedPlayers;
     }
 
     public void rememberJoinedPlayer(@NotNull Player player) {
