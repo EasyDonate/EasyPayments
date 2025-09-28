@@ -1,6 +1,9 @@
 package ru.easydonate.easypayments.platform.paper.internals;
 
+import com.mojang.authlib.GameProfile;
 import lombok.Getter;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.craftbukkit.CraftServer;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
@@ -22,6 +25,15 @@ public final class PlatformProvider extends PlatformProviderBase {
     ) {
         super(plugin, scheduler, executorName, permissionLevel);
         this.name = runningFolia ? "Folia Internals" : "Paper Internals";
+    }
+
+    @Override
+    protected @NotNull OfflinePlayer createOfflinePlayer(@NotNull String name) {
+        var uuid = plugin.getServer().getPlayerUniqueId(name);
+        if (uuid == null)
+            uuid = createOfflineUUID(name);
+
+        return ((CraftServer) plugin.getServer()).getOfflinePlayer(new GameProfile(uuid, name));
     }
 
     @Override
