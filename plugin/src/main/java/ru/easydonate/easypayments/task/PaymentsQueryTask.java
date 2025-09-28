@@ -3,26 +3,29 @@ package ru.easydonate.easypayments.task;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easydonate4j.api.v3.exception.ApiResponseFailureException;
 import ru.easydonate.easydonate4j.exception.HttpRequestException;
 import ru.easydonate.easydonate4j.exception.HttpResponseException;
 import ru.easydonate.easydonate4j.exception.JsonSerializationException;
 import ru.easydonate.easypayments.EasyPaymentsPlugin;
+import ru.easydonate.easypayments.core.easydonate4j.EventType;
 import ru.easydonate.easypayments.core.easydonate4j.extension.client.EasyPaymentsClient;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReport;
 import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.EventUpdateReports;
+import ru.easydonate.easypayments.core.easydonate4j.extension.data.model.object.NewPaymentReport;
 import ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model.EventUpdates;
-import ru.easydonate.easypayments.database.model.Purchase;
-import ru.easydonate.easypayments.service.IssuanceReportService;
-import ru.easydonate.easypayments.service.LongPollEventDispatcher;
 import ru.easydonate.easypayments.core.util.ThreadLocker;
 import ru.easydonate.easypayments.core.util.ThrowableCauseFinder;
+import ru.easydonate.easypayments.service.IssuanceReportService;
+import ru.easydonate.easypayments.service.LongPollEventDispatcher;
 import ru.easydonate.easypayments.shopcart.ShopCartConfig;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -155,19 +158,18 @@ public final class PaymentsQueryTask extends AbstractPluginTask {
                 ShopCartConfig shopCartConfig = plugin.getShopCartConfig();
                 EventUpdateReports reports = eventDispatcher.processEventUpdates(updates).join();
                 reportService.uploadReportsAndPersistStates(reports, payment -> {
-                    if (payment == null || !payment.hasPurchases() || !shopCartConfig.isEnabled())
+                    if (payment == null || !payment.hasPurchases())
                         return true;
 
-                    if (shopCartConfig.shouldIssueWhenOnline()) {
-                        Player onlinePlayer = plugin.getServer().getPlayer(payment.getCustomer().getPlayerName());
-                        if (onlinePlayer != null && onlinePlayer.isOnline()) {
-                            return true;
-                        }
-                    }
-
-                    return payment.getPurchases().stream()
-                            .mapToInt(Purchase::getProductId)
-                            .noneMatch(shopCartConfig::shouldAddToCart);
+                    return reports.stream()
+                            .filter(report -> report.getEventType() == EventType.NEW_PAYMENT)
+                            .map(EventUpdateReport::getReportObjects)
+                            .filter(Objects::nonNull)
+                            .flatMap(List::stream)
+                            .filter(NewPaymentReport.class::isInstance)
+                            .map(NewPaymentReport.class::cast)
+                            .filter(report -> report.getPaymentId() == payment.getId())
+                            .findFirst().filter(report -> !report.isAddedToCart()).isPresent();
                 });
             } finally {
                 DATABASE_QUERIES_LOCK.unlock();
