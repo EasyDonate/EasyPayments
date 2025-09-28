@@ -410,6 +410,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     }
 
     private void initializeApiClient() {
+        if (!pluginConfigured)
+            return;
+
         debugLogger.debug("Initializing EasyDonate API client...");
         this.easyPaymentsClient = EasyPaymentsClient.create(accessKey, userAgent, serverId);
     }
@@ -434,6 +437,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     }
 
     private void launchTasks() {
+        if (!pluginConfigured)
+            return;
+
         debugLogger.debug("[Tasks] Launching plugin tasks...");
 
         if (isPurchasesIssuanceActive()) {
@@ -507,6 +513,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     }
 
     private @NotNull CompletableFuture<PluginStateModel> deferRemoteStateQuery() {
+        if (!pluginConfigured)
+            return CompletableFuture.completedFuture(PluginStateModel.DEFAULT);
+
         return CompletableFuture.supplyAsync(() -> {
             PluginStateModel pluginStateModel = PluginStateModel.DEFAULT;
             int receivedOnAttempt = 0;

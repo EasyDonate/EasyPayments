@@ -38,7 +38,7 @@ public final class IssuanceReportService {
         plugin.getDebugLogger().debug("[Issuance] Uploading reports:");
         plugin.getDebugLogger().debug(reports.toPrettyString().split("\n"));
 
-        if (!easyPaymentsClient.uploadReports(reports)) {
+        if (easyPaymentsClient == null || !easyPaymentsClient.uploadReports(reports)) {
             plugin.getLogger().severe("An unknown error occured while trying to upload reports!");
             plugin.getLogger().severe("Please, contact with the platform support:");
             plugin.getLogger().severe(EasyPaymentsPlugin.SUPPORT_URL);
