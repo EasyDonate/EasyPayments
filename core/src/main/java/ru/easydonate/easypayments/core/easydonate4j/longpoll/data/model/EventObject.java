@@ -3,9 +3,6 @@ package ru.easydonate.easypayments.core.easydonate4j.longpoll.data.model;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easydonate4j.data.model.PrettyPrintable;
@@ -29,16 +26,6 @@ public abstract class EventObject implements PrettyPrintable {
 
     @SerializedName("plugins")
     protected List<PluginEvent> pluginEvents;
-
-    @SuppressWarnings("deprecation")
-    public @NotNull OfflinePlayer getOfflinePlayer() {
-        return Bukkit.getOfflinePlayer(customer);
-    }
-
-    public boolean isCustomerOnline() {
-        Player player = Bukkit.getPlayer(customer);
-        return player != null && player.isOnline();
-    }
 
     public boolean hasPluginEvents() {
         return pluginEvents != null && !pluginEvents.isEmpty();

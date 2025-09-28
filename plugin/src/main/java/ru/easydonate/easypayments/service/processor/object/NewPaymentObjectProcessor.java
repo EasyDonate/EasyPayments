@@ -57,9 +57,9 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
 
         int paymentId = eventObject.getPaymentId();
         String customerName = eventObject.getCustomer();
-        OfflinePlayer customerPlayer = eventObject.getOfflinePlayer();
+        OfflinePlayer customerPlayer = plugin.getPlatformProvider().getOfflinePlayer(customerName);
 
-        Player onlinePlayer = plugin.getServer().getPlayer(customerName);
+        Player onlinePlayer = customerPlayer.getPlayer();
         boolean isCustomerOnline = onlinePlayer != null && onlinePlayer.isOnline();
         boolean isAutoIssuanceActive = plugin.getShopCartConfig().shouldIssueWhenOnline() && isCustomerOnline;
         boolean addedToCart = !isAutoIssuanceActive && addToCartCount != 0;
