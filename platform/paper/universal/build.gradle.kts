@@ -19,6 +19,7 @@ dependencies {
     compileOnly(projects.core)
 
     if (buildPlatform) {
+        compileOnly(libs.authlib)
         compileOnly(libs.paper.api)
     }
 }

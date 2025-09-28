@@ -1,4 +1,5 @@
 [versions]
+authlib = "3.2.38"
 brigadier = "1.0.18"
 buildtools-plugin = "1.2"
 easydonate4j = "2.0.6"
@@ -14,6 +15,7 @@ special-source = "1.11.5"
 spigot-api = "1.12.2-R0.1-SNAPSHOT"
 
 [libraries]
+authlib = { module = "com.mojang:authlib", version.ref = "authlib" }
 brigadier = { module = "com.mojang:brigadier", version.ref = "brigadier" }
 buildtools-plugin = { module = "io.github.soknight.buildtools:io.github.soknight.buildtools.gradle.plugin", version.ref = "buildtools-plugin" }
 easydonate4j-api = { module = "ru.easydonate.easydonate4j:api-v3", version.ref = "easydonate4j" }
