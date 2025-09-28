@@ -149,7 +149,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         try {
             // loading the plugin configurations
             loadConfigurations();
-            this.pluginEnabled = true;
+            changeEnabledState(true);
         } catch (ConfigurationValidationException ex) {
             debugLogger.error("Configuration validation failed");
             debugLogger.error(ex);
@@ -222,6 +222,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         // closing storage
         closeStorage();
 
+        changeEnabledState(false);
         debugLogger.info("--- STATE: DISABLED ---");
         debugLogger.shutdown();
     }
@@ -240,6 +241,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         // loading all again
         loadConfigurations();
+        changeEnabledState(true);
         initializeApiClient();
         CompletableFuture<PluginStateModel> future = deferRemoteStateQuery();
         loadStorage();
@@ -247,7 +249,6 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         awaitRemoteStateQuery(future);
         launchTasks();
 
-        changeEnabledState(true);
         debugLogger.info("--- STATE: RELOADED ---");
     }
 
