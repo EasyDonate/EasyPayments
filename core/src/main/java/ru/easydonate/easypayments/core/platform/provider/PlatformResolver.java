@@ -59,12 +59,18 @@ public final class PlatformResolver {
 
             try {
                 platformClass = Class.forName(platformClassName);
-            } catch (Throwable ex) {
+            } catch (ClassNotFoundException ex) {
                 debugLogger.debug("[Platform] Platform class '{0}' not found!", platformClassName);
                 if (iterator.hasNext())
                     continue;
 
                 throw new UnsupportedPlatformException("platform implementation class not found", ex);
+            } catch (Throwable ex) {
+                debugLogger.debug("[Platform] Platform class '{0}' cannot be loaded!", platformClassName);
+                if (iterator.hasNext())
+                    continue;
+
+                throw new UnsupportedPlatformException("platform implementation class cannot be loaded", ex);
             }
 
             PlatformScheduler scheduler = resolveScheduler();
