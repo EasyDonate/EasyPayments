@@ -267,7 +267,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
                     warn("Failure reason: '%s'", ex.getMessage());
 
                 if (platformProvider != null) {
-                    warn("Continue to use current platform: '%s'...", platformProvider.getName());
+                    warn("Continue to use current platform: '%s'...", platformProvider.getDisplayName());
                 } else {
                     error("There is no platform implementation available!");
                     getServer().getPluginManager().disablePlugin(this);
@@ -449,7 +449,7 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     private void resolvePlatformImplementation() throws UnsupportedPlatformException {
         this.platformProvider = platformResolver.resolve(platformResolverState);
-        info("Detected platform: &b%s", platformProvider.getName());
+        info("Detected platform: &b%s", platformProvider.getDisplayName());
         debugLogger.info("[Platform] Using implementation: {0}", platformProvider.getClass().getName());
     }
 

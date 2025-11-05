@@ -22,8 +22,6 @@ import java.util.concurrent.Executor;
 @Getter
 public abstract class PlatformProviderBase implements PlatformProvider {
 
-    private static final @NotNull String NAME = "Spigot Internals";
-
     protected final @NotNull EasyPayments plugin;
     protected final @NotNull PlatformScheduler scheduler;
     protected final @NotNull Executor syncExecutor;
@@ -52,11 +50,6 @@ public abstract class PlatformProviderBase implements PlatformProvider {
 
     @Blocking
     protected abstract @NotNull UUID resolveOfflinePlayerId(@NotNull String name);
-
-    @Override
-    public @NotNull String getName() {
-        return NAME;
-    }
 
     @Override
     @Blocking
