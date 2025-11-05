@@ -50,8 +50,16 @@ public final class PlatformResolver {
         this.lookupResult = lookupEnvironment(debugLogger);
     }
 
-    public PlatformProvider resolve(@NotNull String username, int permissionLevel) throws UnsupportedPlatformException {
-        List<String> candidates = resolvePlatformCandidates(lookupResult);
+    public @NotNull PlatformProvider resolve(@NotNull PlatformResolverState state) throws UnsupportedPlatformException {
+        return resolve(state.isForceInternals(), state.getExecutorName(), state.getPermissionLevel());
+    }
+
+    public @NotNull PlatformProvider resolve(
+            boolean forceInternals,
+            @NotNull String username,
+            int permissionLevel
+    ) throws UnsupportedPlatformException {
+        List<String> candidates = resolvePlatformCandidates(lookupResult, forceInternals);
         String candidatesJoined = !candidates.isEmpty() ? String.join(", ", candidates) : "<nothing>";
         debugLogger.debug("[Platform] Candidates ({0}): {1}", candidates.size(), candidatesJoined);
 
@@ -99,7 +107,7 @@ public final class PlatformResolver {
         throw new UnsupportedPlatformException("seems that here is no supported platform");
     }
 
-    private PlatformScheduler resolveScheduler() throws UnsupportedPlatformException {
+    private @NotNull PlatformScheduler resolveScheduler() throws UnsupportedPlatformException {
         if (lookupResult.isFoliaDetected()) {
             try {
                 Class<?> clazz = Class.forName(FOLIA_SCHEDULER_CLASS_NAME);
@@ -112,7 +120,10 @@ public final class PlatformResolver {
         return new BukkitPlatformScheduler(plugin.getServer());
     }
 
-    private static List<String> resolvePlatformCandidates(@NotNull EnvironmentLookupResult lookupResult) throws UnsupportedPlatformException {
+    private static @NotNull List<String> resolvePlatformCandidates(
+            @NotNull EnvironmentLookupResult lookupResult,
+            boolean forceInternals
+    ) throws UnsupportedPlatformException {
         Set<String> candidates = new LinkedHashSet<>();
         if (lookupResult.isFoliaDetected()) {
             if (!lookupResult.isNativeInterceptorSupported())
@@ -121,10 +132,12 @@ public final class PlatformResolver {
             if (!MINECRAFT_VERSION.isAtLeast(MinecraftVersion.FOLIA_SUPPORTED_UPDATE))
                 throw new UnsupportedPlatformException("unsupported Folia version detected");
 
-            candidates.add(PAPER_UNIVERSAL_PLATFORM_CLASS);
+            if (!forceInternals) {
+                candidates.add(PAPER_UNIVERSAL_PLATFORM_CLASS);
+            }
         }
 
-        if (lookupResult.isNativeInterceptorSupported())
+        if (!forceInternals && lookupResult.isNativeInterceptorSupported())
             candidates.add(PAPER_UNIVERSAL_PLATFORM_CLASS);
 
         if (lookupResult.isUnrelocatedInternalsDetected())
@@ -138,7 +151,9 @@ public final class PlatformResolver {
                 .collect(Collectors.toList());
     }
 
-    private static EnvironmentLookupResult lookupEnvironment(@NotNull DebugLogger logger) throws UnsupportedPlatformException {
+    private static @NotNull EnvironmentLookupResult lookupEnvironment(
+            @NotNull DebugLogger logger
+    ) throws UnsupportedPlatformException {
         String craftBukkitPackage = Bukkit.getServer().getClass().getPackage().getName();
         logger.debug("[Platform] CraftBukkit package: '{0}'", craftBukkitPackage);
 

@@ -76,6 +76,10 @@ public abstract class PlatformProviderBase implements PlatformProvider {
         return bukkitTask.isCancelled();
     }
 
+    public final void updateInterceptorFactory(@NotNull PlatformResolverState state) {
+        updateInterceptorFactory(state.getExecutorName(), state.getPermissionLevel());
+    }
+
     public final synchronized void updateInterceptorFactory(@NotNull String executorName, int permissionLevel) {
         if (Objects.equals(this.executorName, executorName) && this.permissionLevel == permissionLevel)
             return;

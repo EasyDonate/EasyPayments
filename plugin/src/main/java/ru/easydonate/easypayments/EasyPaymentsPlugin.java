@@ -27,6 +27,7 @@ import ru.easydonate.easypayments.core.platform.UnsupportedPlatformException;
 import ru.easydonate.easypayments.core.platform.provider.PlatformProvider;
 import ru.easydonate.easypayments.core.platform.provider.PlatformProviderBase;
 import ru.easydonate.easypayments.core.platform.provider.PlatformResolver;
+import ru.easydonate.easypayments.core.platform.provider.PlatformResolverState;
 import ru.easydonate.easypayments.database.Database;
 import ru.easydonate.easypayments.database.DatabaseManager;
 import ru.easydonate.easypayments.database.model.Customer;
@@ -56,9 +57,6 @@ import java.util.regex.Pattern;
 import static ru.easydonate.easypayments.core.util.AnsiColorizer.colorize;
 
 public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
-
-    public static final String DEFAULT_EXECUTOR_NAME = "@EasyPayments";
-    public static final int DEFAULT_PERMISSION_LEVEL = 4;
 
     public static final String TROUBLESHOOTING_PAGE_URL = "https://easypayments.easydonate.ru";
     public static final String SUPPORT_URL = "https://vk.me/easydonate";
@@ -92,6 +90,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     @Getter
     private PersistanceService persistanceService;
 
+    private PlatformResolver platformResolver;
+    @Getter
+    private PlatformResolverState platformResolverState;
     @Getter
     private PlatformProvider platformProvider;
     private EasyPaymentsClient easyPaymentsClient;
@@ -117,9 +118,6 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     @Getter private String accessKey;
     @Getter private int serverId;
 
-    @Getter private String executorName;
-    @Getter private int permissionLevel;
-
     static {
         // Disable useless ORMLite logging
         Logger.setGlobalLogLevel(Level.ERROR);
@@ -138,6 +136,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         this.messages = new Messages(this, config);
         this.shopCartConfig = new ShopCartConfig(config, debugLogger);
 
+        this.platformResolverState = PlatformResolverState.DEFAULT;
+
         this.pluginStateModel = PluginStateModel.DEFAULT;
     }
 
@@ -145,10 +145,6 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     public void onEnable() {
         instance = this;
         debugLogger.info("--- STATE: ENABLING ---");
-
-        // resolving the platform implementation
-        if (!resolvePlatformImplementation())
-            return;
 
         try {
             // loading the plugin configurations
@@ -160,6 +156,10 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
             changeEnabledState(false);
             reportException(ex);
         }
+
+        // platform implementation initialization
+        if (!initializePlatformImplementation())
+            return;
 
         // API client initialization
         initializeApiClient();
@@ -243,8 +243,50 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         changeEnabledState(false);
 
+        // remember current state
+        PlatformResolverState currentState = platformResolverState;
+
         // loading all again
         loadConfigurations();
+
+        boolean requiresPlatformResolve = platformResolverState.requiresPlatformResolve(currentState);
+        boolean requiresPlatformUpdate = platformResolverState.requiresPlatformUpdate(currentState);
+
+        if (requiresPlatformResolve) {
+            // resolving effective platform provider or fallback to current
+            try {
+                resolvePlatformImplementation();
+                requiresPlatformUpdate = false;
+            } catch (UnsupportedPlatformException ex) {
+                debugLogger.warn("[Platform] Couldn't resolve effective platform implementation!");
+                debugLogger.warn(ex);
+
+                warn("Couldn't resolve effective platform implementation!");
+
+                if (ex.getMessage() != null)
+                    warn("Failure reason: '%s'", ex.getMessage());
+
+                if (platformProvider != null) {
+                    warn("Continue to use current platform: '%s'...", platformProvider.getName());
+                } else {
+                    error("There is no platform implementation available!");
+                    getServer().getPluginManager().disablePlugin(this);
+                    return;
+                }
+            }
+        }
+
+        if (requiresPlatformUpdate && platformProvider != null) {
+            // updating executor name & permission level in existing platform provider instance
+            debugLogger.debug(
+                    "Updating interceptor factory with executor name '{0}' and permission level '{1}'",
+                    platformResolverState.getExecutorName(),
+                    platformResolverState.getPermissionLevel()
+            );
+
+            ((PlatformProviderBase) platformProvider).updateInterceptorFactory(platformResolverState);
+        }
+
         changeEnabledState(true);
         initializeApiClient();
         CompletableFuture<PluginStateModel> future = deferRemoteStateQuery();
@@ -271,6 +313,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         messages.reload();
         shopCartConfig.reload();
+
+        this.platformResolverState = PlatformResolverState.from(config);
 
         if (exception != null)
             throw exception;
@@ -370,33 +414,17 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         debugLogger.debug("[Validation] Validation passed");
 
-        // update executor name of any further command executors
-        this.executorName = config.getString("executor-name", DEFAULT_EXECUTOR_NAME);
-
-        // update permission level of any further command executors
-        this.permissionLevel = config.getIntWithBounds("permission-level", 0, 4, DEFAULT_PERMISSION_LEVEL);
-
-        // updating permission level in existing platform provider instance
-        if (platformProvider != null) {
-            debugLogger.debug("Updating interceptor factory with executor name '{0}' and permission level '{1}'", executorName, permissionLevel);
-            ((PlatformProviderBase) platformProvider).updateInterceptorFactory(executorName, permissionLevel);
-        }
-
         // clean old log files
         int logFileTTL = config.getInt("log-file-time-to-life");
         debugLogger.cleanLogsDir(logFileTTL);
     }
 
-    private boolean resolvePlatformImplementation() {
-        debugLogger.debug("[Platform] Resolving platform implementation...");
+    private boolean initializePlatformImplementation() {
+        debugLogger.debug("[Platform] Initializing platform implementation...");
 
         try {
-            PlatformResolver platformResolver = new PlatformResolver(this, debugLogger);
-            String effExecutorName = executorName != null ? executorName : DEFAULT_EXECUTOR_NAME;
-            int effPermissionLevel = permissionLevel >= 0 && permissionLevel <= 4 ? permissionLevel : DEFAULT_PERMISSION_LEVEL;
-            this.platformProvider = platformResolver.resolve(effExecutorName, effPermissionLevel);
-            info("Detected platform: &b%s", platformProvider.getName());
-            debugLogger.info("[Platform] Using implementation: {0}", platformProvider.getClass().getName());
+            this.platformResolver = new PlatformResolver(this, debugLogger);
+            resolvePlatformImplementation();
             return true;
         } catch (UnsupportedPlatformException ex) {
             debugLogger.error("[Platform] Unsupported platform!");
@@ -417,6 +445,12 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
             getServer().getPluginManager().disablePlugin(this);
             return false;
         }
+    }
+
+    private void resolvePlatformImplementation() throws UnsupportedPlatformException {
+        this.platformProvider = platformResolver.resolve(platformResolverState);
+        info("Detected platform: &b%s", platformProvider.getName());
+        debugLogger.info("[Platform] Using implementation: {0}", platformProvider.getClass().getName());
     }
 
     private void initializeApiClient() {
@@ -609,6 +643,10 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     private void info(@NotNull String message, @Nullable Object... args) {
         getLogger().info(colorize(String.format(message, args)));
+    }
+
+    private void warn(@NotNull String message, @Nullable Object... args) {
+        getLogger().warning(colorize(String.format(message, args)));
     }
 
     private void error(@NotNull String message, @Nullable Object... args) {

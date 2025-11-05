@@ -11,6 +11,7 @@ import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
 import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.core.formatting.StringFormatter;
+import ru.easydonate.easypayments.core.platform.provider.PlatformResolverState;
 
 import java.util.List;
 
@@ -40,7 +41,9 @@ public final class CommandStatus extends CommandExecutor {
 
         String accessKey = StringFormatter.maskAccessKey(plugin.getAccessKey());
         int serverId = plugin.getServerId();
-        int permissionLevel = plugin.getPermissionLevel();
+
+        PlatformResolverState resolverState = plugin.getPlatformResolverState();
+        int permissionLevel = resolverState.getPermissionLevel();
 
         messages.getAndSend(sender, "status.message",
                 "%plugin_version%", plugin.getDescription().getVersion(),

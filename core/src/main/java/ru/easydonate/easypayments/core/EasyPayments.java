@@ -6,8 +6,11 @@ import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.core.formatting.RelativeTimeFormatter;
 import ru.easydonate.easypayments.core.logging.DebugLogger;
 import ru.easydonate.easypayments.core.platform.provider.PlatformProvider;
+import ru.easydonate.easypayments.core.platform.provider.PlatformResolverState;
 
 public interface EasyPayments extends Plugin {
+
+    @NotNull PlatformResolverState getPlatformResolverState();
 
     @NotNull PlatformProvider getPlatformProvider();
 
@@ -18,8 +21,6 @@ public interface EasyPayments extends Plugin {
     @Nullable String getAccessKey();
 
     int getServerId();
-
-    int getPermissionLevel();
 
     boolean areBothFeaturesInactive();
 
