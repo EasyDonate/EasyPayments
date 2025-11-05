@@ -28,7 +28,7 @@ public final class PlatformProvider extends PlatformProviderBase {
 
     @Override
     @NonBlocking
-    protected @NotNull InterceptorFactory interceptorFactoryOf(@NotNull String executorName, int permissionLevel) {
+    protected @NotNull InterceptorFactory createInterceptorFactory() {
         return new PlatformInterceptorFactory(this, executorName, permissionLevel);
     }
 

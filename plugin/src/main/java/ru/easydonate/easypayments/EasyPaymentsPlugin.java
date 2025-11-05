@@ -57,7 +57,9 @@ import static ru.easydonate.easypayments.core.util.AnsiColorizer.colorize;
 
 public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
-    public static final String COMMAND_EXECUTOR_NAME = "@EasyPayments";
+    public static final String DEFAULT_EXECUTOR_NAME = "@EasyPayments";
+    public static final int DEFAULT_PERMISSION_LEVEL = 4;
+
     public static final String TROUBLESHOOTING_PAGE_URL = "https://easypayments.easydonate.ru";
     public static final String SUPPORT_URL = "https://vk.me/easydonate";
     public static final String USER_AGENT_FORMAT = "EasyPayments %s";
@@ -114,6 +116,8 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
     @Getter private String accessKey;
     @Getter private int serverId;
+
+    @Getter private String executorName;
     @Getter private int permissionLevel;
 
     static {
@@ -366,13 +370,16 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         debugLogger.debug("[Validation] Validation passed");
 
+        // update executor name of any further command executors
+        this.executorName = config.getString("executor-name", DEFAULT_EXECUTOR_NAME);
+
         // update permission level of any further command executors
-        this.permissionLevel = config.getIntWithBounds("permission-level", 0, 4, 4);
+        this.permissionLevel = config.getIntWithBounds("permission-level", 0, 4, DEFAULT_PERMISSION_LEVEL);
 
         // updating permission level in existing platform provider instance
         if (platformProvider != null) {
-            debugLogger.debug("Updating interceptor factory with username '{0}' and permission level '{1}'", COMMAND_EXECUTOR_NAME, permissionLevel);
-            ((PlatformProviderBase) platformProvider).updateInterceptorFactory(COMMAND_EXECUTOR_NAME, permissionLevel);
+            debugLogger.debug("Updating interceptor factory with executor name '{0}' and permission level '{1}'", executorName, permissionLevel);
+            ((PlatformProviderBase) platformProvider).updateInterceptorFactory(executorName, permissionLevel);
         }
 
         // clean old log files
@@ -385,7 +392,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
 
         try {
             PlatformResolver platformResolver = new PlatformResolver(this, debugLogger);
-            this.platformProvider = platformResolver.resolve(COMMAND_EXECUTOR_NAME, permissionLevel);
+            String effExecutorName = executorName != null ? executorName : DEFAULT_EXECUTOR_NAME;
+            int effPermissionLevel = permissionLevel >= 0 && permissionLevel <= 4 ? permissionLevel : DEFAULT_PERMISSION_LEVEL;
+            this.platformProvider = platformResolver.resolve(effExecutorName, effPermissionLevel);
             info("Detected platform: &b%s", platformProvider.getName());
             debugLogger.info("[Platform] Using implementation: {0}", platformProvider.getClass().getName());
             return true;

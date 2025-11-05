@@ -2,6 +2,7 @@ package ru.easydonate.easypayments.core.platform.provider;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -25,6 +27,9 @@ public abstract class PlatformProviderBase implements PlatformProvider {
     protected final @NotNull EasyPayments plugin;
     protected final @NotNull PlatformScheduler scheduler;
     protected final @NotNull Executor syncExecutor;
+
+    @Getter(AccessLevel.NONE) protected @NotNull String executorName;
+    @Getter(AccessLevel.NONE) protected int permissionLevel;
     protected @NotNull InterceptorFactory interceptorFactory;
 
     public PlatformProviderBase(
@@ -36,11 +41,14 @@ public abstract class PlatformProviderBase implements PlatformProvider {
         this.plugin = plugin;
         this.scheduler = scheduler;
         this.syncExecutor = task -> scheduler.runSyncNow(plugin, task);
-        this.interceptorFactory = interceptorFactoryOf(executorName, permissionLevel);
+
+        this.executorName = executorName;
+        this.permissionLevel = permissionLevel;
+        this.interceptorFactory = createInterceptorFactory();
     }
 
     @NonBlocking
-    protected abstract @NotNull InterceptorFactory interceptorFactoryOf(@NotNull String executorName, int permissionLevel);
+    protected abstract @NotNull InterceptorFactory createInterceptorFactory();
 
     @Blocking
     protected abstract @NotNull UUID resolveOfflinePlayerId(@NotNull String name);
@@ -69,7 +77,12 @@ public abstract class PlatformProviderBase implements PlatformProvider {
     }
 
     public final synchronized void updateInterceptorFactory(@NotNull String executorName, int permissionLevel) {
-        this.interceptorFactory = interceptorFactoryOf(executorName, permissionLevel);
+        if (Objects.equals(this.executorName, executorName) && this.permissionLevel == permissionLevel)
+            return;
+
+        this.executorName = executorName;
+        this.permissionLevel = permissionLevel;
+        this.interceptorFactory = createInterceptorFactory();
     }
 
     protected final @NotNull UUID generateOfflinePlayerId(@NotNull String name) {

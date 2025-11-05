@@ -2,6 +2,7 @@ package ru.easydonate.easypayments.core.platform.provider;
 
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.NonBlocking;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
@@ -17,6 +18,7 @@ public interface PlatformProvider {
 
     @NotNull String getName();
 
+    @NonBlocking
     @NotNull InterceptorFactory getInterceptorFactory();
 
     @Blocking
