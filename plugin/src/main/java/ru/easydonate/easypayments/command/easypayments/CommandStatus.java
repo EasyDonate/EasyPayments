@@ -11,6 +11,8 @@ import ru.easydonate.easypayments.command.exception.ExecutionException;
 import ru.easydonate.easypayments.command.exception.InitializationException;
 import ru.easydonate.easypayments.core.config.localized.Messages;
 import ru.easydonate.easypayments.core.formatting.StringFormatter;
+import ru.easydonate.easypayments.core.platform.provider.PlatformProvider;
+import ru.easydonate.easypayments.core.platform.provider.PlatformProvider.ImplementationType;
 import ru.easydonate.easypayments.core.platform.provider.PlatformResolverState;
 
 import java.util.List;
@@ -39,21 +41,54 @@ public final class CommandStatus extends CommandExecutor {
         boolean isPlayersSyncingActive = plugin.isPlayersSyncActive();
         boolean isPurchasesIssuanceActive = plugin.isPurchasesIssuanceActive();
 
+        String noValueStub = getNoValueStub();
+
         String accessKey = StringFormatter.maskAccessKey(plugin.getAccessKey());
         int serverId = plugin.getServerId();
 
+        String effectiveExecutorName = noValueStub;
+        Object effectivePermissionLevel = noValueStub;
+        String effectivePlatformType = noValueStub;
+        String effectivePlatformName = noValueStub;
+
         PlatformResolverState resolverState = plugin.getPlatformResolverState();
-        int permissionLevel = resolverState.getPermissionLevel();
+        if (resolverState != null) {
+            String executorName = resolverState.getExecutorName();
+            if (executorName != null)
+                effectiveExecutorName = executorName;
+
+            int permissionLevel = resolverState.getPermissionLevel();
+            if (permissionLevel > 0) {
+                effectivePermissionLevel = permissionLevel;
+            }
+        }
+
+        PlatformProvider platformProvider = plugin.getPlatformProvider();
+        if (platformProvider != null) {
+            ImplementationType implementationType = platformProvider.getImplementationType();
+            String implementationKey = implementationType.getKey();
+
+            effectivePlatformType = messages.get(String.format("status.platform-type.%s", implementationKey));
+            effectivePlatformName = platformProvider.getPlatformType().getName();
+
+            effectiveExecutorName = messages.getOrDefault(
+                    String.format("status.executor-name.%s", implementationKey),
+                    effectiveExecutorName
+            );
+        }
 
         messages.getAndSend(sender, "status.message",
                 "%plugin_version%", plugin.getDescription().getVersion(),
                 "%plugin_status%", wrapBoolean(isPluginEnabled, "plugin-status", "working", "unconfigured"),
                 "%storage_status%", wrapBoolean(isStorageAvailable, "storage-status", "available", "unavailable"),
+                "%platform_type%", effectivePlatformType,
+                "%platform_name%", effectivePlatformName,
                 "%mode_issue_purchases%", wrapBoolean(isPurchasesIssuanceActive, "plugin-mode", "active", "inactive"),
                 "%mode_sync_players%", wrapBoolean(isPlayersSyncingActive, "plugin-mode", "active", "inactive"),
-                "%access_key%", accessKey != null && !accessKey.isEmpty() ? accessKey : getNoValueStub(),
-                "%server_id%", serverId > 0 ? ("#" + serverId) : getNoValueStub(),
-                "%permission_level%", permissionLevel > 0 ? permissionLevel : getNoValueStub()
+                "%access_key%", accessKey != null && !accessKey.isEmpty() ? accessKey : noValueStub,
+                "%server_id%", serverId > 0 ? ("#" + serverId) : noValueStub,
+                "%executor_name%", effectiveExecutorName,
+                "%permission_level%", effectivePermissionLevel
         );
     }
 

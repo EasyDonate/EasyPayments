@@ -108,9 +108,16 @@ status:
     available: _value_
     unavailable: _value_
 
+  platform-type:
+    internals: _value_
+    universal: _value_
+
   plugin-mode:
     active: _value_
     inactive: _value_
+
+  executor-name:
+    universal: _value_
 
   no-value-stub: _value_
 
