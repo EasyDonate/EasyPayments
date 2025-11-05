@@ -109,13 +109,13 @@ public final class DatabaseManager {
     }
 
     public @NotNull CompletableFuture<Customer> getOrCreateCustomer(@NotNull OfflinePlayer bukkitPlayer) {
-        return getOrCreateCustomer(bukkitPlayer, bukkitPlayer.getName());
+        return getOrCreateCustomer(bukkitPlayer.getName(), bukkitPlayer.getUniqueId());
     }
 
-    public @NotNull CompletableFuture<Customer> getOrCreateCustomer(@NotNull OfflinePlayer bukkitPlayer, @NotNull String playerName) {
+    public @NotNull CompletableFuture<Customer> getOrCreateCustomer(@NotNull String playerName, @NotNull UUID playerId) {
         return getCustomerByName(playerName).thenApply(customer -> {
             if (customer == null) {
-                customer = new Customer(playerName, bukkitPlayer.getUniqueId());
+                customer = new Customer(playerName, playerId);
                 saveCustomer(customer).join();
             }
 

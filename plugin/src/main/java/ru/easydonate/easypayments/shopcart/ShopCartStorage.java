@@ -10,6 +10,7 @@ import ru.easydonate.easypayments.exception.PluginUnavailableException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,11 +33,11 @@ public final class ShopCartStorage {
     }
 
     public @NotNull ShopCart getShopCart(@NotNull OfflinePlayer bukkitPlayer) {
-        return getShopCart(bukkitPlayer, bukkitPlayer.getName());
+        return getShopCart(bukkitPlayer.getName(), bukkitPlayer.getUniqueId());
     }
 
-    public @NotNull ShopCart getShopCart(@NotNull OfflinePlayer bukkitPlayer, @NotNull String playerName) {
-        return getCached(bukkitPlayer.getName()).orElseGet(() -> loadAndCache(bukkitPlayer, playerName).join());
+    public @NotNull ShopCart getShopCart(@NotNull String playerName, @NotNull UUID playerId) {
+        return getCached(playerName).orElseGet(() -> loadAndCache(playerName, playerId).join());
     }
 
     public @NotNull Optional<ShopCart> getCached(@NotNull String playerName) {
@@ -55,11 +56,11 @@ public final class ShopCartStorage {
     }
 
     public @NotNull CompletableFuture<ShopCart> loadAndCache(@NotNull OfflinePlayer bukkitPlayer) throws PluginUnavailableException {
-        return loadAndCache(bukkitPlayer, bukkitPlayer.getName());
+        return loadAndCache(bukkitPlayer.getName(), bukkitPlayer.getUniqueId());
     }
 
-    public @NotNull CompletableFuture<ShopCart> loadAndCache(@NotNull OfflinePlayer bukkitPlayer, @NotNull String playerName) throws PluginUnavailableException {
-        return plugin.getStorage().getOrCreateCustomer(bukkitPlayer, playerName).thenApply(customer -> {
+    public @NotNull CompletableFuture<ShopCart> loadAndCache(@NotNull String playerName, @NotNull UUID playerId) throws PluginUnavailableException {
+        return plugin.getStorage().getOrCreateCustomer(playerName, playerId).thenApply(customer -> {
             ShopCart shopCart = new ShopCart(customer);
             cachedShopCarts.put(playerName, shopCart);
             return shopCart;
