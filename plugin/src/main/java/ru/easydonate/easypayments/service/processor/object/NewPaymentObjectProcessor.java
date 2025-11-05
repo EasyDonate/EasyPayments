@@ -1,6 +1,5 @@
 package ru.easydonate.easypayments.service.processor.object;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +21,7 @@ import ru.easydonate.easypayments.database.model.Purchase;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -57,15 +57,15 @@ public final class NewPaymentObjectProcessor extends EventObjectProcessor<NewPay
 
         int paymentId = eventObject.getPaymentId();
         String customerName = eventObject.getCustomer();
-        OfflinePlayer customerPlayer = plugin.getPlatformProvider().getOfflinePlayer(customerName);
+        UUID customerId = plugin.getPlatformProvider().resolvePlayerId(customerName);
 
-        Player onlinePlayer = customerPlayer.getPlayer();
+        Player onlinePlayer = plugin.getServer().getPlayer(customerId);
         boolean isCustomerOnline = onlinePlayer != null && onlinePlayer.isOnline();
         boolean isAutoIssuanceActive = plugin.getShopCartConfig().shouldIssueWhenOnline() && isCustomerOnline;
         boolean addedToCart = !isAutoIssuanceActive && addToCartCount != 0;
         NewPaymentReport report = new NewPaymentReport(paymentId, addedToCart, customerName);
 
-        Customer customer = plugin.getShopCartStorage().getShopCart(customerPlayer, customerName).getCustomer();
+        Customer customer = plugin.getShopCartStorage().getShopCart(customerName, customerId).getCustomer();
         Payment payment = customer.createPayment(paymentId, plugin.getServerId());
         plugin.getPersistanceService().savePayment(payment).join();
 
