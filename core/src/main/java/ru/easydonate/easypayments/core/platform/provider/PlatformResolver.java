@@ -26,22 +26,25 @@ import java.util.stream.Collectors;
 @Getter
 public final class PlatformResolver {
 
-    public static final MinecraftVersion MINECRAFT_VERSION =  MinecraftVersion.getCurrentVersion();
+    public static final @NotNull MinecraftVersion MINECRAFT_VERSION =  MinecraftVersion.getCurrentVersion();
 
-    private static final Pattern CRAFTBUKKIT_PACKAGE_PATTERN = Pattern.compile("org\\.bukkit\\.craftbukkit\\.v(\\w+)");
-    private static final String FOLIA_DETECT_CLASS_NAME = "io.papermc.paper.threadedregions.RegionizedServer";
-    private static final String FOLIA_SCHEDULER_CLASS_NAME = "ru.easydonate.easypayments.platform.folia.FoliaPlatformScheduler";
-    private static final String NATIVE_INTERCEPTOR_CLASS_NAME = "io.papermc.paper.commands.FeedbackForwardingSender";
+    private static final @NotNull Pattern CRAFTBUKKIT_PACKAGE_PATTERN = Pattern.compile("org\\.bukkit\\.craftbukkit\\.v(\\w+)");
+    private static final @NotNull String FOLIA_DETECT_CLASS_NAME = "io.papermc.paper.threadedregions.RegionizedServer";
+    private static final @NotNull String FOLIA_SCHEDULER_CLASS_NAME = "ru.easydonate.easypayments.platform.folia.FoliaPlatformScheduler";
+    private static final @NotNull String NATIVE_INTERCEPTOR_CLASS_NAME = "io.papermc.paper.commands.FeedbackForwardingSender";
 
-    private static final String PAPER_INTERNALS_PLATFORM_CLASS = "paper.internals.PlatformProvider";
-    private static final String PAPER_UNIVERSAL_PLATFORM_CLASS = "paper.universal.PlatformProvider";
-    private static final String SPIGOT_INTERNALS_PLATFORM_CLASS = "spigot.v%s.PlatformProvider";
+    private static final @NotNull String PAPER_INTERNALS_PLATFORM_CLASS = "paper.internals.PlatformProvider";
+    private static final @NotNull String PAPER_UNIVERSAL_PLATFORM_CLASS = "paper.universal.PlatformProvider";
+    private static final @NotNull String SPIGOT_INTERNALS_PLATFORM_CLASS = "spigot.v%s.PlatformProvider";
 
-    private final EasyPayments plugin;
-    private final DebugLogger debugLogger;
-    private final EnvironmentLookupResult lookupResult;
+    private final @NotNull EasyPayments plugin;
+    private final @NotNull DebugLogger debugLogger;
+    private final @NotNull EnvironmentLookupResult lookupResult;
 
-    public PlatformResolver(@NotNull EasyPayments plugin, @NotNull DebugLogger debugLogger) throws UnsupportedPlatformException {
+    public PlatformResolver(
+            @NotNull EasyPayments plugin,
+            @NotNull DebugLogger debugLogger
+    ) throws UnsupportedPlatformException {
         this.plugin = plugin;
         this.debugLogger = debugLogger;
         this.lookupResult = lookupEnvironment(debugLogger);
@@ -67,6 +70,7 @@ public final class PlatformResolver {
                 throw new UnsupportedPlatformException("platform implementation class not found", ex);
             } catch (Throwable ex) {
                 debugLogger.debug("[Platform] Platform class '{0}' cannot be loaded!", platformClassName);
+                debugLogger.debug(ex);
                 if (iterator.hasNext())
                     continue;
 

@@ -1,11 +1,13 @@
 package ru.easydonate.easypayments.core.platform.provider;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
+
+import java.util.UUID;
 
 public interface PlatformProvider {
 
@@ -15,9 +17,10 @@ public interface PlatformProvider {
 
     @NotNull String getName();
 
-    @NotNull OfflinePlayer getOfflinePlayer(@NotNull String name);
-
     @NotNull InterceptorFactory getInterceptorFactory();
+
+    @Blocking
+    @NotNull UUID resolvePlayerId(@NotNull String name);
 
     boolean isTaskCancelled(@NotNull BukkitTask asyncTask);
 

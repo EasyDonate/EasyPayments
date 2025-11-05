@@ -2,8 +2,9 @@ package ru.easydonate.easypayments.platform.spigot;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.v1_13_R1.DedicatedServer;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.v1_13_R1.CraftServer;
+import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.NonBlocking;
 import org.jetbrains.annotations.NotNull;
 import org.spigotmc.SpigotConfig;
 import ru.easydonate.easypayments.core.EasyPayments;
@@ -26,18 +27,15 @@ public final class PlatformProvider extends PlatformProviderBase {
     }
 
     @Override
-    protected @NotNull OfflinePlayer createOfflinePlayer(@NotNull String name) {
-        UUID uuid = resolvePlayerUUID(name);
-        GameProfile profile = new GameProfile(uuid, name);
-        return ((CraftServer) plugin.getServer()).getOfflinePlayer(profile);
-    }
-
-    @Override
-    protected @NotNull InterceptorFactory createInterceptorFactory(@NotNull String executorName, int permissionLevel) {
+    @NonBlocking
+    protected @NotNull InterceptorFactory interceptorFactoryOf(@NotNull String executorName, int permissionLevel) {
         return new PlatformInterceptorFactory(this, executorName, permissionLevel);
     }
 
-    private @NotNull UUID resolvePlayerUUID(@NotNull String name) {
+    @Override
+    @Blocking
+    protected @NotNull UUID resolveOfflinePlayerId(@NotNull String name) {
+        // references CraftServer#getOfflinePlayer(String)
         DedicatedServer server = ((CraftServer) plugin.getServer()).getHandle().getServer();
         if (server.getOnlineMode() || SpigotConfig.bungee) {
             GameProfile profile = server.getUserCache().getProfile(name);
@@ -46,7 +44,7 @@ public final class PlatformProvider extends PlatformProviderBase {
             }
         }
 
-        return createOfflineUUID(name);
+        return generateOfflinePlayerId(name);
     }
 
 }

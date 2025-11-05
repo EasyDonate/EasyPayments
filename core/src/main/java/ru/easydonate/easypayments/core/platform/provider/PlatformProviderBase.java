@@ -7,6 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Blocking;
+import org.jetbrains.annotations.NonBlocking;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
@@ -19,19 +20,30 @@ import java.util.concurrent.Executor;
 @Getter
 public abstract class PlatformProviderBase implements PlatformProvider {
 
-    private static final String NAME = "Spigot Internals";
+    private static final @NotNull String NAME = "Spigot Internals";
 
-    protected final EasyPayments plugin;
-    protected final PlatformScheduler scheduler;
-    protected final Executor syncExecutor;
-    protected InterceptorFactory interceptorFactory;
+    protected final @NotNull EasyPayments plugin;
+    protected final @NotNull PlatformScheduler scheduler;
+    protected final @NotNull Executor syncExecutor;
+    protected @NotNull InterceptorFactory interceptorFactory;
 
-    public PlatformProviderBase(@NotNull EasyPayments plugin, @NotNull PlatformScheduler scheduler, @NotNull String executorName, int permissionLevel) {
+    public PlatformProviderBase(
+            @NotNull EasyPayments plugin,
+            @NotNull PlatformScheduler scheduler,
+            @NotNull String executorName,
+            int permissionLevel
+    ) {
         this.plugin = plugin;
         this.scheduler = scheduler;
         this.syncExecutor = task -> scheduler.runSyncNow(plugin, task);
-        this.interceptorFactory = createInterceptorFactory(executorName, permissionLevel);
+        this.interceptorFactory = interceptorFactoryOf(executorName, permissionLevel);
     }
+
+    @NonBlocking
+    protected abstract @NotNull InterceptorFactory interceptorFactoryOf(@NotNull String executorName, int permissionLevel);
+
+    @Blocking
+    protected abstract @NotNull UUID resolveOfflinePlayerId(@NotNull String name);
 
     @Override
     public @NotNull String getName() {
@@ -39,24 +51,16 @@ public abstract class PlatformProviderBase implements PlatformProvider {
     }
 
     @Override
-    public final @NotNull OfflinePlayer getOfflinePlayer(@NotNull String name) {
+    @Blocking
+    public @NotNull UUID resolvePlayerId(@NotNull String name) {
         Preconditions.checkArgument(name != null, "name cannot be null");
         Preconditions.checkArgument(!name.isEmpty(), "name cannot be empty");
 
-        Optional<Player> onlinePlayer = findOnlinePlayer(name);
-        if (onlinePlayer.isPresent())
-            return onlinePlayer.get();
-
-        return findOfflinePlayer(name).orElseGet(() -> createOfflinePlayer(name));
-    }
-
-    @Blocking
-    protected abstract @NotNull OfflinePlayer createOfflinePlayer(@NotNull String name);
-
-    protected abstract @NotNull InterceptorFactory createInterceptorFactory(@NotNull String executorName, int permissionLevel);
-
-    public synchronized void updateInterceptorFactory(@NotNull String executorName, int permissionLevel) {
-        this.interceptorFactory = createInterceptorFactory(executorName, permissionLevel);
+        return findOnlinePlayer(name)
+                .map(Player::getUniqueId)
+                .orElseGet(() -> findOfflinePlayer(name)
+                        .map(OfflinePlayer::getUniqueId)
+                        .orElseGet(() -> resolveOfflinePlayerId(name)));
     }
 
     @Override
@@ -64,7 +68,11 @@ public abstract class PlatformProviderBase implements PlatformProvider {
         return bukkitTask.isCancelled();
     }
 
-    protected final @NotNull UUID createOfflineUUID(@NotNull String name) {
+    public final synchronized void updateInterceptorFactory(@NotNull String executorName, int permissionLevel) {
+        this.interceptorFactory = interceptorFactoryOf(executorName, permissionLevel);
+    }
+
+    protected final @NotNull UUID generateOfflinePlayerId(@NotNull String name) {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(Charsets.UTF_8));
     }
 
