@@ -7,8 +7,6 @@ import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.Blocking;
-import org.jetbrains.annotations.NonBlocking;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
@@ -45,14 +43,11 @@ public abstract class PlatformProviderBase implements PlatformProvider {
         this.interceptorFactory = createInterceptorFactory();
     }
 
-    @NonBlocking
     protected abstract @NotNull InterceptorFactory createInterceptorFactory();
 
-    @Blocking
     protected abstract @NotNull UUID resolveOfflinePlayerId(@NotNull String name);
 
     @Override
-    @Blocking
     public @NotNull UUID resolvePlayerId(@NotNull String name) {
         Preconditions.checkArgument(name != null, "name cannot be null");
         Preconditions.checkArgument(!name.isEmpty(), "name cannot be empty");
@@ -61,7 +56,15 @@ public abstract class PlatformProviderBase implements PlatformProvider {
                 .map(Player::getUniqueId)
                 .orElseGet(() -> findOfflinePlayer(name)
                         .map(OfflinePlayer::getUniqueId)
-                        .orElseGet(() -> resolveOfflinePlayerId(name)));
+                        .orElseGet(() -> {
+                            try {
+                                return resolveOfflinePlayerId(name);
+                            } catch (Exception ex) {
+                                plugin.getDebugLogger().error("Couldn't resolve offline player UUID for '{0}'", name);
+                                plugin.getDebugLogger().error(ex);
+                                return generateOfflinePlayerId(name);
+                            }
+                        }));
     }
 
     @Override
