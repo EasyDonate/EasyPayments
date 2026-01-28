@@ -97,11 +97,11 @@ tasks.build {
 private fun lookupBuiltPlatformModules(): List<Project> = buildList {
     listOf(
         projects.platform.folia to providers.gradleProperty("buildFolia"),
-        projects.platform.paper.internals to providers.systemProperty("buildPlatformPaperInternals"),
+        projects.platform.paper.internals.v1 to providers.systemProperty("buildPlatformPaperInternals"),
         projects.platform.paper.universal to providers.systemProperty("buildPlatformPaperUniversal"),
-    ).forEach {
-        if (it.second.map(String::toBooleanStrictOrNull).getOrElse(true)) {
-            add(project(it.first.path))
+    ).forEach { (projectDep, property) ->
+        if (property.map(String::toBooleanStrictOrNull).getOrElse(true)) {
+            add(project(projectDep.path))
         }
     }
 }

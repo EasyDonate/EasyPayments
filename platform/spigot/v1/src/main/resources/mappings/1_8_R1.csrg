@@ -1,4 +1,0 @@
-# Package mappings
-net/minecraft/server/v1_8_R1/ net/minecraft/server/${nms}/
-org/bukkit/craftbukkit/v1_8_R1/ org/bukkit/craftbukkit/${nms}/
-ru/easydonate/easypayments/platform/spigot/ ru/easydonate/easypayments/platform/spigot/${nms}/
