@@ -1,28 +1,11 @@
-import io.papermc.paperweight.userdev.ReobfArtifactConfiguration
-
-private val buildPlatform = providers.systemProperty("buildPlatformPaperInternals")
-    .map { it.toBooleanStrictOrNull() }
-    .getOrElse(true)
-
 plugins {
-    `java-library`
-    alias(libs.plugins.paperweight.plugin)
-}
-
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
-}
-
-paperweight {
-    reobfArtifactConfiguration = ReobfArtifactConfiguration.MOJANG_PRODUCTION
+    `paper-internals`
 }
 
 dependencies {
     compileOnly(projects.core)
 
-    paperweight.paperDevBundle(libs.versions.paper.dev.bundle)
-}
+    val paperDevVersion = "1.20.6-R0.1-SNAPSHOT"
 
-if (!buildPlatform) {
-    tasks.forEach { it.enabled = false }
+    paperweight.paperDevBundle(paperDevVersion)
 }
