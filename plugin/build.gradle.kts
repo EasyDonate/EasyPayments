@@ -36,7 +36,7 @@ dependencies {
 tasks.jar {
     manifest {
         attributes(mapOf(
-            "paperweight-mappings-namespace" to "mojang+yarn",
+            "paperweight-mappings-namespace" to "mojang",
             "Organization-Name" to "EasyDonate",
             "Organization-Website" to "https://easydonate.ru/",
             "Source-Code" to "https://github.com/EasyDonate/EasyPayments/"
@@ -98,6 +98,7 @@ private fun lookupBuiltPlatformModules(): List<Project> = buildList {
     listOf(
         projects.platform.folia to providers.gradleProperty("buildFolia"),
         projects.platform.paper.internals.v1 to providers.systemProperty("buildPlatformPaperInternals"),
+        projects.platform.paper.internals.v2 to providers.systemProperty("buildPlatformPaperInternals"),
         projects.platform.paper.universal to providers.systemProperty("buildPlatformPaperUniversal"),
     ).forEach { (projectDep, property) ->
         if (property.map(String::toBooleanStrictOrNull).getOrElse(true)) {
