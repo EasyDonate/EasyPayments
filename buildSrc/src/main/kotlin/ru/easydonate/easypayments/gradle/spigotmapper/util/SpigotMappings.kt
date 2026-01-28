@@ -44,5 +44,6 @@ private fun findNearestMappingName(mappingsNames: List<MappingsName>, current: M
     return mappingsNames
         .filter { it.majorVersion <= current.majorVersion }
         .filter { it.majorVersion < current.majorVersion || it.nmsRevision <= current.nmsRevision }
-        .maxWith(Comparator.comparingInt(MappingsName::majorVersion).thenComparingInt(MappingsName::nmsRevision))
+        .maxWithOrNull(Comparator.comparingInt(MappingsName::majorVersion).thenComparingInt(MappingsName::nmsRevision))
+        ?: mappingsNames.firstOrNull() ?: error("no mappings found!")
 }
