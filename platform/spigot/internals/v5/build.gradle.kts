@@ -10,6 +10,8 @@ java {
 
 spigotMapper {
     minecraftVersions {
+        initialNmsRevision = 7
+
         include("1.21.11")
     }
 }
