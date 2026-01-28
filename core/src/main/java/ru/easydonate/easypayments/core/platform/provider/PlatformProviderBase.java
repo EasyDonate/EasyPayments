@@ -25,21 +25,18 @@ public abstract class PlatformProviderBase implements PlatformProvider {
     protected final @NotNull Executor syncExecutor;
 
     @Getter(AccessLevel.NONE) protected @NotNull String executorName;
-    @Getter(AccessLevel.NONE) protected int permissionLevel;
     protected @NotNull InterceptorFactory interceptorFactory;
 
     public PlatformProviderBase(
             @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
-            @NotNull String executorName,
-            int permissionLevel
+            @NotNull String executorName
     ) {
         this.plugin = plugin;
         this.scheduler = scheduler;
         this.syncExecutor = task -> scheduler.runSyncNow(plugin, task);
 
         this.executorName = executorName;
-        this.permissionLevel = permissionLevel;
         this.interceptorFactory = createInterceptorFactory();
     }
 
@@ -73,15 +70,14 @@ public abstract class PlatformProviderBase implements PlatformProvider {
     }
 
     public final void updateInterceptorFactory(@NotNull PlatformResolverState state) {
-        updateInterceptorFactory(state.getExecutorName(), state.getPermissionLevel());
+        updateInterceptorFactory(state.getExecutorName());
     }
 
-    public final synchronized void updateInterceptorFactory(@NotNull String executorName, int permissionLevel) {
-        if (Objects.equals(this.executorName, executorName) && this.permissionLevel == permissionLevel)
+    public final synchronized void updateInterceptorFactory(@NotNull String executorName) {
+        if (Objects.equals(this.executorName, executorName))
             return;
 
         this.executorName = executorName;
-        this.permissionLevel = permissionLevel;
         this.interceptorFactory = createInterceptorFactory();
     }
 

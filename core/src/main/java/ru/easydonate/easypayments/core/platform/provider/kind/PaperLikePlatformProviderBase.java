@@ -16,10 +16,9 @@ public abstract class PaperLikePlatformProviderBase extends PlatformProviderBase
             @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
             @NotNull String executorName,
-            int permissionLevel,
             boolean runningFolia
     ) {
-        super(plugin, scheduler, executorName, permissionLevel);
+        super(plugin, scheduler, executorName);
         this.providerId = "paper:" + getImplementationType().getKey();
         this.platformType = PlatformType.with(runningFolia);
     }

@@ -8,6 +8,8 @@ import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
 import java.util.List;
 
+import static ru.easydonate.easypayments.core.platform.provider.PlatformResolverState.DEFAULT_PERMISSION_LEVEL;
+
 @Getter
 final class InterceptedCommandListenerWrapper extends CommandListenerWrapper implements FeedbackInterceptor {
 
@@ -16,8 +18,14 @@ final class InterceptedCommandListenerWrapper extends CommandListenerWrapper imp
 
     private final InterceptedCommandListener commandListener;
 
-    public InterceptedCommandListenerWrapper(ICommandListener commandListener, WorldServer worldServer, String username, int permissionLevel) {
-        super(commandListener, POSITION, DIRECTION, worldServer, permissionLevel, username, new ChatComponentText(username), worldServer.getMinecraftServer(), null);
+    public InterceptedCommandListenerWrapper(ICommandListener commandListener, WorldServer worldServer, String username) {
+        super(
+                commandListener,
+                POSITION, DIRECTION, worldServer,
+                DEFAULT_PERMISSION_LEVEL, username, new ChatComponentText(username),
+                worldServer.getMinecraftServer(), null
+        );
+
         this.commandListener = (InterceptedCommandListener) commandListener;
     }
 

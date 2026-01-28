@@ -17,10 +17,9 @@ public final class PlatformProvider extends PaperLikePlatformProviderBase {
             @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
             @NotNull String executorName,
-            int permissionLevel,
             boolean runningFolia
     ) {
-        super(plugin, scheduler, executorName, permissionLevel, runningFolia);
+        super(plugin, scheduler, executorName, runningFolia);
     }
 
     @Override public @NotNull ImplementationType getImplementationType() {
@@ -28,7 +27,7 @@ public final class PlatformProvider extends PaperLikePlatformProviderBase {
     }
 
     @Override protected @NotNull InterceptorFactory createInterceptorFactory() {
-        return new PlatformInterceptorFactory(this, executorName, permissionLevel);
+        return new PlatformInterceptorFactory(this, executorName);
     }
 
     @Override protected @NotNull UUID resolveOfflinePlayerId(@NotNull String name) {

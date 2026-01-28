@@ -67,6 +67,7 @@ final class InterceptedCommandListener extends ServerCommandSender implements IC
     }
 
     public void setOp(boolean value) {
+        // nothing to do here
     }
 
     public boolean hasPermission(String name) {

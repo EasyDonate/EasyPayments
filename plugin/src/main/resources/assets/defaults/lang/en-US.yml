@@ -113,7 +113,6 @@ status:
     &7• &fPlatform shop key: &b%access_key%
     &7• &fConnected to server: &b%server_id%
     &7• &fExecutor name: &b%executor_name%
-    &7• &fPermissions level: &b%permission_level%
     &7Made with &4♥ &7by EasyDonate
   plugin-status:
     working: '&aWorking'

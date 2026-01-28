@@ -47,19 +47,14 @@ public final class CommandStatus extends CommandExecutor {
         int serverId = plugin.getServerId();
 
         String effectiveExecutorName = noValueStub;
-        Object effectivePermissionLevel = noValueStub;
         String effectivePlatformType = noValueStub;
         String effectivePlatformName = noValueStub;
 
         PlatformResolverState resolverState = plugin.getPlatformResolverState();
         if (resolverState != null) {
             String executorName = resolverState.getExecutorName();
-            if (executorName != null)
+            if (executorName != null) {
                 effectiveExecutorName = executorName;
-
-            int permissionLevel = resolverState.getPermissionLevel();
-            if (permissionLevel > 0) {
-                effectivePermissionLevel = permissionLevel;
             }
         }
 
@@ -87,8 +82,7 @@ public final class CommandStatus extends CommandExecutor {
                 "%mode_sync_players%", wrapBoolean(isPlayersSyncingActive, "plugin-mode", "active", "inactive"),
                 "%access_key%", accessKey != null && !accessKey.isEmpty() ? accessKey : noValueStub,
                 "%server_id%", serverId > 0 ? ("#" + serverId) : noValueStub,
-                "%executor_name%", effectiveExecutorName,
-                "%permission_level%", effectivePermissionLevel
+                "%executor_name%", effectiveExecutorName
         );
     }
 

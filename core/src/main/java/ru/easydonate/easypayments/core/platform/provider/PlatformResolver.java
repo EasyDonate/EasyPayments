@@ -51,13 +51,12 @@ public final class PlatformResolver {
     }
 
     public @NotNull PlatformProvider resolve(@NotNull PlatformResolverState state) throws UnsupportedPlatformException {
-        return resolve(state.isForceInternals(), state.getExecutorName(), state.getPermissionLevel());
+        return resolve(state.isForceInternals(), state.getExecutorName());
     }
 
     public @NotNull PlatformProvider resolve(
             boolean forceInternals,
-            @NotNull String username,
-            int permissionLevel
+            @NotNull String username
     ) throws UnsupportedPlatformException {
         List<String> candidates = resolvePlatformCandidates(lookupResult, forceInternals);
         String candidatesJoined = !candidates.isEmpty() ? String.join(", ", candidates) : "<nothing>";
@@ -90,14 +89,14 @@ public final class PlatformResolver {
             try {
                 // Paper platforms
                 return (PlatformProvider) platformClass
-                        .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, int.class, boolean.class)
-                        .newInstance(plugin, scheduler, username, permissionLevel, lookupResult.isFoliaDetected());
+                        .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, boolean.class)
+                        .newInstance(plugin, scheduler, username, lookupResult.isFoliaDetected());
             } catch (Throwable ignored) {
                 try {
                     // Spigot platform
                     return (PlatformProvider) platformClass
-                            .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, int.class)
-                            .newInstance(plugin, scheduler, username, permissionLevel);
+                            .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class)
+                            .newInstance(plugin, scheduler, username);
                 } catch (Throwable ex) {
                     throw new UnsupportedPlatformException("couldn't create platform implementation instance", ex);
                 }

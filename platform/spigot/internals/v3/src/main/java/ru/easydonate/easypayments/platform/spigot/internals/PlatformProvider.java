@@ -16,14 +16,13 @@ public final class PlatformProvider extends SpigotPlatformProviderBase {
     public PlatformProvider(
             @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
-            @NotNull String executorName,
-            int permissionLevel
+            @NotNull String executorName
     ) {
-        super(plugin, scheduler, executorName, permissionLevel);
+        super(plugin, scheduler, executorName);
     }
 
     @Override protected @NotNull InterceptorFactory createInterceptorFactory() {
-        return new PlatformInterceptorFactory(this, executorName, permissionLevel);
+        return new PlatformInterceptorFactory(this, executorName);
     }
 
     @Override protected @NotNull UUID resolveOfflinePlayerId(@NotNull String name) {

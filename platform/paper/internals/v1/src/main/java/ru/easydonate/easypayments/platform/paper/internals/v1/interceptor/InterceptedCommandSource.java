@@ -68,6 +68,7 @@ final class InterceptedCommandSource extends ServerCommandSender implements Comm
     }
 
     public void setOp(boolean value) {
+        // nothing to do here
     }
 
     public boolean hasPermission(String name) {

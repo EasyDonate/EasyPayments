@@ -17,19 +17,16 @@ public class PlatformResolverState {
 
     public static final @NotNull PlatformResolverState DEFAULT = new PlatformResolverState(
             DEFAULT_EXECUTOR_NAME,
-            DEFAULT_FORCE_INTERNALS,
-            DEFAULT_PERMISSION_LEVEL
+            DEFAULT_FORCE_INTERNALS
     );
 
     @NotNull String executorName;
     boolean forceInternals;
-    int permissionLevel;
 
     public static @NotNull PlatformResolverState from(@NotNull Configuration config) {
         return builder()
                 .executorName(config.getString("executor-name", DEFAULT_EXECUTOR_NAME))
                 .forceInternals(config.getBoolean("force-internals-backed-platform", DEFAULT_FORCE_INTERNALS))
-                .permissionLevel(config.getIntWithBounds("permission-level", 0, 4, DEFAULT_PERMISSION_LEVEL))
                 .build();
     }
 
@@ -38,7 +35,7 @@ public class PlatformResolverState {
     }
 
     public boolean requiresPlatformUpdate(@NotNull PlatformResolverState other) {
-        return !Objects.equals(executorName, other.executorName) || permissionLevel != other.permissionLevel;
+        return !Objects.equals(executorName, other.executorName);
     }
 
 }

@@ -16,14 +16,12 @@ final class InterceptedCommandListener extends ServerCommandSender implements IC
     private static final Vec3D POSITION = new Vec3D(0D, 0D, 0D);
 
     private final MinecraftServer minecraftServer;
-    private final int permissionLevel;
     private final String username;
 
     @Getter private final List<String> feedbackMessages;
 
-    public InterceptedCommandListener(MinecraftServer minecraftServer, int permissionLevel, String username) {
+    public InterceptedCommandListener(MinecraftServer minecraftServer, String username) {
         this.minecraftServer = minecraftServer;
-        this.permissionLevel = permissionLevel;
         this.username = username;
         this.feedbackMessages = new ArrayList<>();
     }
@@ -33,6 +31,7 @@ final class InterceptedCommandListener extends ServerCommandSender implements IC
     }
 
     public void a(EnumCommandResult enumCommandResult, int i) {
+        // nothing to do here
     }
 
     public void sendMessage(IChatBaseComponent iChatBaseComponent) {
@@ -40,7 +39,7 @@ final class InterceptedCommandListener extends ServerCommandSender implements IC
     }
 
     public boolean a(int i, String s) {
-        return i <= permissionLevel;
+        return true;
     }
 
     public BlockPosition getChunkCoordinates() {
@@ -84,6 +83,7 @@ final class InterceptedCommandListener extends ServerCommandSender implements IC
     }
 
     public void setOp(boolean value) {
+        // nothing to do here
     }
 
     public boolean hasPermission(String name) {

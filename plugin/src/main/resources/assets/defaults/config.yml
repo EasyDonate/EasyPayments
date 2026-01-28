@@ -31,6 +31,5 @@ identify-by-uuid: false
 log-file-time-to-life: 7
 feedback-await-time: 3000
 executor-name: '@EasyPayments'
-permission-level: 4
 execution-thread-pool-size: -1
 force-internals-backed-platform: false

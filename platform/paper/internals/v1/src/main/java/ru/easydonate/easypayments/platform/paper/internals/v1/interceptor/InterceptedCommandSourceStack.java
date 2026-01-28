@@ -13,6 +13,8 @@ import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
 import java.util.List;
 
+import static ru.easydonate.easypayments.core.platform.provider.PlatformResolverState.DEFAULT_PERMISSION_LEVEL;
+
 @Getter
 final class InterceptedCommandSourceStack extends CommandSourceStack implements FeedbackInterceptor {
 
@@ -21,8 +23,14 @@ final class InterceptedCommandSourceStack extends CommandSourceStack implements 
 
     private final InterceptedCommandSource commandSource;
 
-    public InterceptedCommandSourceStack(CommandSource commandSource, ServerLevel serverLevel, String username, int permissionLevel) {
-        super(commandSource, POSITION, DIRECTION, serverLevel, permissionLevel, username, Component.literal(username), serverLevel.getServer(), null);
+    public InterceptedCommandSourceStack(CommandSource commandSource, ServerLevel serverLevel, String username) {
+        super(
+                commandSource,
+                POSITION, DIRECTION, serverLevel,
+                DEFAULT_PERMISSION_LEVEL, username, Component.literal(username),
+                serverLevel.getServer(), null
+        );
+
         this.commandSource = (InterceptedCommandSource) commandSource;
     }
 

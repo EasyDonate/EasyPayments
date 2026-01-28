@@ -277,11 +277,10 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
         }
 
         if (requiresPlatformUpdate && platformProvider != null) {
-            // updating executor name & permission level in existing platform provider instance
+            // updating executor name in existing platform provider instance
             debugLogger.debug(
-                    "Updating interceptor factory with executor name '{0}' and permission level '{1}'",
-                    platformResolverState.getExecutorName(),
-                    platformResolverState.getPermissionLevel()
+                    "Updating interceptor factory with executor name '{0}'",
+                    platformResolverState.getExecutorName()
             );
 
             ((PlatformProviderBase) platformProvider).updateInterceptorFactory(platformResolverState);

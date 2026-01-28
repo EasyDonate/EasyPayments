@@ -16,12 +16,8 @@ public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
 
     private final WorldServer worldServer;
 
-    public PlatformInterceptorFactory(
-            @NotNull PlatformProviderBase provider,
-            @NotNull String executorName,
-            int permissionLevel
-    ) {
-        super(provider, executorName, permissionLevel);
+    public PlatformInterceptorFactory(@NotNull PlatformProviderBase provider, @NotNull String executorName) {
+        super(provider, executorName);
         this.worldServer = getWorldServer();
     }
 
@@ -29,7 +25,7 @@ public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
     public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
         InterceptedCommandListener commandListener = new InterceptedCommandListener(executorName);
         return new InterceptedProxiedSender(
-                new InterceptedCommandListenerWrapper(commandListener, worldServer, executorName, permissionLevel),
+                new InterceptedCommandListenerWrapper(commandListener, worldServer, executorName),
                 commandListener
         );
     }

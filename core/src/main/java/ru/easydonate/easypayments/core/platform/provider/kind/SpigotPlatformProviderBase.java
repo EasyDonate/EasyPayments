@@ -14,10 +14,9 @@ public abstract class SpigotPlatformProviderBase extends PlatformProviderBase {
     public SpigotPlatformProviderBase(
             @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
-            @NotNull String executorName,
-            int permissionLevel
+            @NotNull String executorName
     ) {
-        super(plugin, scheduler, executorName, permissionLevel);
+        super(plugin, scheduler, executorName);
     }
 
     @Override public @NotNull String getProviderId() {

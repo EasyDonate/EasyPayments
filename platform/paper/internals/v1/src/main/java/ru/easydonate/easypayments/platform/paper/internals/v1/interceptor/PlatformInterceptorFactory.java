@@ -10,12 +10,8 @@ import ru.easydonate.easypayments.core.platform.provider.PlatformProviderBase;
 
 public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
 
-    public PlatformInterceptorFactory(
-            @NotNull PlatformProviderBase provider,
-            @NotNull String executorName,
-            int permissionLevel
-    ) {
-        super(provider, executorName, permissionLevel);
+    public PlatformInterceptorFactory(@NotNull PlatformProviderBase provider, @NotNull String executorName) {
+        super(provider, executorName);
     }
 
     @Override
@@ -23,7 +19,7 @@ public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
         ServerLevel serverLevel = ((CraftServer) Bukkit.getServer()).getServer().overworld();
         InterceptedCommandSource commandSource = new InterceptedCommandSource(executorName);
         return new InterceptedProxiedSender(
-                new InterceptedCommandSourceStack(commandSource, serverLevel, executorName, permissionLevel),
+                new InterceptedCommandSourceStack(commandSource, serverLevel, executorName),
                 commandSource
         );
     }

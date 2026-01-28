@@ -7,12 +7,8 @@ import ru.easydonate.easypayments.core.platform.provider.PlatformProviderBase;
 
 public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
 
-    public PlatformInterceptorFactory(
-            @NotNull PlatformProviderBase provider,
-            @NotNull String executorName,
-            int permissionLevel
-    ) {
-        super(provider, executorName, permissionLevel);
+    public PlatformInterceptorFactory(@NotNull PlatformProviderBase provider, @NotNull String executorName) {
+        super(provider, executorName);
     }
 
     @Override

@@ -113,7 +113,6 @@ status:
     &7• &fКлюч магазина: &b%access_key%
     &7• &fПодключен к серверу: &b%server_id%
     &7• &fИмя исполнителя: &b%executor_name%
-    &7• &fУровень разрешений: &b%permission_level%
     &7Made with &4♥ &7by EasyDonate
   plugin-status:
     working: '&aРаботает'

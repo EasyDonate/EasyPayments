@@ -11,7 +11,6 @@ public abstract class InterceptorFactoryBase implements InterceptorFactory {
 
     protected final PlatformProviderBase provider;
     protected final String executorName;
-    protected final int permissionLevel;
 
     @Override
     public @NotNull CompletableFuture<FeedbackInterceptor> createFeedbackInterceptorAsync() {
