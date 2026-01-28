@@ -46,6 +46,11 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion>, Ser
     private static final Pattern VERSION_PATTERN = Pattern.compile(".*\\(.*MC.\\s*([a-zA-z0-9\\-.]+).*");
 
     /**
+     * Version 1.21.11 - the mounts of mayhem game drop
+     */
+    public static final MinecraftVersion MOUNTS_OF_MAYHEM = new MinecraftVersion("1.21.11");
+
+    /**
      * Version 1.21 - the tricky trials update
      */
     public static final MinecraftVersion TRICKY_TRIALS_UPDATE = new MinecraftVersion("1.21");

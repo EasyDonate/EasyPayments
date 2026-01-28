@@ -164,8 +164,16 @@ public final class PlatformResolver {
 
         if ("org.bukkit.craftbukkit".equals(craftBukkitPackage)) {
             logger.info("[Platform] Detected unrelocated internals (MC {0})", MINECRAFT_VERSION.getVersion());
-            // TODO resolve effective paper internals version
-            return new EnvironmentLookupResult(1, null, true, foliaDetected, nativeInterceptorSupported);
+
+            int paperInternalsVersion;
+            if (MINECRAFT_VERSION.isAtLeast(MinecraftVersion.MOUNTS_OF_MAYHEM)) {
+                paperInternalsVersion = 2;  // 1.21.11
+            } else {
+                paperInternalsVersion = 1;
+            }
+
+            logger.info("[Platform] Will use Paper internals v{0}", paperInternalsVersion);
+            return new EnvironmentLookupResult(paperInternalsVersion, null, true, foliaDetected, nativeInterceptorSupported);
         }
 
         Matcher matcher = CRAFTBUKKIT_PACKAGE_PATTERN.matcher(craftBukkitPackage);
