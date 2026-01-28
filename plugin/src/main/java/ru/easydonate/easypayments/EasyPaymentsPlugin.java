@@ -50,6 +50,8 @@ import ru.easydonate.easypayments.task.ReportCacheWorker;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
@@ -503,9 +505,9 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
     }
 
     private void closeTasks() {
-        CompletableFuture<Void> knownPlayersSyncTaskFuture = null;
-        CompletableFuture<Void> paymentsQueryTaskFuture = null;
-        CompletableFuture<Void> reportCacheWorkerFuture = null;
+        CompletableFuture<?> knownPlayersSyncTaskFuture = null;
+        CompletableFuture<?> paymentsQueryTaskFuture = null;
+        CompletableFuture<?> reportCacheWorkerFuture = null;
 
         if (knownPlayersSyncTask != null)
             knownPlayersSyncTaskFuture = knownPlayersSyncTask.shutdownAsync();
@@ -521,17 +523,17 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
             debugLogger.info("Closing internal tasks...");
 
             if (knownPlayersSyncTaskFuture != null) {
-                knownPlayersSyncTaskFuture.join();
+                awaitTaskShutdown(knownPlayersSyncTaskFuture, "known players sync");
                 this.knownPlayersSyncTask = null;
             }
 
             if (paymentsQueryTaskFuture != null) {
-                paymentsQueryTaskFuture.join();
+                awaitTaskShutdown(paymentsQueryTaskFuture, "payments query");
                 this.paymentsQueryTask = null;
             }
 
             if (reportCacheWorkerFuture != null) {
-                reportCacheWorkerFuture.join();
+                awaitTaskShutdown(reportCacheWorkerFuture, "report cache worker");
                 this.reportCacheWorker = null;
             }
         }
@@ -638,6 +640,20 @@ public class EasyPaymentsPlugin extends JavaPlugin implements EasyPayments {
                 info(" ");
             }
         } catch (Exception ignored) {}
+    }
+
+    private void awaitTaskShutdown(@NotNull CompletableFuture<?> future, @NotNull String humanName) {
+        try {
+            future.get(10L, TimeUnit.SECONDS);
+        } catch (TimeoutException ignored) {
+            warn("Task '{0}' failed to shutdown properly due to a timeout!", humanName);
+            debugLogger.warn("Task '{0}' failed to shutdown properly due to a timeout!", humanName);
+        } catch (InterruptedException ignored) {
+        } catch (Exception ex) {
+            error("Couldn't shutdown task '{0}' properly!", humanName);
+            debugLogger.error("Couldn't shutdown task '{0}' properly!", humanName);
+            debugLogger.error(ex);
+        }
     }
 
     private void info(@NotNull String message, @Nullable Object... args) {
