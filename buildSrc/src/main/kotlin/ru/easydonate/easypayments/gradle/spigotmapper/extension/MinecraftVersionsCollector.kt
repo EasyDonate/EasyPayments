@@ -6,6 +6,11 @@ class MinecraftVersionsCollector {
 
     private val minecraftVersions = sortedMapOf<Int, MutableSet<MinecraftVersion>>()
 
+    var initialNmsRevision = 1
+
+    val versions: Map<Int, Set<MinecraftVersion>>
+        get() = minecraftVersions.toMap()
+
     fun include(version: String) {
         val minecraftVersion = MinecraftVersion.parse(version)
         val majorVersion = minecraftVersion.major
@@ -15,7 +20,5 @@ class MinecraftVersionsCollector {
     fun include(vararg versions: String) {
         versions.forEach(this::include)
     }
-
-    fun versions() = minecraftVersions
 
 }

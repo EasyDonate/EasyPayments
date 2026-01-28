@@ -10,18 +10,21 @@ import java.nio.file.Path
 
 fun createMappings(
     mappingsNames: List<MappingsName>,
-    versionsCollector: MinecraftVersionsCollector
-): List<SpigotMapping> = createMappings(mappingsNames, versionsCollector.versions())
+    versionsCollector: MinecraftVersionsCollector,
+): List<SpigotMapping> = versionsCollector.run {
+    createMappings(mappingsNames, versions, initialNmsRevision)
+}
 
 fun createMappings(
     mappingsNames: List<MappingsName>,
-    versions: Map<Int, Set<MinecraftVersion>>
+    versions: Map<Int, Set<MinecraftVersion>>,
+    initialNmsRevision: Int = 1,
 ): List<SpigotMapping> {
     if (versions.isEmpty())
         return emptyList()
 
     return versions.keys.sorted().flatMap { majorVersion ->
-        var nmsRevision = 1
+        var nmsRevision = initialNmsRevision
         versions[majorVersion]?.map { minecraftVersion ->
             val currentMappingName = MappingsName(minecraftVersion.major, nmsRevision)
             val nearestMappingName = findNearestMappingName(mappingsNames, currentMappingName)
@@ -44,6 +47,5 @@ private fun findNearestMappingName(mappingsNames: List<MappingsName>, current: M
     return mappingsNames
         .filter { it.majorVersion <= current.majorVersion }
         .filter { it.majorVersion < current.majorVersion || it.nmsRevision <= current.nmsRevision }
-        .maxWithOrNull(Comparator.comparingInt(MappingsName::majorVersion).thenComparingInt(MappingsName::nmsRevision))
-        ?: mappingsNames.firstOrNull() ?: error("no mappings found!")
+        .maxWith(Comparator.comparingInt(MappingsName::majorVersion).thenComparingInt(MappingsName::nmsRevision))
 }
