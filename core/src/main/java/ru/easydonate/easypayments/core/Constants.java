@@ -14,6 +14,10 @@ public final class Constants {
     public static final boolean COMMAND_SENDER_ACCEPTS_FAILURE = true;
     public static final boolean COMMAND_SENDER_INFORM_ADMINS = false;
 
+    public static final String DEFAULT_EXECUTOR_NAME = "@EasyPayments";
+    public static final boolean DEFAULT_FORCE_INTERNALS = false;
+    public static final int DEFAULT_PERMISSION_LEVEL = 4;
+
     public static final int DEFAULT_FEEDBACK_AWAIT_TIME = 3000;
     public static final int MIN_FEEDBACK_AWAIT_TIME = 1000;
     public static final int MAX_FEEDBACK_AWAIT_TIME = 5000;

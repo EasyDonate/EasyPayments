@@ -13,7 +13,7 @@ import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
 import java.util.List;
 
-import static ru.easydonate.easypayments.core.platform.provider.PlatformResolverState.DEFAULT_PERMISSION_LEVEL;
+import static ru.easydonate.easypayments.core.Constants.DEFAULT_PERMISSION_LEVEL;
 
 @Getter
 final class InterceptedCommandSourceStack extends CommandSourceStack implements FeedbackInterceptor {

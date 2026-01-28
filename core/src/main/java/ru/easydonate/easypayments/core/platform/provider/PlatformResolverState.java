@@ -6,14 +6,13 @@ import ru.easydonate.easypayments.core.config.Configuration;
 
 import java.util.Objects;
 
+import static ru.easydonate.easypayments.core.Constants.DEFAULT_EXECUTOR_NAME;
+import static ru.easydonate.easypayments.core.Constants.DEFAULT_FORCE_INTERNALS;
+
 @Value
 @Builder(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlatformResolverState {
-
-    public static final @NotNull String DEFAULT_EXECUTOR_NAME = "@EasyPayments";
-    public static final boolean DEFAULT_FORCE_INTERNALS = false;
-    public static final int DEFAULT_PERMISSION_LEVEL = 4;
 
     public static final @NotNull PlatformResolverState DEFAULT = new PlatformResolverState(
             DEFAULT_EXECUTOR_NAME,
