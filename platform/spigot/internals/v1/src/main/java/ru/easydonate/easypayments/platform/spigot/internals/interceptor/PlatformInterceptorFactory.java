@@ -14,8 +14,7 @@ public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
         super(provider, executorName);
     }
 
-    @Override
-    public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
+    @Override public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
         MinecraftServer minecraftServer = ((CraftServer) Bukkit.getServer()).getServer();
         return new InterceptedProxiedSender(new InterceptedCommandListener(minecraftServer, executorName));
     }

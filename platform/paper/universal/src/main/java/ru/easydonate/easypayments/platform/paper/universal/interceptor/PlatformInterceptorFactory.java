@@ -11,8 +11,7 @@ public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
         super(provider, executorName);
     }
 
-    @Override
-    public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
+    @Override public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
         return new PaperCommandSenderWrapper();
     }
 

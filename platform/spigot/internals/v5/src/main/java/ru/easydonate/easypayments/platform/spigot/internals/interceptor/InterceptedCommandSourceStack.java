@@ -9,6 +9,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
 import java.util.List;
@@ -34,13 +35,11 @@ final class InterceptedCommandSourceStack extends CommandSourceStack implements 
         this.commandSource = (InterceptedCommandSource) commandSource;
     }
 
-    @Override
-    public @NotNull CommandSender getCommandSender() {
+    @Override public @NotNull CommandSender getCommandSender() {
         return commandSource.getCommandSender();
     }
 
-    @Override
-    public List<String> getFeedbackMessages() {
+    @Override public @NonNull List<String> getFeedbackMessages() {
         return commandSource.getFeedbackMessages();
     }
 

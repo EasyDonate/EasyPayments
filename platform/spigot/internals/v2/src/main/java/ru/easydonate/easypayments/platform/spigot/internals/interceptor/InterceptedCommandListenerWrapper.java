@@ -29,13 +29,11 @@ final class InterceptedCommandListenerWrapper extends CommandListenerWrapper imp
         this.commandListener = (InterceptedCommandListener) commandListener;
     }
 
-    @Override
-    public @NotNull CommandSender getCommandSender() {
+    @Override public @NotNull CommandSender getCommandSender() {
         return commandListener.getCommandSender();
     }
 
-    @Override
-    public List<String> getFeedbackMessages() {
+    @Override public List<String> getFeedbackMessages() {
         return commandListener.getFeedbackMessages();
     }
 

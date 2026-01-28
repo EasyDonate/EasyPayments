@@ -26,59 +26,59 @@ final class InterceptedCommandSource extends ServerCommandSender implements Comm
         this.feedbackMessages = new ArrayList<>();
     }
 
-    public void sendSystemMessage(@NonNull Component component) {
+    @Override public void sendSystemMessage(@NonNull Component component) {
         feedbackMessages.add(component.getString());
     }
 
-    public boolean acceptsSuccess() {
+    @Override public boolean acceptsSuccess() {
         return Constants.COMMAND_SENDER_ACCEPTS_SUCCESS;
     }
 
-    public boolean acceptsFailure() {
+    @Override public boolean acceptsFailure() {
         return Constants.COMMAND_SENDER_ACCEPTS_FAILURE;
     }
 
-    public boolean shouldInformAdmins() {
+    @Override public boolean shouldInformAdmins() {
         return Constants.COMMAND_SENDER_INFORM_ADMINS;
     }
 
-    public CommandSender getBukkitSender(CommandSourceStack commandSourceStack) {
+    @Override public CommandSender getBukkitSender(CommandSourceStack commandSourceStack) {
         return this;
     }
 
-    public void sendMessage(String message) {
+    @Override public void sendMessage(String message) {
         feedbackMessages.add(message);
     }
 
-    public void sendMessage(String[] messages) {
+    @Override public void sendMessage(String[] messages) {
         feedbackMessages.addAll(Arrays.asList(messages));
     }
 
-    public String getName() {
+    @Override public String getName() {
         return username;
     }
 
-    public boolean isOp() {
+    @Override public boolean isOp() {
         return true;
     }
 
-    public void setOp(boolean value) {
+    @Override public void setOp(boolean value) {
         // nothing to do here
     }
 
-    public boolean hasPermission(String name) {
+    @Override public boolean hasPermission(String name) {
         return true;
     }
 
-    public boolean hasPermission(Permission perm) {
+    @Override public boolean hasPermission(Permission perm) {
         return true;
     }
 
-    public boolean isPermissionSet(String name) {
+    @Override public boolean isPermissionSet(String name) {
         return true;
     }
 
-    public boolean isPermissionSet(Permission perm) {
+    @Override public boolean isPermissionSet(Permission perm) {
         return true;
     }
 

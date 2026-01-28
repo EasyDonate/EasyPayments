@@ -4,6 +4,8 @@ import lombok.Getter;
 import net.minecraft.server.v1_8_R1.*;
 import org.bukkit.craftbukkit.v1_8_R1.command.ServerCommandSender;
 import org.bukkit.permissions.Permission;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.easydonate.easypayments.core.Constants;
 import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
@@ -26,35 +28,35 @@ final class InterceptedCommandListener extends ServerCommandSender implements IC
         this.feedbackMessages = new ArrayList<>();
     }
 
-    public boolean getSendCommandFeedback() {
+    @Override public boolean getSendCommandFeedback() {
         return Constants.COMMAND_SENDER_INFORM_ADMINS;
     }
 
-    public void a(EnumCommandResult enumCommandResult, int i) {
+    @Override public void a(EnumCommandResult enumCommandResult, int i) {
         // nothing to do here
     }
 
-    public void sendMessage(IChatBaseComponent iChatBaseComponent) {
+    @Override public void sendMessage(@NotNull IChatBaseComponent iChatBaseComponent) {
         feedbackMessages.add(iChatBaseComponent.c());
     }
 
-    public boolean a(int i, String s) {
+    @Override public boolean a(int i, String s) {
         return true;
     }
 
-    public BlockPosition getChunkCoordinates() {
+    @Override public BlockPosition getChunkCoordinates() {
         return BlockPosition.ZERO;
     }
 
-    public Vec3D d() {
+    @Override public Vec3D d() {
         return POSITION;
     }
 
-    public World getWorld() {
+    @Override public World getWorld() {
         return minecraftServer.getWorldServer(0);
     }
 
-    public Entity f() {
+    @Override public @Nullable Entity f() {
         return null;
     }
 
@@ -62,43 +64,43 @@ final class InterceptedCommandListener extends ServerCommandSender implements IC
         return minecraftServer;
     }
 
-    public void sendMessage(String message) {
+    @Override public void sendMessage(String message) {
         feedbackMessages.add(message);
     }
 
-    public void sendMessage(String[] messages) {
+    @Override public void sendMessage(String[] messages) {
         feedbackMessages.addAll(Arrays.asList(messages));
     }
 
-    public String getName() {
+    @Override public String getName() {
         return username;
     }
 
-    public IChatBaseComponent getScoreboardDisplayName() {
+    @Override public @NotNull IChatBaseComponent getScoreboardDisplayName() {
         return new ChatComponentText(username);
     }
 
-    public boolean isOp() {
+    @Override public boolean isOp() {
         return true;
     }
 
-    public void setOp(boolean value) {
+    @Override public void setOp(boolean value) {
         // nothing to do here
     }
 
-    public boolean hasPermission(String name) {
+    @Override public boolean hasPermission(String name) {
         return true;
     }
 
-    public boolean hasPermission(Permission perm) {
+    @Override public boolean hasPermission(Permission perm) {
         return true;
     }
 
-    public boolean isPermissionSet(String name) {
+    @Override public boolean isPermissionSet(String name) {
         return true;
     }
 
-    public boolean isPermissionSet(Permission perm) {
+    @Override public boolean isPermissionSet(Permission perm) {
         return true;
     }
 

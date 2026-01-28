@@ -14,8 +14,7 @@ public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
         super(provider, executorName);
     }
 
-    @Override
-    public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
+    @Override public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
         ServerLevel serverLevel = ((CraftServer) Bukkit.getServer()).getServer().overworld();
         InterceptedCommandSource commandSource = new InterceptedCommandSource(executorName);
         return new InterceptedProxiedSender(

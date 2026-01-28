@@ -1,6 +1,7 @@
 package ru.easydonate.easypayments.platform.spigot.internals.interceptor;
 
 import org.bukkit.craftbukkit.v1_8_R1.command.ProxiedNativeCommandSender;
+import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
 import java.util.List;
@@ -11,13 +12,11 @@ final class InterceptedProxiedSender extends ProxiedNativeCommandSender implemen
         super(original, original, original);
     }
 
-    @Override
-    public InterceptedCommandListener getHandle() {
+    @Override public InterceptedCommandListener getHandle() {
         return (InterceptedCommandListener) super.getHandle();
     }
 
-    @Override
-    public List<String> getFeedbackMessages() {
+    @Override public @NotNull List<String> getFeedbackMessages() {
         return getHandle().getFeedbackMessages();
     }
 

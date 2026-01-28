@@ -21,8 +21,7 @@ public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
         this.worldServer = getWorldServer();
     }
 
-    @Override
-    public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
+    @Override public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
         InterceptedCommandListener commandListener = new InterceptedCommandListener(executorName);
         return new InterceptedProxiedSender(
                 new InterceptedCommandListenerWrapper(commandListener, worldServer, executorName),

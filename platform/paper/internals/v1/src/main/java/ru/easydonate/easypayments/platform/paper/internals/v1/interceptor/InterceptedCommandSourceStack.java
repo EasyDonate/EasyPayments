@@ -34,13 +34,11 @@ final class InterceptedCommandSourceStack extends CommandSourceStack implements 
         this.commandSource = (InterceptedCommandSource) commandSource;
     }
 
-    @Override
-    public @NotNull CommandSender getCommandSender() {
+    @Override public @NotNull CommandSender getCommandSender() {
         return commandSource.getCommandSender();
     }
 
-    @Override
-    public List<String> getFeedbackMessages() {
+    @Override public List<String> getFeedbackMessages() {
         return commandSource.getFeedbackMessages();
     }
 
