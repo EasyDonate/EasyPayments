@@ -14,12 +14,12 @@ import ru.easydonate.easypayments.core.util.PluginThreadFactory;
 import ru.easydonate.easypayments.core.util.ThreadLocker;
 import ru.easydonate.easypayments.exception.CommandExecutionException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Getter
@@ -62,12 +62,20 @@ public final class ExecutionService {
         if (commands == null || commands.isEmpty())
             return Collections.emptyList();
 
-        AtomicInteger indexer = new AtomicInteger();
-        CompletableFuture<?>[] futures = commands.stream()
-                .map(command -> processCommandIndexed(command, indexer.getAndIncrement()))
-                .toArray(CompletableFuture[]::new);
-
         long start = System.currentTimeMillis();
+        List<CompletableFuture<ExecutionWrapper>> futuresList = new ArrayList<>(commands.size());
+
+        for (int i = 0; i < commands.size(); i++) {
+            CompletableFuture<ExecutionWrapper> future = processCommandIndexed(commands.get(i), i);
+            future.join();
+            futuresList.add(future);
+
+            if (i < commands.size() - 1) {
+                ThreadLocker.lockUninterruptive(50);
+            }
+        }
+
+        CompletableFuture<?>[] futures = futuresList.toArray(new CompletableFuture[0]);
         CompletableFuture.allOf(futures).join();
         long time = System.currentTimeMillis() - start;
 
