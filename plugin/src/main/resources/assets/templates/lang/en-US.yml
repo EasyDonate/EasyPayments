@@ -111,6 +111,7 @@ status:
   platform-type:
     internals: _value_
     universal: _value_
+    unrelocated: _value_
 
   plugin-mode:
     active: _value_

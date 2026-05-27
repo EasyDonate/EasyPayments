@@ -27,9 +27,9 @@ BuildPlatform.entries.forEach { System.setProperty(it.propertyName, buildPlatfor
 // Folia support module
 include(":platform:folia")
 
-// Paper Internals : unrelocated CraftBukkit package
-include(":platform:paper:internals:v1")     // Paper 1.20.6 ~ 1.21.10
-include(":platform:paper:internals:v2")     // Paper 1.21.11 and newer
+// Paper Unrelocated : unrelocated CraftBukkit package
+include(":platform:paper:unrelocated:v1")   // Paper 1.20.6 ~ 1.21.10
+include(":platform:paper:unrelocated:v2")   // Paper 1.21.11 and newer
 
 // Paper Universal : Paper API driven implementation
 include(":platform:paper:universal")        // Paper 1.18.1 and newer
@@ -41,13 +41,17 @@ include(":platform:spigot:internals:v3")    // Spigot 1.17 ~ 1.18.2
 include(":platform:spigot:internals:v4")    // Spigot 1.19 ~ 1.21.10
 include(":platform:spigot:internals:v5")    // Spigot 1.21.11 and newer
 
+// Spigot Unrelocated : unrelocated CraftBukkit and NMS packages
+include(":platform:spigot:unrelocated:v1")  // Spigot 26.1 and newer
+
 // -------------- INTERNAL CLASSES -------------------------------------------------------------------------------------
 
 private enum class BuildPlatform(val key: String, val propertyName: String) {
 
-    PAPER_INTERNALS     ("paper-internals",     "buildPlatformPaperInternals"),
+    PAPER_UNRELOCATED   ("paper-unrelocated",   "buildPlatformPaperUnrelocated"),
     PAPER_UNIVERSAL     ("paper-universal",     "buildPlatformPaperUniversal"),
     SPIGOT_INTERNALS    ("spigot-internals",    "buildPlatformSpigotInternals"),
+    SPIGOT_UNRELOCATED  ("spigot-unrelocated",  "buildPlatformSpigotUnrelocated"),
     ;
 
     companion object {

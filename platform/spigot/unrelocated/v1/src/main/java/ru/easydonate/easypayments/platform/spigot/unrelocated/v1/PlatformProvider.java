@@ -1,24 +1,31 @@
-package ru.easydonate.easypayments.platform.spigot.internals;
+package ru.easydonate.easypayments.platform.spigot.unrelocated.v1;
 
-import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import lombok.Getter;
+import org.bukkit.craftbukkit.CraftServer;
 import org.jetbrains.annotations.NotNull;
 import org.spigotmc.SpigotConfig;
 import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
-import ru.easydonate.easypayments.core.platform.provider.kind.SpigotInternalsPlatformProviderBase;
+import ru.easydonate.easypayments.core.platform.provider.kind.SpigotLikePlatformProviderBase;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
-import ru.easydonate.easypayments.platform.spigot.internals.interceptor.PlatformInterceptorFactory;
+import ru.easydonate.easypayments.platform.spigot.unrelocated.v1.interceptor.PlatformInterceptorFactory;
 
 import java.util.UUID;
 
-public final class PlatformProvider extends SpigotInternalsPlatformProviderBase {
+@Getter
+public final class PlatformProvider extends SpigotLikePlatformProviderBase {
 
     public PlatformProvider(
             @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
-            @NotNull String executorName
+            @NotNull String executorName,
+            boolean runningFolia
     ) {
-        super(plugin, scheduler, executorName);
+        super(plugin, scheduler, executorName, runningFolia);
+    }
+
+    @Override public @NotNull ImplementationType getImplementationType() {
+        return ImplementationType.UNRELOCATED;
     }
 
     @Override protected @NotNull InterceptorFactory createInterceptorFactory() {
@@ -29,9 +36,9 @@ public final class PlatformProvider extends SpigotInternalsPlatformProviderBase 
         // references CraftServer#getOfflinePlayer(String)
         var server = (CraftServer) plugin.getServer();
         if (server.getOnlineMode() || SpigotConfig.bungee) {
-            var profile = server.getHandle().getServer().getProfileCache().get(name);
+            var profile = server.getHandle().getServer().services().nameToIdCache().get(name);
             if (profile.isPresent()) {
-                return profile.get().getId();
+                return profile.get().id();
             }
         }
 

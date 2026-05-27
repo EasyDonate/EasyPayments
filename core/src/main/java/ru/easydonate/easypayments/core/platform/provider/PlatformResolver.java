@@ -33,9 +33,10 @@ public final class PlatformResolver {
     private static final @NotNull String FOLIA_SCHEDULER_CLASS_NAME = "ru.easydonate.easypayments.platform.folia.FoliaPlatformScheduler";
     private static final @NotNull String NATIVE_INTERCEPTOR_CLASS_NAME = "io.papermc.paper.commands.FeedbackForwardingSender";
 
-    private static final @NotNull String PAPER_INTERNALS_PLATFORM_CLASS = "paper.internals.v%d.PlatformProvider";
     private static final @NotNull String PAPER_UNIVERSAL_PLATFORM_CLASS = "paper.universal.PlatformProvider";
+    private static final @NotNull String PAPER_UNRELOCATED_PLATFORM_CLASS = "paper.unrelocated.v%d.PlatformProvider";
     private static final @NotNull String SPIGOT_INTERNALS_PLATFORM_CLASS = "spigot.internals.v%s.PlatformProvider";
+    private static final @NotNull String SPIGOT_UNRELOCATED_PLATFORM_CLASS = "spigot.unrelocated.v%d.PlatformProvider";
 
     private final @NotNull EasyPayments plugin;
     private final @NotNull DebugLogger debugLogger;
@@ -139,8 +140,13 @@ public final class PlatformResolver {
         if (!forceInternals && lookupResult.isNativeInterceptorSupported())
             candidates.add(PAPER_UNIVERSAL_PLATFORM_CLASS);
 
-        if (lookupResult.isUnrelocatedInternalsDetected())
-            candidates.add(String.format(PAPER_INTERNALS_PLATFORM_CLASS, lookupResult.getPaperInternalsVersion()));
+        if (lookupResult.isUnrelocatedInternalsDetected()) {
+            if (lookupResult.isOfflineResolverProvided()) {
+                candidates.add(String.format(PAPER_UNRELOCATED_PLATFORM_CLASS, lookupResult.getImplementationVersion()));
+            } else {
+                candidates.add(String.format(SPIGOT_UNRELOCATED_PLATFORM_CLASS, lookupResult.getImplementationVersion()));
+            }
+        }
 
         if (lookupResult.getSpigotInternalsVersion() != null)
             candidates.add(String.format(SPIGOT_INTERNALS_PLATFORM_CLASS, lookupResult.getSpigotInternalsVersion()));
@@ -162,25 +168,29 @@ public final class PlatformResolver {
         boolean nativeInterceptorSupported = detectNativeInterceptorSupport();
         logger.debug("[Platform] Native interceptor supported: {0}", nativeInterceptorSupported);
 
+        boolean offlineResolverProvided = detectOfflineResolverProvided();
+        logger.debug("[Platform] Offline player ID resolver provided: {0}", offlineResolverProvided);
+
         if ("org.bukkit.craftbukkit".equals(craftBukkitPackage)) {
             logger.info("[Platform] Detected unrelocated internals (MC {0})", MINECRAFT_VERSION.getVersion());
 
-            int paperInternalsVersion;
-            if (MINECRAFT_VERSION.isAtLeast(MinecraftVersion.MOUNTS_OF_MAYHEM)) {
-                paperInternalsVersion = 2;  // 1.21.11
+            int implementationVersion;
+            if (offlineResolverProvided && MINECRAFT_VERSION.isAtLeast(MinecraftVersion.MOUNTS_OF_MAYHEM)) {
+                implementationVersion = 2;  // Paper 1.21.11+
             } else {
-                paperInternalsVersion = 1;
+                implementationVersion = 1;
             }
 
-            logger.info("[Platform] Will use Paper internals v{0}", paperInternalsVersion);
-            return new EnvironmentLookupResult(paperInternalsVersion, null, true, foliaDetected, nativeInterceptorSupported);
+            String brand = offlineResolverProvided ? "Paper" : "Spigot";
+            logger.info("[Platform] Will use {0} internals v{1}", brand, implementationVersion);
+            return new EnvironmentLookupResult(implementationVersion, null, true, foliaDetected, nativeInterceptorSupported, offlineResolverProvided);
         }
 
         Matcher matcher = CRAFTBUKKIT_PACKAGE_PATTERN.matcher(craftBukkitPackage);
         if (matcher.find()) {
             String internalsVersion = matcher.group(1);
             logger.info("[Platform] Detected internals version: {0} (MC {1})", internalsVersion, MINECRAFT_VERSION.getVersion());
-            return new EnvironmentLookupResult(0, internalsVersion, false, foliaDetected, nativeInterceptorSupported);
+            return new EnvironmentLookupResult(0, internalsVersion, false, foliaDetected, nativeInterceptorSupported, offlineResolverProvided);
         }
 
         throw new UnsupportedPlatformException();
@@ -204,14 +214,24 @@ public final class PlatformResolver {
         }
     }
 
+    private static boolean detectOfflineResolverProvided() {
+        try {
+            Class.forName(NATIVE_INTERCEPTOR_CLASS_NAME);
+            return Reflection.getMethod(Server.class, "getPlayerUniqueId", String.class) != null;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class EnvironmentLookupResult {
-        private final int paperInternalsVersion;
+        private final int implementationVersion;
         private final String spigotInternalsVersion;
         private final boolean unrelocatedInternalsDetected;
         private final boolean foliaDetected;
         private final boolean nativeInterceptorSupported;
+        private final boolean offlineResolverProvided;
     }
 
 }

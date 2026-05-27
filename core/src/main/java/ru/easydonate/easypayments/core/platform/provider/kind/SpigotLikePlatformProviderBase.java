@@ -7,20 +7,20 @@ import ru.easydonate.easypayments.core.platform.provider.PlatformProviderBase;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
 
 @Getter
-public abstract class PaperLikePlatformProviderBase extends PlatformProviderBase {
+public abstract class SpigotLikePlatformProviderBase extends PlatformProviderBase {
 
     private final @NotNull String providerId;
     private final @NotNull PlatformType platformType;
 
-    public PaperLikePlatformProviderBase(
+    public SpigotLikePlatformProviderBase(
             @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
             @NotNull String executorName,
             boolean runningFolia
     ) {
         super(plugin, scheduler, executorName);
-        this.providerId = "paper:" + getImplementationType().getKey();
-        this.platformType = runningFolia ? PlatformType.FOLIA : PlatformType.PAPER;
+        this.providerId = "spigot:" + getImplementationType().getKey();
+        this.platformType = runningFolia ? PlatformType.FOLIA : PlatformType.SPIGOT;
     }
 
 }

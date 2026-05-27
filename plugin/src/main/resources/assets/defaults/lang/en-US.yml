@@ -121,8 +121,9 @@ status:
     available: '&aAvailable'
     unavailable: '&cUnavailable'
   platform-type:
-    internals: '&eInternals/NMS'
+    internals: '&dInternals/NMS'
     universal: '&aUniversal'
+    unrelocated: '&eUnrelocated/NMS'
   plugin-mode:
     active: '&aActive'
     inactive: '&7Inactive'

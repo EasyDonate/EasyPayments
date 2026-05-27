@@ -1,0 +1,36 @@
+private val buildPlatform = providers.systemProperty("buildPlatformSpigotUnrelocated")
+    .map { it.toBooleanStrictOrNull() }
+    .getOrElse(true)
+
+plugins {
+    `java-library`
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+}
+
+repositories {
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") {
+        content {
+            includeGroup("org.spigotmc")
+            includeGroup("org.bukkit")
+        }
+    }
+    mavenLocal {
+        content {
+            includeGroup("org.spigotmc")
+        }
+    }
+    maven("https://libraries.minecraft.net/")
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    // fallback repository for the bungeecord-chat
+    maven("https://hub.spigotmc.org/nexus/content/groups/public/")
+    // use CodeMC repository for NMS-bundled Spigot artifacts
+    maven("https://repo.codemc.io/repository/nms-local/")
+    mavenCentral()
+}
+
+if (!buildPlatform) {
+    tasks.forEach { it.enabled = false }
+}

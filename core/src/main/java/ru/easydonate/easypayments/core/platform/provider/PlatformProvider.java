@@ -38,6 +38,7 @@ public interface PlatformProvider {
 
         INTERNALS   ("internals",   "Internals"),
         UNIVERSAL   ("universal",   "Universal"),
+        UNRELOCATED ("unrelocated", "Unrelocated"),
         ;
 
         private final @NotNull String key;
@@ -56,10 +57,6 @@ public interface PlatformProvider {
 
         private final @NotNull String key;
         private final @NotNull String name;
-
-        public static @NotNull PlatformType with(boolean runningFolia) {
-            return runningFolia ? FOLIA : PAPER;
-        }
 
     }
 

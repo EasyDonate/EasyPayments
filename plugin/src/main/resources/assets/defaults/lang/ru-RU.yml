@@ -121,8 +121,9 @@ status:
     available: '&aДоступно'
     unavailable: '&cНедоступно'
   platform-type:
-    internals: '&eВнутренняя/NMS'
+    internals: '&dВнутренняя/NMS'
     universal: '&aУниверсальная'
+    unrelocated: '&eНерелоцированная/NMS'
   plugin-mode:
     active: '&aАктивно'
     inactive: '&7Не активно'

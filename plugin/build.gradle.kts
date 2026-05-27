@@ -97,9 +97,10 @@ tasks.build {
 private fun lookupBuiltPlatformModules(): List<Project> = buildList {
     listOf(
         projects.platform.folia to providers.gradleProperty("buildFolia"),
-        projects.platform.paper.internals.v1 to providers.systemProperty("buildPlatformPaperInternals"),
-        projects.platform.paper.internals.v2 to providers.systemProperty("buildPlatformPaperInternals"),
         projects.platform.paper.universal to providers.systemProperty("buildPlatformPaperUniversal"),
+        projects.platform.paper.unrelocated.v1 to providers.systemProperty("buildPlatformPaperUnrelocated"),
+        projects.platform.paper.unrelocated.v2 to providers.systemProperty("buildPlatformPaperUnrelocated"),
+        projects.platform.spigot.unrelocated.v1 to providers.systemProperty("buildPlatformSpigotUnrelocated"),
     ).forEach { (projectDep, property) ->
         if (property.map(String::toBooleanStrictOrNull).getOrElse(true)) {
             add(project(projectDep.path))
