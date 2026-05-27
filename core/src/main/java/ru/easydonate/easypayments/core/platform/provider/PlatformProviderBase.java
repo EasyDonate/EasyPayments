@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
+import ru.easydonate.easypayments.core.platform.UnsupportedPlatformException;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
 
 import java.util.Objects;
@@ -41,6 +42,15 @@ public abstract class PlatformProviderBase implements PlatformProvider {
     }
 
     protected abstract @NotNull InterceptorFactory createInterceptorFactory();
+
+    @Override
+    public void validate() throws UnsupportedPlatformException {
+        try {
+            interceptorFactory.createFeedbackInterceptor();
+        } catch (Throwable ex) {
+            throw new UnsupportedPlatformException("platform validation failed", ex);
+        }
+    }
 
     protected abstract @NotNull UUID resolveOfflinePlayerId(@NotNull String name);
 

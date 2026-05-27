@@ -8,6 +8,8 @@ import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
 
+import ru.easydonate.easypayments.core.platform.UnsupportedPlatformException;
+
 import java.util.UUID;
 
 public interface PlatformProvider {
@@ -27,6 +29,8 @@ public interface PlatformProvider {
     @NotNull UUID resolvePlayerId(@NotNull String name);
 
     boolean isTaskCancelled(@NotNull BukkitTask asyncTask);
+
+    default void validate() throws UnsupportedPlatformException {}
 
     default @NotNull String getDisplayName() {
         return getPlatformType().getName() + ' ' + getImplementationType().getName();

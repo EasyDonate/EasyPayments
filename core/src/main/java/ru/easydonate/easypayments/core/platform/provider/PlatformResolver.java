@@ -86,22 +86,37 @@ public final class PlatformResolver {
             }
 
             PlatformScheduler scheduler = resolveScheduler();
+            PlatformProvider provider;
 
             try {
                 // Paper platforms
-                return (PlatformProvider) platformClass
+                provider = (PlatformProvider) platformClass
                         .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, boolean.class)
                         .newInstance(plugin, scheduler, username, lookupResult.isFoliaDetected());
             } catch (Throwable ignored) {
                 try {
                     // Spigot platform
-                    return (PlatformProvider) platformClass
+                    provider = (PlatformProvider) platformClass
                             .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class)
                             .newInstance(plugin, scheduler, username);
                 } catch (Throwable ex) {
                     throw new UnsupportedPlatformException("couldn't create platform implementation instance", ex);
                 }
             }
+
+            try {
+                provider.validate();
+            } catch (UnsupportedPlatformException ex) {
+                debugLogger.debug("[Platform] Platform '{0}' failed validation!", platformClassName);
+                debugLogger.debug(ex);
+
+                if (iterator.hasNext())
+                    continue;
+
+                throw ex;
+            }
+
+            return provider;
         }
 
         throw new UnsupportedPlatformException("seems that here is no supported platform");
