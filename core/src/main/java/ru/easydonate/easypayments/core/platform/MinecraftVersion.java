@@ -56,9 +56,9 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion>, Ser
     public static final MinecraftVersion TRICKY_TRIALS_UPDATE = new MinecraftVersion("1.21");
 
     /**
-     * Version 1.20.4 - the minimal version for Folia support
+     * Version 1.20.6 - the minimal version for Folia support
      */
-    public static final MinecraftVersion FOLIA_SUPPORTED_UPDATE = new MinecraftVersion("1.20.4");
+    public static final MinecraftVersion FOLIA_SUPPORTED_UPDATE = new MinecraftVersion("1.20.6");
 
     /**
      * Version 1.20 - the trails and tales update

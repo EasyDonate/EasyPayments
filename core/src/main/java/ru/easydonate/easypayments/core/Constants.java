@@ -5,7 +5,7 @@ public final class Constants {
     public static final String MIN_SUPPORTED_SPIGOT = "1.8";
     public static final String MAX_SUPPORTED_SPIGOT = "26.1.2";
     public static final String MIN_SUPPORTED_PAPER = "1.8.8";
-    public static final String MIN_SUPPORTED_FOLIA = "1.20.4";
+    public static final String MIN_SUPPORTED_FOLIA = "1.20.6";
 
     public static final String MINECRAFT_LAST_KNOWN_VERSION = "26.1.2";
     public static final String MINECRAFT_LAST_RELEASE_DATE = "2026-04-09";
