@@ -89,7 +89,7 @@ public final class PlatformResolver {
             PlatformProvider provider;
 
             try {
-                // Paper platforms
+                // Paper/Folia platforms
                 provider = (PlatformProvider) platformClass
                         .getConstructor(EasyPayments.class, PlatformScheduler.class, String.class, boolean.class)
                         .newInstance(plugin, scheduler, username, lookupResult.isFoliaDetected());
@@ -141,19 +141,16 @@ public final class PlatformResolver {
     ) throws UnsupportedPlatformException {
         Set<String> candidates = new LinkedHashSet<>();
         if (lookupResult.isFoliaDetected()) {
-            if (!lookupResult.isNativeInterceptorSupported())
+            if (!lookupResult.isNativeInterceptorSupported()) {
                 throw new UnsupportedPlatformException("unsupported Folia build detected");
-
-            if (!MINECRAFT_VERSION.isAtLeast(MinecraftVersion.FOLIA_SUPPORTED_UPDATE))
-                throw new UnsupportedPlatformException("unsupported Folia version detected");
-
-            if (!forceInternals) {
-                candidates.add(PAPER_UNIVERSAL_PLATFORM_CLASS);
             }
-        }
 
-        if (!forceInternals && lookupResult.isNativeInterceptorSupported())
+            if (!MINECRAFT_VERSION.isAtLeast(MinecraftVersion.FOLIA_SUPPORTED_UPDATE)) {
+                throw new UnsupportedPlatformException("unsupported Folia version detected");
+            }
+        } else if (!forceInternals && lookupResult.isNativeInterceptorSupported()) {
             candidates.add(PAPER_UNIVERSAL_PLATFORM_CLASS);
+        }
 
         if (lookupResult.isUnrelocatedInternalsDetected()) {
             if (lookupResult.isOfflineResolverProvided()) {
