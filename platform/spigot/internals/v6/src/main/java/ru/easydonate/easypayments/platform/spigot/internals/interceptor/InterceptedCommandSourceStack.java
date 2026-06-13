@@ -1,4 +1,4 @@
-package ru.easydonate.easypayments.platform.paper.unrelocated.v1.interceptor;
+package ru.easydonate.easypayments.platform.spigot.internals.interceptor;
 
 import lombok.Getter;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,7 +13,7 @@ import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
 import java.util.List;
 
-import static ru.easydonate.easypayments.core.Constants.DEFAULT_PERMISSION_LEVEL;
+import static net.minecraft.server.permissions.PermissionSet.ALL_PERMISSIONS;
 
 @Getter
 final class InterceptedCommandSourceStack extends CommandSourceStack implements FeedbackInterceptor {
@@ -31,7 +31,7 @@ final class InterceptedCommandSourceStack extends CommandSourceStack implements 
         super(
                 commandSource,
                 POSITION, DIRECTION, serverLevel,
-                DEFAULT_PERMISSION_LEVEL, username, Component.literal(username),
+                ALL_PERMISSIONS, username, Component.literal(username),
                 serverLevel.getServer(), null
         );
 

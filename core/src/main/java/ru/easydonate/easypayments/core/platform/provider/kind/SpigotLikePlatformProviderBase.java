@@ -18,7 +18,7 @@ public abstract class SpigotLikePlatformProviderBase extends PlatformProviderBas
             @NotNull String executorName,
             boolean runningFolia
     ) {
-        super(plugin, scheduler, executorName);
+        super(plugin, scheduler, executorName, runningFolia);
         this.providerId = "spigot:" + getImplementationType().getKey();
         this.platformType = runningFolia ? PlatformType.FOLIA : PlatformType.SPIGOT;
     }

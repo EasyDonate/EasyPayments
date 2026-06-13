@@ -24,6 +24,7 @@ public abstract class PlatformProviderBase implements PlatformProvider {
     protected final @NotNull EasyPayments plugin;
     protected final @NotNull PlatformScheduler scheduler;
     protected final @NotNull Executor syncExecutor;
+    protected final boolean runningFolia;
 
     @Getter(AccessLevel.NONE) protected @NotNull String executorName;
     protected @NotNull InterceptorFactory interceptorFactory;
@@ -31,11 +32,13 @@ public abstract class PlatformProviderBase implements PlatformProvider {
     public PlatformProviderBase(
             @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
-            @NotNull String executorName
+            @NotNull String executorName,
+            boolean runningFolia
     ) {
         this.plugin = plugin;
         this.scheduler = scheduler;
         this.syncExecutor = task -> scheduler.runSyncNow(plugin, task);
+        this.runningFolia = runningFolia;
 
         this.executorName = executorName;
         this.interceptorFactory = createInterceptorFactory();

@@ -5,23 +5,22 @@ plugins {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
 spigotMapper {
     minecraftVersions {
-        initialNmsRevision = 3
+        initialNmsRevision = 7
 
-        include("1.20.4", "1.20.6")
-        include("1.21.1", "1.21.3", "1.21.4", "1.21.5", "1.21.8", "1.21.10")
+        include("1.21.11")
     }
 }
 
 dependencies {
     compileOnly(projects.core)
 
-    val brigadierVersion = "1.2.9"
-    val spigotVersion = "1.20.4-R0.1-SNAPSHOT"
+    val brigadierVersion = "1.3.10"
+    val spigotVersion = "1.21.11-R0.1-SNAPSHOT"
 
     compileOnly(libs.brigadier) { version { strictly(brigadierVersion) } }
     compileOnly(libs.spigot.api) { version { strictly(spigotVersion) } }

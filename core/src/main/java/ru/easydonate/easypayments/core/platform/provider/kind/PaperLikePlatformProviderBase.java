@@ -18,7 +18,7 @@ public abstract class PaperLikePlatformProviderBase extends PlatformProviderBase
             @NotNull String executorName,
             boolean runningFolia
     ) {
-        super(plugin, scheduler, executorName);
+        super(plugin, scheduler, executorName, runningFolia);
         this.providerId = "paper:" + getImplementationType().getKey();
         this.platformType = runningFolia ? PlatformType.FOLIA : PlatformType.PAPER;
     }

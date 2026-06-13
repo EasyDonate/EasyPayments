@@ -1,19 +1,17 @@
-package ru.easydonate.easypayments.platform.spigot.unrelocated.v1;
+package ru.easydonate.easypayments.platform.spigot.internals;
 
-import lombok.Getter;
-import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.v1_21_R7.CraftServer;
 import org.jetbrains.annotations.NotNull;
 import org.spigotmc.SpigotConfig;
 import ru.easydonate.easypayments.core.EasyPayments;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactory;
-import ru.easydonate.easypayments.core.platform.provider.kind.SpigotLikePlatformProviderBase;
+import ru.easydonate.easypayments.core.platform.provider.kind.SpigotInternalsPlatformProviderBase;
 import ru.easydonate.easypayments.core.platform.scheduler.PlatformScheduler;
-import ru.easydonate.easypayments.platform.spigot.unrelocated.v1.interceptor.PlatformInterceptorFactory;
+import ru.easydonate.easypayments.platform.spigot.internals.interceptor.PlatformInterceptorFactory;
 
 import java.util.UUID;
 
-@Getter
-public final class PlatformProvider extends SpigotLikePlatformProviderBase {
+public final class PlatformProvider extends SpigotInternalsPlatformProviderBase {
 
     public PlatformProvider(
             @NotNull EasyPayments plugin,
@@ -22,10 +20,6 @@ public final class PlatformProvider extends SpigotLikePlatformProviderBase {
             boolean runningFolia
     ) {
         super(plugin, scheduler, executorName, runningFolia);
-    }
-
-    @Override public @NotNull ImplementationType getImplementationType() {
-        return ImplementationType.UNRELOCATED;
     }
 
     @Override protected @NotNull InterceptorFactory createInterceptorFactory() {

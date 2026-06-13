@@ -38,8 +38,9 @@ include(":platform:paper:universal")        // Paper 1.18.1 and newer
 include(":platform:spigot:internals:v1")    // Spigot 1.8 ~ 1.12.2
 include(":platform:spigot:internals:v2")    // Spigot 1.13 ~ 1.16.5
 include(":platform:spigot:internals:v3")    // Spigot 1.17 ~ 1.18.2
-include(":platform:spigot:internals:v4")    // Spigot 1.19 ~ 1.21.10
-include(":platform:spigot:internals:v5")    // Spigot 1.21.11 and newer
+include(":platform:spigot:internals:v4")    // Spigot 1.19 ~ 1.20.2
+include(":platform:spigot:internals:v5")    // Spigot 1.20.4 ~ 1.21.10
+include(":platform:spigot:internals:v6")    // Spigot 1.21.11 and newer
 
 // Spigot Unrelocated : unrelocated CraftBukkit and NMS packages
 include(":platform:spigot:unrelocated:v1")  // Spigot 26.1 and newer

@@ -1,4 +1,4 @@
-package ru.easydonate.easypayments.platform.spigot.unrelocated.v1.interceptor;
+package ru.easydonate.easypayments.platform.paper.unrelocated.v1.interceptor;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.command.ProxiedNativeCommandSender;
@@ -7,13 +7,16 @@ import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 
 import java.util.List;
 
-final class InterceptedProxiedSender extends ProxiedNativeCommandSender implements FeedbackInterceptor {
+final class InterceptedProxiedCommandSender extends ProxiedNativeCommandSender implements FeedbackInterceptor {
 
-    public InterceptedProxiedSender(InterceptedCommandSourceStack original, CommandSender sender) {
+    public InterceptedProxiedCommandSender(
+            @NonNull InterceptedCommandSourceStack original,
+            @NonNull CommandSender sender
+    ) {
         super(original, sender, sender);
     }
 
-    @Override public InterceptedCommandSourceStack getHandle() {
+    @Override public @NonNull InterceptedCommandSourceStack getHandle() {
         return (InterceptedCommandSourceStack) super.getHandle();
     }
 

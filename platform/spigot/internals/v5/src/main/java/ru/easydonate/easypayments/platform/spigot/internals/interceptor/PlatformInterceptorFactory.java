@@ -1,8 +1,8 @@
 package ru.easydonate.easypayments.platform.spigot.internals.interceptor;
 
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.dedicated.DedicatedServer;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_21_R7.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactoryBase;
@@ -10,17 +10,22 @@ import ru.easydonate.easypayments.core.platform.provider.PlatformProviderBase;
 
 public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
 
-    public PlatformInterceptorFactory(@NotNull PlatformProviderBase provider, @NotNull String executorName) {
-        super(provider, executorName);
+    public PlatformInterceptorFactory(
+            @NotNull PlatformProviderBase provider,
+            @NotNull String executorName,
+            boolean runningFolia
+    ) {
+        super(provider, executorName, runningFolia);
     }
 
     @Override public @NotNull FeedbackInterceptor createFeedbackInterceptor() {
-        ServerLevel serverLevel = ((CraftServer) Bukkit.getServer()).getServer().overworld();
-        InterceptedCommandSource commandSource = new InterceptedCommandSource(executorName);
-        return new InterceptedProxiedSender(
-                new InterceptedCommandSourceStack(commandSource, serverLevel, executorName),
-                commandSource
-        );
+        DedicatedServer server = ((CraftServer) Bukkit.getServer()).getServer();
+        InterceptedRconCommandSource rconCommandSource = new InterceptedRconCommandSource(server, executorName);
+        InterceptedRconCommandSender rconCommandSender = new InterceptedRconCommandSender(rconCommandSource);
+        if (runningFolia) return rconCommandSender;
+
+        InterceptedCommandSourceStack commandSourceStack = rconCommandSource.createCommandSourceStack();
+        return new InterceptedProxiedCommandSender(commandSourceStack, rconCommandSender);
     }
 
 }

@@ -1,8 +1,8 @@
-package ru.easydonate.easypayments.platform.paper.unrelocated.v2.interceptor;
+package ru.easydonate.easypayments.platform.spigot.internals.interceptor;
 
 import net.minecraft.server.dedicated.DedicatedServer;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.v1_21_R7.CraftServer;
 import org.jetbrains.annotations.NotNull;
 import ru.easydonate.easypayments.core.interceptor.FeedbackInterceptor;
 import ru.easydonate.easypayments.core.interceptor.InterceptorFactoryBase;

@@ -1,6 +1,6 @@
 package ru.easydonate.easypayments.platform.spigot.internals;
 
-import org.bukkit.craftbukkit.v1_21_R7.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R3.CraftServer;
 import org.jetbrains.annotations.NotNull;
 import org.spigotmc.SpigotConfig;
 import ru.easydonate.easypayments.core.EasyPayments;
@@ -16,22 +16,24 @@ public final class PlatformProvider extends SpigotInternalsPlatformProviderBase 
     public PlatformProvider(
             @NotNull EasyPayments plugin,
             @NotNull PlatformScheduler scheduler,
-            @NotNull String executorName
+            @NotNull String executorName,
+            boolean runningFolia
     ) {
-        super(plugin, scheduler, executorName);
+        super(plugin, scheduler, executorName, runningFolia);
     }
 
     @Override protected @NotNull InterceptorFactory createInterceptorFactory() {
-        return new PlatformInterceptorFactory(this, executorName);
+        return new PlatformInterceptorFactory(this, executorName, runningFolia);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override protected @NotNull UUID resolveOfflinePlayerId(@NotNull String name) {
         // references CraftServer#getOfflinePlayer(String)
         var server = (CraftServer) plugin.getServer();
         if (server.getOnlineMode() || SpigotConfig.bungee) {
-            var profile = server.getHandle().getServer().services().nameToIdCache().get(name);
+            var profile = server.getHandle().getServer().getProfileCache().get(name);
             if (profile.isPresent()) {
-                return profile.get().id();
+                return profile.get().getId();
             }
         }
 

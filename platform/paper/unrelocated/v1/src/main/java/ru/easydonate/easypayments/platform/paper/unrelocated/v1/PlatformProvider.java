@@ -27,7 +27,7 @@ public final class PlatformProvider extends PaperLikePlatformProviderBase {
     }
 
     @Override protected @NotNull InterceptorFactory createInterceptorFactory() {
-        return new PlatformInterceptorFactory(this, executorName);
+        return new PlatformInterceptorFactory(this, executorName, runningFolia);
     }
 
     @Override protected @NotNull UUID resolveOfflinePlayerId(@NotNull String name) {

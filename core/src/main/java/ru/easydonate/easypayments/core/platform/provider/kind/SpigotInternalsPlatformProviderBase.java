@@ -13,7 +13,16 @@ public abstract class SpigotInternalsPlatformProviderBase extends SpigotLikePlat
             @NotNull PlatformScheduler scheduler,
             @NotNull String executorName
     ) {
-        super(plugin, scheduler, executorName, false);
+        this(plugin, scheduler, executorName, false);
+    }
+
+    public SpigotInternalsPlatformProviderBase(
+            @NotNull EasyPayments plugin,
+            @NotNull PlatformScheduler scheduler,
+            @NotNull String executorName,
+            boolean runningFolia
+    ) {
+        super(plugin, scheduler, executorName, runningFolia);
     }
 
     @Override public @NotNull ImplementationType getImplementationType() {
