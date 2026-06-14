@@ -5,22 +5,19 @@
 [latestReleaseImg]: https://img.shields.io/github/v/release/EasyDonate/EasyPayments?color=3BAF18&label=%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F%20%D0%BF%D0%BB%D0%B0%D0%B3%D0%B8%D0%BD%D0%B0&logo=github&sort=semver&style=for-the-badge
 [latestRelease]: https://github.com/EasyDonate/EasyPayments/releases/latest
 
-[licenseImg]: https://img.shields.io/github/license/EasyDonate/EasyPayments?label=%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F&color=3BAF18&style=for-the-badge
-[license]: https://github.com/EasyDonate/EasyPayments/blob/main/LICENSE
-
 [documentationImg]: https://img.shields.io/badge/%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F-gitbook-3BAF18?style=for-the-badge
 [documentation]: https://easypayments.easydonate.ru/
 
 <div align="center">
 
-<img alt="EasyPayments logo" src="/.github/easydonate.svg" width="128" height="128">
+<img alt="EasyPayments logo" src="/.github/easypayments.svg" width="128" height="128">
 
 <h1>EasyPayments</h1>
 
 Официальный обработчик платежей на платформе [EasyDonate][platformSite], разработанный<br>
 в качестве альтернативы выдаче товаров по протоколу RCON.
 
-![supportedVersions] [![latestReleaseImg]][latestRelease] [![licenseImg]][license] [![documentationImg]][documentation]
+![supportedVersions] [![latestReleaseImg]][latestRelease] [![documentationImg]][documentation]
 
 </div>
 
