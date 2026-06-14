@@ -10,16 +10,17 @@
 
 <div align="center">
 
-<img alt="EasyPayments logo" src="/.github/easypayments.svg" width="128" height="128">
-
-<h1>EasyPayments</h1>
-
-Официальный обработчик платежей на платформе [EasyDonate][platformSite], разработанный<br>
-в качестве альтернативы выдаче товаров по протоколу RCON.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="/.github/banner/dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="/.github/banner/light.png">
+  <img alt="EasyPayments" src="/.github/banner/light.png" width="100%">
+</picture>
 
 ![supportedVersions] [![latestReleaseImg]][latestRelease] [![documentationImg]][documentation]
 
 </div>
+
+---
 
 ## Ключевые преимущества
 - Поддержка наиболее популярных версий игры.
