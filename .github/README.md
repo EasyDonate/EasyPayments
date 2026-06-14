@@ -5,24 +5,21 @@
 [latestReleaseImg]: https://img.shields.io/github/v/release/EasyDonate/EasyPayments?color=3BAF18&label=%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F%20%D0%BF%D0%BB%D0%B0%D0%B3%D0%B8%D0%BD%D0%B0&logo=github&sort=semver&style=for-the-badge
 [latestRelease]: https://github.com/EasyDonate/EasyPayments/releases/latest
 
-[licenseImg]: https://img.shields.io/github/license/EasyDonate/EasyPayments?label=%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F&color=3BAF18&style=for-the-badge
-[license]: https://github.com/EasyDonate/EasyPayments/blob/main/LICENSE
-
 [documentationImg]: https://img.shields.io/badge/%D0%B4%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F-gitbook-3BAF18?style=for-the-badge
 [documentation]: https://easypayments.easydonate.ru/
 
-[forumTopicImg]: https://img.shields.io/badge/%D1%82%D0%B5%D0%BC%D0%B0%20%D0%BD%D0%B0%20%D1%84%D0%BE%D1%80%D1%83%D0%BC%D0%B5-easydonate-3BAF18?style=for-the-badge
-[forumTopic]: https://forum.easydonate.ru/d/117-mc-easypayments-alternativnyy-sposob-vydachi-tovarov
+<div align="center">
 
-[problemSolutionImg]: https://img.shields.io/badge/%D1%80%D0%B5%D1%88%D0%B5%D0%BD%D0%B8%D0%B5-%D0%BF%D1%80%D0%BE%D0%B1%D0%BB%D0%B5%D0%BC-3BAF18?style=for-the-badge
-[problemSolution]: https://forum.easydonate.ru/d/117-mc-easypayments-alternativnyy-sposob-vydachi-tovarov/6
+<img alt="EasyPayments logo" src="/.github/easypayments.svg" width="128" height="128">
 
-# EasyPayments
-Официальная имплементация обработки платежей на платформе [EasyDonate][platformSite], разработанная<br>
-в качестве альтернативы для алгоритма выдачи товаров с использованием протокола RCON.
+<h1>EasyPayments</h1>
 
-![supportedVersions] [![latestReleaseImg]][latestRelease] [![licenseImg]][license]<br>
-[![documentationImg]][documentation] [![forumTopicImg]][forumTopic] [![problemSolutionImg]][problemSolution]
+Официальный обработчик платежей на платформе [EasyDonate][platformSite], разработанный<br>
+в качестве альтернативы выдаче товаров по протоколу RCON.
+
+![supportedVersions] [![latestReleaseImg]][latestRelease] [![documentationImg]][documentation]
+
+</div>
 
 ## Ключевые преимущества
 - Поддержка наиболее популярных версий игры.
@@ -55,10 +52,10 @@
 
 ### Поддержка сторонних платформ
 Мы гарантируем официальную поддержку только для платформ на основе **Spigot**, **Paper** или **Folia**.<br>
-Подробная информация о поддержке остальных ядер размещена [здесь](docs/3rd-party-platforms.md).
+Подробная информация о поддержке остальных ядер размещена [здесь](/docs/3rd-party-platforms.md).
 
 ### Сборка из исходного кода
-Информация по сборке из исходного кода доступна [здесь](docs/build-from-source-code.md).
+Информация по сборке из исходного кода доступна [здесь](/docs/build-from-source-code.md).
 
 ## License
-This project is open-source and licensed under the [MIT license][license].
+This project is open-source and licensed under the [MIT license](/LICENSE).
