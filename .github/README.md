@@ -58,4 +58,4 @@
 Информация по сборке из исходного кода доступна [здесь](/docs/build-from-source-code.md).
 
 ## License
-This project is open-source and licensed under the [MIT license][license].
+This project is open-source and licensed under the [MIT license](/LICENSE).
