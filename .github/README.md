@@ -9,18 +9,15 @@
 [documentation]: https://easypayments.easydonate.ru/
 
 <div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="/.github/banner/dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="/.github/banner/light.png">
+    <img alt="EasyPayments" src="/.github/banner/light.png" width="100%">
+  </picture>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="/.github/banner/dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="/.github/banner/light.png">
-  <img alt="EasyPayments" src="/.github/banner/light.png" width="100%">
-</picture>
-
-![supportedVersions] [![latestReleaseImg]][latestRelease] [![documentationImg]][documentation]
+  ![supportedVersions] [![latestReleaseImg]][latestRelease] [![documentationImg]][documentation]
 
 </div>
-
----
 
 ## Ключевые преимущества
 - Поддержка наиболее популярных версий игры.
