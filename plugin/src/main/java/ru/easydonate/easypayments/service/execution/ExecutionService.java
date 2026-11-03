@@ -130,7 +130,6 @@ public final class ExecutionService {
                 String command = exception.getCommand();
                 FeedbackInterceptor executor = exception.getExecutor();
                 String response = exception.getMessage();
-                boolean stackTracePrintRequired = false;
 
                 plugin.getLogger().severe(response);
                 executor.getFeedbackMessages().add(response);
@@ -140,13 +139,12 @@ public final class ExecutionService {
                     String bukkitMessage = bukkitException.getMessage();
 
                     cause = bukkitException.getCause();
-                    stackTracePrintRequired = true;
 
                     plugin.getDebugLogger().error(bukkitMessage);
                     executor.getFeedbackMessages().add(bukkitMessage);
                 }
 
-                if (stackTracePrintRequired && cause != null) {
+                if (cause != null) {
                     plugin.getDebugLogger().error(cause);
                 }
 
