@@ -22,9 +22,11 @@ public final class PlatformInterceptorFactory extends InterceptorFactoryBase {
         DedicatedServer server = ((CraftServer) Bukkit.getServer()).getServer();
         InterceptedRconCommandSource rconCommandSource = new InterceptedRconCommandSource(server, executorName);
         InterceptedRconCommandSender rconCommandSender = new InterceptedRconCommandSender(rconCommandSource);
+
+        // created even on Folia, so NMS linkage errors are caught by the platform validation probe
+        InterceptedCommandSourceStack commandSourceStack = rconCommandSource.createCommandSourceStack();
         if (runningFolia) return rconCommandSender;
 
-        InterceptedCommandSourceStack commandSourceStack = rconCommandSource.createCommandSourceStack();
         return new InterceptedProxiedCommandSender(commandSourceStack, rconCommandSender);
     }
 
