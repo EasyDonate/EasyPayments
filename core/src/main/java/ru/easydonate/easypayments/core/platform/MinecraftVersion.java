@@ -46,9 +46,49 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion>, Ser
     private static final Pattern VERSION_PATTERN = Pattern.compile(".*\\(.*MC.\\s*([a-zA-z0-9\\-.]+).*");
 
     /**
+     * Version 26.3 - the wilderness bound game drop
+     */
+    public static final MinecraftVersion WILDERNESS_BOUND = new MinecraftVersion("26.3");
+
+    /**
+     * Version 26.2 - the chaos cubed game drop
+     */
+    public static final MinecraftVersion CHAOS_CUBED = new MinecraftVersion("26.2");
+
+    /**
+     * Version 26.1 - the tiny takeover game drop
+     */
+    public static final MinecraftVersion TINY_TAKEOVER = new MinecraftVersion("26.1");
+
+    /**
      * Version 1.21.11 - the mounts of mayhem game drop
      */
     public static final MinecraftVersion MOUNTS_OF_MAYHEM = new MinecraftVersion("1.21.11");
+
+    /**
+     * Version 1.21.9 - the copper age game drop
+     */
+    public static final MinecraftVersion COPPER_AGE = new MinecraftVersion("1.21.9");
+
+    /**
+     * Version 1.21.6 - the chase the skies game drop
+     */
+    public static final MinecraftVersion CHASE_THE_SKIES = new MinecraftVersion("1.21.6");
+
+    /**
+     * Version 1.21.5 - the spring to life game drop
+     */
+    public static final MinecraftVersion SPRING_TO_LIFE = new MinecraftVersion("1.21.5");
+
+    /**
+     * Version 1.21.4 - the garden awakens game drop
+     */
+    public static final MinecraftVersion GARDEN_AWAKENS = new MinecraftVersion("1.21.4");
+
+    /**
+     * Version 1.21.2 - the bundles of bravery game drop
+     */
+    public static final MinecraftVersion BUNDLES_OF_BRAVERY = new MinecraftVersion("1.21.2");
 
     /**
      * Version 1.21 - the tricky trials update
