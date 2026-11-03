@@ -9,11 +9,8 @@
 [documentation]: https://easypayments.easydonate.ru/
 
 <div align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="/.github/banner/dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="/.github/banner/light.png">
-    <img alt="EasyPayments" src="/.github/banner/light.png" width="100%">
-  </picture>
+  <img alt="EasyPayments" src="/.github/banner/light.webp#gh-light-mode-only" width="100%">
+  <img alt="EasyPayments" src="/.github/banner/dark.webp#gh-dark-mode-only" width="100%">
 
   ![supportedVersions] [![latestReleaseImg]][latestRelease] [![documentationImg]][documentation]
 
