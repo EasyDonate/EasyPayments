@@ -100,7 +100,9 @@ private fun lookupBuiltPlatformModules(): List<Project> = buildList {
         projects.platform.paper.universal to providers.systemProperty("buildPlatformPaperUniversal"),
         projects.platform.paper.unrelocated.v1 to providers.systemProperty("buildPlatformPaperUnrelocated"),
         projects.platform.paper.unrelocated.v2 to providers.systemProperty("buildPlatformPaperUnrelocated"),
+        projects.platform.paper.unrelocated.v3 to providers.systemProperty("buildPlatformPaperUnrelocated"),
         projects.platform.spigot.unrelocated.v1 to providers.systemProperty("buildPlatformSpigotUnrelocated"),
+        projects.platform.spigot.unrelocated.v2 to providers.systemProperty("buildPlatformSpigotUnrelocated"),
     ).forEach { (projectDep, property) ->
         if (property.map(String::toBooleanStrictOrNull).getOrElse(true)) {
             add(project(projectDep.path))

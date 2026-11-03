@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Getter
 public final class PlatformResolver {
 
-    public static final @NotNull MinecraftVersion MINECRAFT_VERSION =  MinecraftVersion.getCurrentVersion();
+    public static final @NotNull MinecraftVersion MINECRAFT_VERSION = MinecraftVersion.getCurrentVersion();
 
     private static final @NotNull Pattern CRAFTBUKKIT_PACKAGE_PATTERN = Pattern.compile("org\\.bukkit\\.craftbukkit\\.v(\\w+)");
     private static final @NotNull String FOLIA_DETECT_CLASS_NAME = "io.papermc.paper.threadedregions.RegionizedServer";
@@ -186,13 +186,7 @@ public final class PlatformResolver {
         if ("org.bukkit.craftbukkit".equals(craftBukkitPackage)) {
             logger.info("[Platform] Detected unrelocated internals (MC {0})", MINECRAFT_VERSION.getVersion());
 
-            int implementationVersion;
-            if (offlineResolverProvided && MINECRAFT_VERSION.isAtLeast(MinecraftVersion.MOUNTS_OF_MAYHEM)) {
-                implementationVersion = 2;  // Paper 1.21.11+
-            } else {
-                implementationVersion = 1;
-            }
-
+            int implementationVersion = resolveImplementationVersion(offlineResolverProvided);
             String brand = offlineResolverProvided ? "Paper" : "Spigot";
             logger.info("[Platform] Will use {0} internals v{1}", brand, implementationVersion);
             return new EnvironmentLookupResult(implementationVersion, null, true, foliaDetected, nativeInterceptorSupported, offlineResolverProvided);
@@ -206,6 +200,22 @@ public final class PlatformResolver {
         }
 
         throw new UnsupportedPlatformException();
+    }
+
+    private static int resolveImplementationVersion(boolean offlineResolverProvided) {
+        // development stage is ignored here: 26.3 pre/rc builds already have the reworked CommandSourceStack
+        MinecraftVersion releaseVersion = new MinecraftVersion(MINECRAFT_VERSION.getMajor(), MINECRAFT_VERSION.getMinor(), MINECRAFT_VERSION.getBuild());
+        boolean commandSourceStackReworked = releaseVersion.isAtLeast(MinecraftVersion.WILDERNESS_BOUND);
+
+        if (offlineResolverProvided && commandSourceStackReworked) {
+            return 3;   // Paper 26.3+
+        } else if (offlineResolverProvided && MINECRAFT_VERSION.isAtLeast(MinecraftVersion.MOUNTS_OF_MAYHEM)) {
+            return 2;   // Paper 1.21.11 ~ 26.2
+        } else if (!offlineResolverProvided && commandSourceStackReworked) {
+            return 2;   // Spigot 26.3+
+        } else {
+            return 1;
+        }
     }
 
     private static boolean detectFolia() {
